@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Quasar — symbole reconstruit d’après la planche de référence</title>
+  <defs>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D600A8"/>
+      <stop offset="0.55" stop-color="#E94D9F"/>
+      <stop offset="1" stop-color="#FF9B6E"/>
+    </linearGradient>
+  </defs>
+  <g fill="#FFFFFF" id="blades">
+    <path d="M25 4 H49 Q61 4 55 15 C44 33 32 45 14 54 Q4 60 4 49 V25 Q4 20 8 16 L16 8 Q20 4 25 4Z"/>
+    <path transform="rotate(90 64 64)" d="M25 4 H49 Q61 4 55 15 C44 33 32 45 14 54 Q4 60 4 49 V25 Q4 20 8 16 L16 8 Q20 4 25 4Z"/>
+    <path transform="rotate(180 64 64)" d="M25 4 H49 Q61 4 55 15 C44 33 32 45 14 54 Q4 60 4 49 V25 Q4 20 8 16 L16 8 Q20 4 25 4Z"/>
+    <path transform="rotate(270 64 64)" d="M25 4 H49 Q61 4 55 15 C44 33 32 45 14 54 Q4 60 4 49 V25 Q4 20 8 16 L16 8 Q20 4 25 4Z"/>
+  </g>
+  <path id="star" fill="url(#core)" d="M64 30 C70 46 82 58 98 64 C82 70 70 82 64 98 C58 82 46 70 30 64 C46 58 58 46 64 30Z"/>
+  <circle id="core-circle" cx="64" cy="64" r="7" fill="#FFFFFF"/>
+</svg>

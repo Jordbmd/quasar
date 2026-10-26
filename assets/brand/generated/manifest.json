@@ -1,0 +1,980 @@
+{
+  "brand": "Quasar",
+  "provenance": "Reconstruction vectorielle de la planche fournie, pas un master original",
+  "font": "Sora 800, OFL, tracés via fontkit ; Q à queue diagonale reconstruit",
+  "source": "assets/brand/source/symbol.svg",
+  "transparentLogos": true,
+  "assets": [
+    {
+      "file": "assets/brand/generated/symbol-light.svg",
+      "usage": "symbol sur fond light",
+      "bytes": 1145,
+      "sha256": "a7431e51140668e74c5644d5788acd0547508425c664583ca8df171a18ccdcf3",
+      "width": 128,
+      "height": 128,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-light-128.png",
+      "usage": "symbol sur fond light",
+      "bytes": 4190,
+      "sha256": "2cf12e3df5b7cb52d7b27fa6a05b6b56de46ead6a505744f87daba237552f857",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-light-256.png",
+      "usage": "symbol sur fond light",
+      "bytes": 9193,
+      "sha256": "a30c1a1ce224050a535420af92f2bd0bf1adca99cad80c75e5ae70f782f85de3",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-light-512.png",
+      "usage": "symbol sur fond light",
+      "bytes": 22020,
+      "sha256": "8cdcf6da4946517f80328839371065aa43f8cb42b3f66af45f4ebaf6e21fe5fd",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-light-1024.png",
+      "usage": "symbol sur fond light",
+      "bytes": 57067,
+      "sha256": "57465e67510fa58e7a7e0a5be468ae17d1690a8a03520c0d476bda14f6d78c7b",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-light.svg",
+      "usage": "wordmark sur fond light",
+      "bytes": 2967,
+      "sha256": "a5a9b875b0458239ca72f7961eaa82729a69ede2c8156db9ba7b52c79e87ce53",
+      "width": 353,
+      "height": 108,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-light-128.png",
+      "usage": "wordmark sur fond light",
+      "bytes": 2125,
+      "sha256": "024de610a5526cea0f70847742933683cc49b0702271a0c7db7515b77191e6fe",
+      "width": 128,
+      "height": 39,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-light-256.png",
+      "usage": "wordmark sur fond light",
+      "bytes": 4085,
+      "sha256": "ccbbbcb654680fbdd19f4522586d8d8fefdaef1fd848d962da2e782493009400",
+      "width": 256,
+      "height": 78,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-light-512.png",
+      "usage": "wordmark sur fond light",
+      "bytes": 8832,
+      "sha256": "5295413e251dd3bf862cd660ce034f58c27c3ccd5eec67acb566e390e8961e3e",
+      "width": 512,
+      "height": 157,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-light-1024.png",
+      "usage": "wordmark sur fond light",
+      "bytes": 20520,
+      "sha256": "15b4c02edbff536289c8f3203a8ac592dbc18d4e8aa3f6b460a93dcb20b5d59f",
+      "width": 1024,
+      "height": 313,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light.svg",
+      "usage": "horizontal sur fond light",
+      "bytes": 4092,
+      "sha256": "2bd4843f9ee20e8b22fdbd16b1e44a3ee7e32b44ba325d5326f377d209a6b538",
+      "width": 517,
+      "height": 160,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light-128.png",
+      "usage": "horizontal sur fond light",
+      "bytes": 2465,
+      "sha256": "37e5d6ac737c4ae1f05dc192b6c69f012fe6b9c7822a191b2925e563956fd7d0",
+      "width": 128,
+      "height": 40,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light-256.png",
+      "usage": "horizontal sur fond light",
+      "bytes": 4960,
+      "sha256": "8796db284a390b8d5388da14b03529e8011a9bef9fcca0ccf95c2ba4eb0aec42",
+      "width": 256,
+      "height": 79,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light-512.png",
+      "usage": "horizontal sur fond light",
+      "bytes": 10475,
+      "sha256": "4aa7a8a5ab474b162637a65be0753c72e8ebc68c9eea9bd8fdde8d902facf497",
+      "width": 512,
+      "height": 158,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light-1024.png",
+      "usage": "horizontal sur fond light",
+      "bytes": 23599,
+      "sha256": "c837bcd0a540b9e055aa21edf259e577439f3c616706c1a5eb82a9df3e296af7",
+      "width": 1024,
+      "height": 317,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-light-1024.jpg",
+      "usage": "horizontal sur fond light — fond uni",
+      "bytes": 35806,
+      "sha256": "baf7f88b787cca9be65fc2a6e58affd1479774a323f64cee6a11cc4f0d26d278",
+      "width": 1024,
+      "height": 317,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/compact-light.svg",
+      "usage": "compact sur fond light",
+      "bytes": 4128,
+      "sha256": "a484705b41a01f4fd531b601f66db8a9b844a177e5ccd65e0725093e3783ce86",
+      "width": 224,
+      "height": 208,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-light-128.png",
+      "usage": "compact sur fond light",
+      "bytes": 3788,
+      "sha256": "438a16f62e63c59ff02bed714c4aa5da0f591b792dedbd332677a2e66581cd87",
+      "width": 128,
+      "height": 119,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-light-256.png",
+      "usage": "compact sur fond light",
+      "bytes": 7814,
+      "sha256": "40d2becffeb586991ad24fc268bcf9632d3ad518af8241547938fe5e78fb2fa8",
+      "width": 256,
+      "height": 238,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-light-512.png",
+      "usage": "compact sur fond light",
+      "bytes": 16665,
+      "sha256": "3a205b08726561b273eec849bcb26771230aed56ee90a2ed5ff9111565ebd625",
+      "width": 512,
+      "height": 475,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-light-1024.png",
+      "usage": "compact sur fond light",
+      "bytes": 39890,
+      "sha256": "8eaae21d58cf9fdcd18f3ee56c822af97626a12f695b7e551e92f72a917ddf68",
+      "width": 1024,
+      "height": 951,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-light-1024.jpg",
+      "usage": "compact sur fond light — fond uni",
+      "bytes": 56657,
+      "sha256": "cf2ec85d9b2b945fb321dc7941b7fd9cfea2969c48a584fbc4bd085050c795ac",
+      "width": 1024,
+      "height": 951,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/vertical-light.svg",
+      "usage": "vertical sur fond light",
+      "bytes": 4118,
+      "sha256": "efd7f929b48f74f258889044d94a5a52afeefcaa1606274ae700774d9b4d172e",
+      "width": 320,
+      "height": 320,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-light-128.png",
+      "usage": "vertical sur fond light",
+      "bytes": 3656,
+      "sha256": "0e33280c3da11e9913ed2167745443f4061f8b3b7728c516bcc95bd68b99f72d",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-light-256.png",
+      "usage": "vertical sur fond light",
+      "bytes": 7636,
+      "sha256": "9f0a4a3640bf0c4b1e0da30ed5b0e64fb21d3a33f866e73a1fb57b88385a058e",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-light-512.png",
+      "usage": "vertical sur fond light",
+      "bytes": 16538,
+      "sha256": "3c57796d280defe573057f4e18934e9be3497d124570bd2e25b26bc15a7461e7",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-light-1024.png",
+      "usage": "vertical sur fond light",
+      "bytes": 38537,
+      "sha256": "a7ed845aa0a14863b0fc45c0965d497d7165aa116f0084934a8e7664d1024513",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-light-1024.jpg",
+      "usage": "vertical sur fond light — fond uni",
+      "bytes": 53797,
+      "sha256": "797bdc94a2f908ac83dddfdf7f3626aa8a1ebe1413ea9772ea56dffe901b9a4d",
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/symbol-dark.svg",
+      "usage": "symbol sur fond dark",
+      "bytes": 1145,
+      "sha256": "f17fc6ac90dabe9e1ddfc3788fd90803c054266b418d521d68528051f282fd9d",
+      "width": 128,
+      "height": 128,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-dark-128.png",
+      "usage": "symbol sur fond dark",
+      "bytes": 3693,
+      "sha256": "d52d208b8c5c88855f90b1e49ec9073859afd22bd3778069ae1fba82612fbe5f",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-dark-256.png",
+      "usage": "symbol sur fond dark",
+      "bytes": 7829,
+      "sha256": "9c3d2893349169723999e0c716e52d8c863ec3098735badc0489e1e7e66cf27d",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-dark-512.png",
+      "usage": "symbol sur fond dark",
+      "bytes": 18262,
+      "sha256": "36d2de52c2e39634d0aaa58471262c5d10954f984a9853cbb7f90c1e42b042a5",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-dark-1024.png",
+      "usage": "symbol sur fond dark",
+      "bytes": 44544,
+      "sha256": "e559a79b60655c8ad5648ff1e35479a88004751b282821880267e676ef8e688f",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-dark.svg",
+      "usage": "wordmark sur fond dark",
+      "bytes": 2967,
+      "sha256": "2e969a1627b5eb9d443c8c7d5257531b566ecc6201cc7388634423a34948a35c",
+      "width": 353,
+      "height": 108,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-dark-128.png",
+      "usage": "wordmark sur fond dark",
+      "bytes": 1703,
+      "sha256": "36321420c2a6b6528b0d3909614bd1db674c84eee22243b7cc80dc67cbebb4a2",
+      "width": 128,
+      "height": 39,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-dark-256.png",
+      "usage": "wordmark sur fond dark",
+      "bytes": 3366,
+      "sha256": "9357776bd32eb496bc3e54583024cf2bdc49df67bc0b8043a9826d1c97664157",
+      "width": 256,
+      "height": 78,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-dark-512.png",
+      "usage": "wordmark sur fond dark",
+      "bytes": 7218,
+      "sha256": "68651df8301a65cf5ff28fca206fc0168b4222b01601e335d35c751d7b2bdc33",
+      "width": 512,
+      "height": 157,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/wordmark-dark-1024.png",
+      "usage": "wordmark sur fond dark",
+      "bytes": 16052,
+      "sha256": "4e9fd566bf1a79121c0e9231f342a424d564b30cfbefd68a45370bbb8a6426df",
+      "width": 1024,
+      "height": 313,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark.svg",
+      "usage": "horizontal sur fond dark",
+      "bytes": 4092,
+      "sha256": "0f4620daf2ee0644855ce7d687fda67c517816667eaac82c1e4ef168156674d3",
+      "width": 517,
+      "height": 160,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark-128.png",
+      "usage": "horizontal sur fond dark",
+      "bytes": 2056,
+      "sha256": "c4536e21f73e6fba545bd3583874696e9484516c7637ca77507debeee1690acd",
+      "width": 128,
+      "height": 40,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark-256.png",
+      "usage": "horizontal sur fond dark",
+      "bytes": 4235,
+      "sha256": "f530eb0b12e0f8636c5953b24d58cce99123a5a388b204864e95d08c6c698deb",
+      "width": 256,
+      "height": 79,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark-512.png",
+      "usage": "horizontal sur fond dark",
+      "bytes": 8866,
+      "sha256": "8b9dc8e466ca1352562b1828238830547fb5032905521604c21a51d1fb77bb83",
+      "width": 512,
+      "height": 158,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark-1024.png",
+      "usage": "horizontal sur fond dark",
+      "bytes": 19724,
+      "sha256": "0f1884ad27980e114c8ce8ee25eedcd1b06b4d296db2a572c6acde7818b13d05",
+      "width": 1024,
+      "height": 317,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-dark-1024.jpg",
+      "usage": "horizontal sur fond dark — fond uni",
+      "bytes": 35980,
+      "sha256": "42273d1b01aca4caceda47f0b57c03b1d87aea0a5679abc4c87eb52b9008b01e",
+      "width": 1024,
+      "height": 317,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/compact-dark.svg",
+      "usage": "compact sur fond dark",
+      "bytes": 4128,
+      "sha256": "7bb6bb8a85d0183040e3c8a2a720a605fbc4bacfb34b87907d777a6f57b24c0e",
+      "width": 224,
+      "height": 208,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-dark-128.png",
+      "usage": "compact sur fond dark",
+      "bytes": 3238,
+      "sha256": "1d33c2fbc6149e9d73e3b942b59cced312cf4d4ed6fd4fcd84e89aca1b2272bc",
+      "width": 128,
+      "height": 119,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-dark-256.png",
+      "usage": "compact sur fond dark",
+      "bytes": 6623,
+      "sha256": "495006eebd621032b033ceae1b09b6bb1d4db4078c73b672ffc8bdf055929aba",
+      "width": 256,
+      "height": 238,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-dark-512.png",
+      "usage": "compact sur fond dark",
+      "bytes": 14186,
+      "sha256": "36f013e97490f1ebd644d4546acd1ecb55c7a9686838a4781343f0a3eb7ac247",
+      "width": 512,
+      "height": 475,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-dark-1024.png",
+      "usage": "compact sur fond dark",
+      "bytes": 32718,
+      "sha256": "f5f56c29f984c70886384fa94cd9170b14b03b96f6a23c45d5c138540a1bf6f9",
+      "width": 1024,
+      "height": 951,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/compact-dark-1024.jpg",
+      "usage": "compact sur fond dark — fond uni",
+      "bytes": 56940,
+      "sha256": "1cb956f4efc7b10a50bbfd1b7c2e87808c0a936e858e22225aa8f59f9c13f56d",
+      "width": 1024,
+      "height": 951,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark.svg",
+      "usage": "vertical sur fond dark",
+      "bytes": 4118,
+      "sha256": "7eebc24246b76d30d68cc4227a748adce8970ee43495d7c1f5a8517282cff76d",
+      "width": 320,
+      "height": 320,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark-128.png",
+      "usage": "vertical sur fond dark",
+      "bytes": 3134,
+      "sha256": "d19925f75d9505ba1f1db1f311d0152c00665281d1b3ab50b3a38c451005f888",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark-256.png",
+      "usage": "vertical sur fond dark",
+      "bytes": 6479,
+      "sha256": "dcf2461ff4d795370a24dde3d96f1e8fed53df4820b65d62295a1cf692f1890c",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark-512.png",
+      "usage": "vertical sur fond dark",
+      "bytes": 13866,
+      "sha256": "a9201f02b4632f56add15ca67f112e10093ce22f0f832d2eb97ca7a88e5161ba",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark-1024.png",
+      "usage": "vertical sur fond dark",
+      "bytes": 31895,
+      "sha256": "f5fdb9e0428a883d17a7e8254561fe807632f3f1987c1db4f71dc6cc10c038f6",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/vertical-dark-1024.jpg",
+      "usage": "vertical sur fond dark — fond uni",
+      "bytes": 54042,
+      "sha256": "e842b449d50937d408ac7b49c462a1aaf8a1cf20a75fb68183e6cab99aaa8a74",
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "alpha": false
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-black.svg",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 1226,
+      "sha256": "5cc8ccc9717d6456b0cb4389e48edf0f8e690ee9e0bf4b0dc42708c82fed3abe",
+      "width": 128,
+      "height": 128,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-black-128.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 2604,
+      "sha256": "7b58a23513fb28d86fab85d0d5d8ec4092bdcc458402c0094da7f90a2c3eb518",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-black-256.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 6028,
+      "sha256": "3b2303cbc76eae6bf1b32af1e6b99e189fb9305177a831e070225e5814985512",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-black-512.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 15153,
+      "sha256": "fe6ae9ce85b296811a1374189d2fc17016049740e7ad798a6c4f2e7da1595044",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-black-1024.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 39988,
+      "sha256": "071868607337d0ab2a4edd09ef6d93e5a63185509863e1f934c7a3b0374629bb",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-black.svg",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 4173,
+      "sha256": "a5afdc115c360ee8048ded6e681cc4a656fe9f7bff5c35e585630eefaa3bf668",
+      "width": 517,
+      "height": 160,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-black-128.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 1716,
+      "sha256": "f3f2c9cf04299c66e3cfba6020fd02a65a2339f1871288a3707df7e613fad9d7",
+      "width": 128,
+      "height": 40,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-black-256.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 3510,
+      "sha256": "7524b26277a2f0e70e0296aaafaa2457a1e1ff3de5ccde9bb9e1b2481cbaccb8",
+      "width": 256,
+      "height": 79,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-black-512.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 7494,
+      "sha256": "78eef0ea5fc4de7d4795632875d7266f6dc07f3200d3c7691c370f4557288f3e",
+      "width": 512,
+      "height": 158,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-black-1024.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 17295,
+      "sha256": "04aff9b06bc59b79fe547988e8d627e0f241692095a0b5be7de0f61906115691",
+      "width": 1024,
+      "height": 317,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-white.svg",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 1226,
+      "sha256": "34fc396e47e4f6c458d2c2b1f84b63883e7e718565d995b2fa0f4c5961534388",
+      "width": 128,
+      "height": 128,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-white-128.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 2649,
+      "sha256": "f5d5048ad58d33dbe3e0902dcbc2ecc20947a295f57a05cf034e4d05bd7c7736",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-white-256.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 5917,
+      "sha256": "78a7b1efe06b6b0e229c3c04a62d94338581c5ce64c3d0cc3e735a95d0fd3738",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-white-512.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 14087,
+      "sha256": "b9d66ba09d63adc8bc9fd86b058b5a05ced95b333de2bd70ef05e769c693d53b",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/symbol-mono-white-1024.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 32416,
+      "sha256": "8b619ff3d9abd6744776d3f8844ec971f1405a265db5bfb6a7e5d30ac3461dc7",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-white.svg",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 4173,
+      "sha256": "6a43dfe52557bbb23f7ed58141dd31f9336e4fa309fce18c9ba3172a466b800f",
+      "width": 517,
+      "height": 160,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-white-128.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 1750,
+      "sha256": "3ff63cab538fe1934cb5eaaf07ba48d7e17eba5bf737f6115e931ca3efdf381f",
+      "width": 128,
+      "height": 40,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-white-256.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 3602,
+      "sha256": "0b5a9b5bd5debb9d0f242375a78f7450ab400e04d007f25791bab50a748fe498",
+      "width": 256,
+      "height": 79,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-white-512.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 7582,
+      "sha256": "c3606c186edea854ffb08370c5e2ae803efee8c89cce940357070b5852cd4dc4",
+      "width": 512,
+      "height": 158,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/horizontal-mono-white-1024.png",
+      "usage": "Monochrome, centre en réserve",
+      "bytes": 17209,
+      "sha256": "daba2a36d5c2b5d1e26aa809fe3aa6d5643798b72c1fd5101773752a74fa1714",
+      "width": 1024,
+      "height": 317,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/app-icon.svg",
+      "usage": "Icône desktop, fond bleu nuit uni",
+      "bytes": 1269,
+      "sha256": "f1c208f8a1339d07b895507264be8207e379bfd1874296b33de5c8b5a70c11c5",
+      "width": 1024,
+      "height": 1024,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-16.png",
+      "usage": "Icône application / Linux",
+      "bytes": 455,
+      "sha256": "9b237eb4302ea77226bbc5ed1da6da6ad8a69dae42fd219f2ffd586a61a83caa",
+      "width": 16,
+      "height": 16,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-24.png",
+      "usage": "Icône application / Linux",
+      "bytes": 731,
+      "sha256": "b7fa1a38194864bec61842a6b6ce1f22e0639c6ed098a81e1c1280d58d6b6f1f",
+      "width": 24,
+      "height": 24,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-32.png",
+      "usage": "Icône application / Linux",
+      "bytes": 886,
+      "sha256": "6125592e3f1e80130a6dcee199f42dc99896b80438984d5f635c0034aa98c764",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-48.png",
+      "usage": "Icône application / Linux",
+      "bytes": 1423,
+      "sha256": "566f71be29701e15083189e0bad4e77012260c1b6135165fc967ea052dbe35a6",
+      "width": 48,
+      "height": 48,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-64.png",
+      "usage": "Icône application / Linux",
+      "bytes": 1787,
+      "sha256": "68364d544e384af55b7b742e1a85c53b210a608ab05bcc18909a4819ee14a447",
+      "width": 64,
+      "height": 64,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-128.png",
+      "usage": "Icône application / Linux",
+      "bytes": 3777,
+      "sha256": "e01822ada897e32ca671be0730b3bcb211abeacd0349c6db538f0e6bf866a761",
+      "width": 128,
+      "height": 128,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-180.png",
+      "usage": "Icône application / Linux",
+      "bytes": 5750,
+      "sha256": "229379a86dde4b3fb8a118eee78ab1e317a3788d259d3b87839a62b7f602b3c6",
+      "width": 180,
+      "height": 180,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-192.png",
+      "usage": "Icône application / Linux",
+      "bytes": 6158,
+      "sha256": "b7d46cf0dea71d094e46a9fbc4620afc509376ce6094b87bbbd3bdf3ea157fb1",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-256.png",
+      "usage": "Icône application / Linux",
+      "bytes": 8759,
+      "sha256": "17c86159907f12f575d77e1f0569e93b5fedc955992ca931b6aa8d6c9b21d6be",
+      "width": 256,
+      "height": 256,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-512.png",
+      "usage": "Icône application / Linux",
+      "bytes": 21538,
+      "sha256": "aadbd899d210b9153e967567b1524aa64878ce737871a4fca379845cb8c8b24b",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/icon-1024.png",
+      "usage": "Icône application / Linux",
+      "bytes": 54556,
+      "sha256": "b60239335b07125c324dc92aacf6587653e48bc143ee2bcc2eff23083e9574fe",
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "build/icons/quasar.ico",
+      "usage": "Windows / favicon multi-résolution",
+      "bytes": 17189,
+      "sha256": "7d40db6d5800eca5d50d3e3f0c16c5a9e0791022bbde93f568205bba7aa68ab0",
+      "format": "ico"
+    },
+    {
+      "file": "build/icons/quasar.icns",
+      "usage": "Icône macOS",
+      "bytes": 91822,
+      "sha256": "7b9aeedcd014e1fc436b032c9c8fc7d78eb6069fa9ad66c2926f78e1ce2434e6",
+      "format": "icns"
+    },
+    {
+      "file": "assets/brand/generated/favicon.svg",
+      "usage": "Favicon vectoriel",
+      "bytes": 1269,
+      "sha256": "f1c208f8a1339d07b895507264be8207e379bfd1874296b33de5c8b5a70c11c5",
+      "width": 1024,
+      "height": 1024,
+      "format": "svg",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/favicon.ico",
+      "usage": "Favicon multi-résolution",
+      "bytes": 17189,
+      "sha256": "7d40db6d5800eca5d50d3e3f0c16c5a9e0791022bbde93f568205bba7aa68ab0",
+      "format": "ico"
+    },
+    {
+      "file": "assets/brand/generated/favicon-16x16.png",
+      "usage": "Icône web",
+      "bytes": 455,
+      "sha256": "9b237eb4302ea77226bbc5ed1da6da6ad8a69dae42fd219f2ffd586a61a83caa",
+      "width": 16,
+      "height": 16,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/favicon-32x32.png",
+      "usage": "Icône web",
+      "bytes": 886,
+      "sha256": "6125592e3f1e80130a6dcee199f42dc99896b80438984d5f635c0034aa98c764",
+      "width": 32,
+      "height": 32,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/favicon-48x48.png",
+      "usage": "Icône web",
+      "bytes": 1423,
+      "sha256": "566f71be29701e15083189e0bad4e77012260c1b6135165fc967ea052dbe35a6",
+      "width": 48,
+      "height": 48,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/apple-touch-icon.png",
+      "usage": "Icône web",
+      "bytes": 5750,
+      "sha256": "229379a86dde4b3fb8a118eee78ab1e317a3788d259d3b87839a62b7f602b3c6",
+      "width": 180,
+      "height": 180,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/icon-192.png",
+      "usage": "Icône web",
+      "bytes": 6158,
+      "sha256": "b7d46cf0dea71d094e46a9fbc4620afc509376ce6094b87bbbd3bdf3ea157fb1",
+      "width": 192,
+      "height": 192,
+      "format": "png",
+      "alpha": true
+    },
+    {
+      "file": "assets/brand/generated/icon-512.png",
+      "usage": "Icône web",
+      "bytes": 21538,
+      "sha256": "aadbd899d210b9153e967567b1524aa64878ce737871a4fca379845cb8c8b24b",
+      "width": 512,
+      "height": 512,
+      "format": "png",
+      "alpha": true
+    }
+  ]
+}

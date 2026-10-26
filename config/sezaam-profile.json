@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "revision": 2,
+  "name": "Sezaam",
+  "fields": {
+    "syncTime": {
+      "included": true,
+      "value": true
+    },
+    "clockTimezone": {
+      "included": true,
+      "value": "Europe/Paris"
+    },
+    "allSubnetOnvif": {
+      "included": true,
+      "value": false
+    },
+    "brightness": {
+      "included": true,
+      "value": 128
+    },
+    "colorSaturation": {
+      "included": true,
+      "value": 128
+    },
+    "sharpness": {
+      "included": true,
+      "value": 128
+    },
+    "contrast": {
+      "included": true,
+      "value": 128
+    },
+    "backlight": {
+      "included": true,
+      "value": 50
+    },
+    "hlc": {
+      "included": true,
+      "value": 100
+    },
+    "denoise2d": {
+      "included": true,
+      "value": 128
+    },
+    "denoise3d": {
+      "included": true,
+      "value": 128
+    },
+    "overexposure": {
+      "included": true,
+      "value": 80
+    },
+    "awbMode": {
+      "included": true,
+      "value": "MANUAL"
+    },
+    "awbRed": {
+      "included": true,
+      "value": 128
+    },
+    "awbGreen": {
+      "included": true,
+      "value": 128
+    },
+    "awbBlue": {
+      "included": true,
+      "value": 128
+    },
+    "videoFormat": {
+      "included": true,
+      "value": "50HZ"
+    },
+    "antiFlicker": {
+      "included": true,
+      "value": false
+    },
+    "horizonFlip": {
+      "included": true,
+      "value": false
+    },
+    "verticalFlip": {
+      "included": true,
+      "value": false
+    },
+    "defog": {
+      "included": true,
+      "value": false
+    },
+    "defogRange": {
+      "included": true,
+      "value": 128
+    },
+    "wdrRange": {
+      "included": true,
+      "value": 128
+    },
+    "dayShutterMode": {
+      "included": true,
+      "value": "Manual"
+    },
+    "dayShutterSpeed": {
+      "included": true,
+      "value": 10
+    },
+    "videoMode": {
+      "included": true,
+      "value": "Forced Frame Rate"
+    },
+    "ircutMode": {
+      "included": true,
+      "value": "Manual → Day Model"
+    },
+    "lightThreshold1": {
+      "included": true,
+      "value": 1.5
+    },
+    "lightThreshold2": {
+      "included": true,
+      "value": 36
+    },
+    "lightMode": {
+      "included": true,
+      "value": "Pure white light"
+    },
+    "lightImage": {
+      "included": true,
+      "value": "Normal"
+    },
+    "lightBrightnessMode": {
+      "included": true,
+      "value": "Manual"
+    },
+    "lightBrightness": {
+      "included": true,
+      "value": 100
+    },
+    "osd": {
+      "included": true,
+      "value": false
+    },
+    "mainStream": {
+      "included": true,
+      "value": true
+    },
+    "codec": {
+      "included": true,
+      "value": "H264"
+    },
+    "resolution": {
+      "included": true,
+      "value": "Résolution maximale"
+    },
+    "bitrateControl": {
+      "included": true,
+      "value": "CBR"
+    },
+    "govLength": {
+      "included": true,
+      "value": 25
+    },
+    "bitrate": {
+      "included": true,
+      "value": 5120
+    },
+    "fps": {
+      "included": true,
+      "value": 25
+    },
+    "customQP": {
+      "included": true,
+      "value": false
+    },
+    "qpMin": {
+      "included": true,
+      "value": 30
+    },
+    "qpMax": {
+      "included": true,
+      "value": 51
+    },
+    "h264Profile": {
+      "included": true,
+      "value": "High"
+    },
+    "subStream": {
+      "included": true,
+      "value": false
+    },
+    "audioEncode": {
+      "included": true,
+      "value": false
+    },
+    "audioAmplify": {
+      "included": true,
+      "value": false
+    },
+    "privacyMask": {
+      "included": true,
+      "value": "Clear"
+    },
+    "localStorage": {
+      "included": true,
+      "value": false
+    },
+    "motionAlarm": {
+      "included": true,
+      "value": false
+    },
+    "inputAlarm": {
+      "included": true,
+      "value": false
+    }
+  }
+}

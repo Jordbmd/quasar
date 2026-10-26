@@ -1,0 +1,57 @@
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+.story-surface {
+  min-height: 90vh;
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+.story-stack {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 960px;
+}
+.story-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.story-swatch {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-width: 190px;
+}
+.story-swatch i {
+  display: block;
+  height: 48px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+.story-frame {
+  max-width: 1100px;
+}
+.story-frame .settings-grid {
+  position: relative;
+}
+.story-simulation {
+  padding: 8px 16px;
+  font: 12px var(--mono);
+  background: var(--selected);
+  color: var(--text);
+}
+.story-app-preview {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.story-app-preview > .story-simulation {
+  flex: none;
+}
+.story-app-preview > .app-shell {
+  height: auto;
+  min-height: 0;
+  flex: 1;
+}
