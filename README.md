@@ -1,10 +1,10 @@
 # Quasar
 
-Application locale macOS de configuration et de diagnostic de caméras IP ONVIF : **Caméras**, **Diagnostic**, **Réseau**, **Profil Sezaam** et **Paramètres**.
+Application locale Electron de configuration et de diagnostic de caméras IP ONVIF : **Caméras**, **Diagnostic**, **Réseau**, **Profil Sezaam** et **Paramètres**.
 
 ## Installer depuis le dépôt
 
-Prérequis : macOS et Node.js 22.12+ ou 24.
+Prérequis de développement : **Node.js 24**. Les cibles sont macOS arm64, Linux x64 et Windows x64. La [matrice des plateformes](docs/PLATEFORMES.md) détaille les validations logicielles locales et GitHub ainsi que les limites matérielles restantes. Les commandes `launcher:*` ci-dessous concernent le lanceur de développement macOS ; utiliser `npm run package:dir` sur Linux ou Windows.
 
 ```sh
 git clone https://github.com/Jordbmd/quasar.git
@@ -16,11 +16,24 @@ npm run launcher:install
 
 Le dépôt étant privé, le clonage nécessite un accès GitHub autorisé. Le lanceur est installé dans `~/Applications/Quasar.app`. Pour mettre à jour une installation existante, récupérer les changements puis relancer `npm ci` et `npm run launcher:install`, après avoir quitté Quasar.
 
-Le [profil Sezaam enregistré](config/sezaam-profile.json) est intégré à la compilation et utilisé lorsqu’aucun profil local n’existe. Il contient les 52 réglages, dont la résolution maximale disponible. Les modifications faites dans l’application restent dans `.runtime/camera-defaults.json` et sont prioritaires : une mise à jour ne les écrase pas. Aucun réglage n’est envoyé aux caméras au démarrage.
+Le [profil Sezaam enregistré](config/sezaam-profile.json) est intégré à la compilation et utilisé lorsqu’aucun profil local n’existe. Il contient les 52 réglages, dont la résolution maximale disponible. Les modifications faites dans l’application restent dans `camera-defaults.json`, dans le dossier de données utilisateur et sont prioritaires : une mise à jour ne les écrase pas. Aucun réglage n’est envoyé aux caméras au démarrage.
 
 Les journaux, sauvegardes, captures matérielles, dépendances, binaires téléchargés et applications compilées sont exclus de Git. Pour partager une nouvelle version du profil, reporter uniquement sa configuration dans `config/sezaam-profile.json`, puis compiler et tester ; ne pas ajouter le dossier `.runtime/` au dépôt.
 
-## Ouvrir sans Terminal
+## Validation et paquet autonome
+
+```sh
+npm run validate:software
+npm run test:ui
+npm run build-storybook
+npm run test:stories
+npm run test:visual
+npm run package:dir
+```
+
+Le paquet autonome est généré dans `release/`, séparément du lanceur existant. Il embarque Electron, le code compilé, les ressources et le relais vidéo vérifié ; il ne dépend plus du dossier source. La commande ne publie rien. Le paquet macOS est signé localement, pas notarié ; les autres plateformes exigent leur validation native. Consulter [l’architecture](docs/ARCHITECTURE.md), [les compatibilités firmware](docs/COMPATIBILITE-FIRMWARE.md), [les outils](docs/OUTILLAGE.md) et [le bilan de consolidation](docs/CONSOLIDATION-V1.md).
+
+## Ouvrir sans Terminal — lanceur macOS existant
 
 Double-cliquer sur **Quasar.app**, installé dans `~/Applications/`. L’application est enregistrée auprès de macOS pour être retrouvée par son nom. Elle ouvre la version compilée et ramène au premier plan une session déjà ouverte. Elle peut être glissée dans le Dock. Elle dépend du dossier du projet, de `dist/` et de `node_modules/` : conserver ces fichiers ensemble. Le paquet possède une signature locale ad hoc vérifiée ; il n’est ni autonome ni notarié pour la distribution.
 
@@ -29,6 +42,10 @@ Au premier démarrage, autoriser l’accès au dossier Documents contenant le pr
 Le générateur donne au binaire principal une identité Mach-O propre à Quasar avant de le signer. Cela évite la collision avec le binaire Electron d’origine dans le suivi des autorisations réseau de macOS. L’identité reste stable lors d’une reconstruction avec la même version d’Electron. Le générateur prend en charge les exécutables Mach-O 64 bits little-endian ; un autre format est refusé explicitement.
 
 Le thème clair ou sombre est accessible en haut à droite et conservé entre les lancements. Les polices Sora, Inter et JetBrains Mono sont locales ; aucun téléchargement de police pendant l’utilisation.
+
+## Données utilisateur
+
+Les données durables sont désormais placées sous le dossier système de l’utilisateur : `~/Library/Application Support/sezaam-camera-tool` sur macOS, `%APPDATA%/sezaam-camera-tool` sur Windows, `$XDG_CONFIG_HOME/sezaam-camera-tool` (ou `~/.config/sezaam-camera-tool`) sur Linux. Les anciennes données `.runtime` sont copiées, jamais déplacées ni supprimées ; une destination existante reste prioritaire. Voir [la procédure de migration](docs/PLATEFORMES.md#stockage-et-migration). Les chemins `.runtime` dans les paragraphes historiques ci-dessous décrivent l’ancienne implantation ; leurs sous-dossiers durables sont migrés dans ce nouveau dossier.
 
 ## Utilisation
 
@@ -110,13 +127,13 @@ L’accessibilité est contrôlée avec Axe et un calcul automatisé des contras
 
 ## Limites matérielles
 
-macOS arm64 a été exécuté localement. L’interface système conserve une séparation permettant un portage, mais Linux et Windows ne sont pas implémentés. HTTPS ONVIF, découverte IPv6, RTSP UDP, transcodage et flux vers un hôte différent ne sont pas pris en charge. Les changements d’IP statique restent dans le sous-réseau choisi. Un redémarrage demandé par la caméra reste manuel.
+Les adaptateurs macOS, Linux et Windows sont implémentés. Les tests logiciels et les paquets autonomes ne valident pas les routes Ethernet, les autorisations système ni la compatibilité d’une caméra physique ; voir la [matrice des plateformes](docs/PLATEFORMES.md). HTTPS ONVIF, découverte IPv6, RTSP UDP, transcodage et flux vers un hôte différent ne sont pas pris en charge. Les changements d’IP statique restent dans le sous-réseau choisi. Un redémarrage demandé par la caméra reste manuel.
 
 **La compatibilité doit être vérifiée sur chaque caméra et firmware du parc.** L’authentification, la découverte, les flux, les écritures réseau/vidéo et la suppression/restauration OSD doivent être confirmés pour chaque firmware. Voir [la recette matérielle](docs/RECETTE-MATERIELLE.md) et [les sources techniques](docs/SOURCES.md).
 
 ## Design system Quasar
 
-Voir [la documentation du design system](docs/design-system/README.md) : identité, 98 assets, tokens, composants, Storybook, accessibilité et tests visuels. `npm run storybook` ouvre le catalogue local ; `npm run brand:build` régénère les logos et icônes. Les identifiants techniques historiques restent stables pour préserver les données et autorisations.
+Voir [la documentation du design system](docs/design-system/README.md) : identité Prisme, 275 assets, tokens, composants, Storybook, accessibilité et tests visuels. `npm run storybook` ouvre le catalogue local ; `npm run brand:build` régénère les logos et icônes. Les identifiants techniques historiques restent stables pour préserver les données et autorisations.
 
 ## Vérification locale du 19 octobre 2026
 
@@ -140,6 +157,8 @@ La page **Profil Sezaam → Paramètres par défaut** reprend les 52 champs du p
 
 Les actions **Appliquer à la caméra sélectionnée**, **Appliquer à toutes**, et les raccourcis de la page Caméras ouvrent une vérification préalable. Celle-ci liste les cibles exactes, les valeurs courantes, les changements compatibles et les réglages non applicables. L’envoi ne commence qu’après le bouton d’application de cette fenêtre. Les caméras sont traitées séquentiellement ; chaque groupe est relu, et un résultat incertain arrête les groupes suivants de cette caméra. Un changement de réseau, d’identité, de profil enregistré ou de configuration depuis la vérification empêche l’écriture concernée. Une vérification expire après dix minutes et ne peut être utilisée qu’une fois.
 
+L’application du profil et l’attribution des IP affichent un bandeau de progression au-dessus des résultats : étape, caméra en cours, nombre de caméras traitées et temps écoulé. Ce bandeau reste visible pendant le défilement. À la fin, un bilan persistant distingue les résultats conformes des points à vérifier ou non exécutés ; fermer le bilan est une action explicite. Une commande envoyée ne compte jamais comme une réussite sans relecture conforme.
+
 L’application automatique intègre 49 champs par l’API web reconnue sur le parc, plus les deux champs de date/heure via ONVIF et la commande de mode jour. Elle couvre notamment l’image, les gains RGB, les réglages de jour, plusieurs réglages LED, l’encodage principal/secondaire, l’audio, l’OSD, les masques, le stockage et les alarmes mouvement/IO. Les champs doivent exister dans les réponses ; les plages et combinaisons sont contrôlées. Les fonctions ONVIF existantes restent disponibles si l’API web n’est pas reconnue. Les valeurs d’image à 128 ne sont jamais converties arbitrairement ; 3MP nécessite une résolution annoncée compatible. Les attributs non concernés sont préservés et une sauvegarde privée précède chaque écriture web. Désactiver l’OSD inclut les titres personnalisés ; désactiver le stockage local inclut les événements qui écrivent localement.
 
 La synchronisation horaire utilise la date UTC du Mac au moment de l’envoi, en mode manuel, avec le fuseau Paris (règles été/hiver) ou UTC. Le succès exige une relecture UTC à moins de dix secondes ainsi que la confirmation du mode, du fuseau et de l’indicateur d’heure d’été. Une caméra qui ne fournit que son heure locale n’est pas considérée comme vérifiable. Aucun serveur NTP ni Box n’est configuré.
@@ -154,7 +173,7 @@ La fiche caméra utilise l’interrupteur OSD web quand il est reconnu : activat
 
 ### Adressage par casier et réponses différées — 26 octobre 2026
 
-**Attribuer les IP**, sous la liste des caméras, prépare une plage `192.168.1.(casier + 10)` avec masque `255.255.255.0`. Choisir le premier casier, vérifier le tableau (tri IP puis identité), puis confirmer le lot. Les identités non connectées, les IP partagées et les cibles déjà observées sont exclues. Le plan est à usage unique et expire après deux minutes ; un changement d’interface ou de session l’invalide. Chaque écriture est suivie d’une vérification d’identité et d’adresse. Le lot s’arrête au premier résultat incertain. Les réglages réseau d’origine et le bilan sont sauvegardés dans le journal local des sauvegardes, sans identifiants.
+**Attribuer les IP**, dans **Actions avancées** sous la liste des caméras, prépare une plage `192.168.1.(casier + 10)` avec masque `255.255.255.0`. Choisir le premier casier, vérifier le tableau (tri IP puis identité), puis confirmer le lot. Les identités non connectées, les IP partagées et les cibles déjà observées sont exclues. Le plan est à usage unique et expire après deux minutes ; un changement d’interface ou de session l’invalide. Chaque écriture est suivie d’une vérification d’identité et d’adresse. Le lot s’arrête au premier résultat incertain. Les réglages réseau d’origine et le bilan sont sauvegardés dans le journal local des sauvegardes, sans identifiants.
 
 **Résoudre le conflit** demande de ne laisser branchée que la caméra choisie. Deux découvertes, l’identité authentifiée et les voisins Ethernet doivent concorder avant de lever le blocage. Attribuer une IP unique, puis rebrancher la suivante. Ce parcours ne prétend pas cibler par MAC plusieurs appareils encore branchés avec la même IP. Aucun protocole constructeur de réadressage de niveau Ethernet n’a été identifié ni intégré. La commande [ONVIF SetNetworkInterfaces](https://www.onvif.org/yaml/wsdl-viewer2.php) exige une connexion à l’appareil ; son accusé de réception ne garantit pas une disponibilité immédiate à la nouvelle adresse.
 
@@ -166,7 +185,7 @@ L’éclairage de l’aperçu configure désormais aussi le mode IRCUT manuel (`
 
 ### Remise à zéro d’usine groupée — 26 octobre 2026
 
-Sur la page **Caméras**, **Réinitialiser les caméras…** ouvre un parcours séparé du profil Sezaam. **Vérifier les caméras** prépare une liste triée par IP croissante, avec l’identité de chaque cible. Les caméras non authentifiées, les identités non vérifiables et les IP partagées sont exclues. Saisir **EFFACER**, puis valider la confirmation native pour envoyer un reset complet ONVIF `SetSystemFactoryDefault / Hard` aux cibles prêtes.
+Sur la page **Caméras**, **Actions avancées → Réinitialiser les caméras…** ouvre un parcours séparé du profil Sezaam. **Vérifier les caméras** prépare une liste triée par IP croissante, avec l’identité de chaque cible. Les caméras non authentifiées, les identités non vérifiables et les IP partagées sont exclues. Saisir **EFFACER**, puis valider la confirmation native pour envoyer un reset complet ONVIF `SetSystemFactoryDefault / Hard` aux cibles prêtes.
 
 Le reset peut effacer les IP et identifiants ; plusieurs caméras peuvent revenir à la même IP d’usine. Il est irréversible dans Quasar : le journal n’est pas une sauvegarde intégrale permettant d’annuler le reset. Le profil Sezaam du Mac est conservé. La préparation est à usage unique, expire après deux minutes et devient invalide si le réseau ou la session change. L’identité et les conflits sont à nouveau contrôlés avant chaque envoi. Toute erreur ou réponse incertaine arrête les cibles suivantes ; aucune commande de reset n’est renvoyée automatiquement.
 
