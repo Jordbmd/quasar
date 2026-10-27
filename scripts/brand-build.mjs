@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import sharp from "sharp";
 import * as fontkit from "fontkit";
 import assert from "node:assert/strict";
+import { zipSync } from "fflate";
 const source = "assets/brand/source",
   out = "assets/brand/generated",
   icons = "build/icons";
@@ -15,7 +16,8 @@ for (const d of [
 ])
   await mkdir(d, { recursive: true });
 const master = await readFile(`${source}/symbol.svg`, "utf8");
-assert.match(master, /<circle id="core-circle"/);
+assert.match(master, /id="prism-band"/);
+assert.match(master, /id="prism-tail"/);
 assert.ok(!/<image|<filter|<text\b/i.test(master));
 const inner = (s) =>
   s.replace(/^.*?<svg[^>]*>/s, "").replace(/<\/svg>\s*$/, "");
@@ -32,47 +34,37 @@ for (let i = 0; i < run.glyphs.length; i++) {
   paths.push(
     `<path transform="translate(${x + pos.xOffset} ${-pos.yOffset})" d="${(i === 0 ? font.glyphForCodePoint(79) : run.glyphs[i]).path.toSVG()}"/>`,
   );
-  // Reference Q has a diagonal tail, unlike Sora's descending hooked Q.
-  // Use Sora's matching O contour with an explicit reproducible diagonal tail.
-  if(i===0) paths.push('<path d="M440 240 L570 340 L850 32 L730 -75 Z"/>');
+  // Prisme pairs the angular symbol with a round Q and a diagonal foot.
+  if (i === 0) paths.push('<path d="M450 100 H650 L870 -105 H625 Z"/>');
   x += pos.xAdvance;
 }
 const scale = 88 / font.unitsPerEm,
   wordWidth = x * scale;
-const word = (ink, dot) =>
-  `<g fill="${ink}" transform="translate(0 88) scale(${scale} ${-scale})">${paths.join("")}</g><circle cx="${wordWidth + 11}" cy="81" r="7" fill="${dot}"/>`;
-const sw = 128,
-  ww = Math.ceil(wordWidth + 27),
+const word = (ink) =>
+  `<g fill="${ink}" transform="translate(0 88) scale(${scale} ${-scale})">${paths.join("")}</g>`;
+const ww = Math.ceil(wordWidth),
   horizontalWidth = 164 + ww;
-const symbol = (ink, mono = false) => {
-  let s = inner(master).replaceAll("#0A0F28", ink);
-  if (mono)
-    s = s
-      .replace('fill="url(#core)"', `fill="${ink}" mask="url(#hole)"`)
-      .replace(/<circle id="core-circle"[^>]+\/>/, "")
-      .replace(
-        "</defs>",
-        '<mask id="hole"><rect width="128" height="128" fill="white"/><circle id="core-circle" cx="64" cy="64" r="7" fill="black"/></mask></defs>',
-      );
-  return s;
-};
-const compositions = (ink, dot, mono = false) => ({
+const symbol = (ink, mono = false) =>
+  inner(master)
+    .replaceAll("#D600A8", mono ? ink : "#D600A8")
+    .replaceAll("#BC0094", mono ? ink : "#BC0094");
+const compositions = (ink, mono = false) => ({
   symbol: [128, 128, symbol(ink, mono)],
-  wordmark: [ww, 108, word(ink, dot)],
+  wordmark: [ww, 108, word(ink)],
   horizontal: [
     horizontalWidth,
     160,
-    `<g transform="translate(16 16)">${symbol(ink, mono)}</g><g transform="translate(164 24)">${word(ink, dot)}</g>`,
+    `<g transform="translate(16 16)">${symbol(ink, mono)}</g><g transform="translate(164 24)">${word(ink)}</g>`,
   ],
   compact: [
     224,
     208,
-    `<g transform="translate(64 8) scale(.75)">${symbol(ink, mono)}</g><g transform="translate(16 110) scale(${192 / ww})">${word(ink, dot)}</g>`,
+    `<g transform="translate(64 8) scale(.75)">${symbol(ink, mono)}</g><g transform="translate(16 110) scale(${192 / ww})">${word(ink)}</g>`,
   ],
   vertical: [
     320,
     320,
-    `<g transform="translate(96 24)">${symbol(ink, mono)}</g><g transform="translate(24 181) scale(${272 / ww})">${word(ink, dot)}</g>`,
+    `<g transform="translate(96 24)">${symbol(ink, mono)}</g><g transform="translate(24 181) scale(${272 / ww})">${word(ink)}</g>`,
   ],
 });
 const entries = [];
@@ -100,7 +92,7 @@ async function svgExport(name, w, h, body, usage, jpegBg) {
   assert.ok(!/<image|<filter|<text\b/i.test(svg));
   await writeFile(`${out}/${name}.svg`, svg);
   await record(`${out}/${name}.svg`, usage);
-  for (const width of [128, 256, 512, 1024]) {
+  for (const width of [128, 256, 512, 1024, 2048]) {
     const file = `${out}/${name}-${width}.png`;
     await sharp(Buffer.from(svg)).resize({ width }).png().toFile(file);
     const m = await sharp(file).metadata();
@@ -109,21 +101,22 @@ async function svgExport(name, w, h, body, usage, jpegBg) {
     assert.equal(m.hasAlpha, true);
     await record(file, usage);
   }
-  if (jpegBg) {
-    const file = `${out}/${name}-1024.jpg`;
+  assert.ok(jpegBg, `Fond JPEG requis pour ${name}`);
+  for (const width of [128, 256, 512, 1024, 2048]) {
+    const file = `${out}/${name}-${width}.jpg`;
     await sharp(Buffer.from(svg))
-      .resize({ width: 1024 })
+      .resize({ width })
       .flatten({ background: jpegBg })
       .jpeg({ quality: 95 })
       .toFile(file);
-    await record(file, usage + " — fond uni");
+    await record(file, usage + " — fond uni " + jpegBg);
   }
 }
 for (const [theme, ink, bg] of [
   ["light", "#0A0F28", "#FAF9FD"],
   ["dark", "#FFFFFF", "#0A0F28"],
 ]) {
-  const c = compositions(ink, "#D600A8");
+  const c = compositions(ink);
   for (const [name, [w, h, body]] of Object.entries(c)) {
     await svgExport(
       `${name}-${theme}`,
@@ -131,7 +124,7 @@ for (const [theme, ink, bg] of [
       h,
       body,
       `${name} sur fond ${theme}`,
-      ["horizontal", "compact", "vertical"].includes(name) ? bg : undefined,
+      bg,
     );
     if (theme === "light" && name !== "symbol")
       await writeFile(`${source}/${name}.svg`, wrap(w, h, body));
@@ -141,26 +134,43 @@ for (const [name, ink] of [
   ["black", "#000000"],
   ["white", "#FFFFFF"],
 ]) {
-  const c = compositions(ink, ink, true);
-  for (const kind of ["symbol", "horizontal"]) {
+  const c = compositions(ink, true);
+  for (const kind of Object.keys(c)) {
     const [w, h, b] = c[kind];
     await svgExport(
       `${kind}-mono-${name}`,
       w,
       h,
       b,
-      "Monochrome, centre en réserve",
+      "Prisme monochrome, ouverture transparente",
+      name === "white" ? "#0A0F28" : "#FAF9FD",
     );
   }
 }
-const app = wrap(
-  1024,
-  1024,
-  `<rect x="32" y="32" width="960" height="960" rx="216" fill="#0A0F28"/><g transform="translate(176 176) scale(5.25)">${symbol("#FFFFFF")}</g>`,
-);
+const appIcon = (background, mono = false) =>
+  wrap(
+    1024,
+    1024,
+    `<rect x="32" y="32" width="960" height="960" rx="216" fill="${background}"/><g transform="translate(176 176) scale(5.25)">${symbol("#FFFFFF", mono)}</g>`,
+  );
+const app = appIcon("#FAF9FD");
+for (const [name, bg, mono] of [
+  ["dark", "#0A0F28", false],
+  ["light", "#FAF9FD", false],
+  ["mono", "#0A0F28", true],
+]) {
+  await svgExport(
+    `app-icon-${name}`,
+    1024,
+    1024,
+    inner(appIcon(bg, mono)),
+    `Icône Prisme ${name}`,
+    bg,
+  );
+}
 await writeFile(`${source}/app-icon.svg`, app);
 await writeFile(`${icons}/app-icon.svg`, app);
-await record(`${icons}/app-icon.svg`, "Icône desktop, fond bleu nuit uni");
+await record(`${icons}/app-icon.svg`, "Icône desktop, fond clair uni");
 const pngs = new Map();
 for (const n of [16, 24, 32, 48, 64, 128, 180, 192, 256, 512, 1024]) {
   const data = await sharp(Buffer.from(app)).resize(n, n).png().toBuffer();
@@ -239,8 +249,8 @@ await writeFile(
     {
       brand: "Quasar",
       provenance:
-        "Reconstruction vectorielle de la planche fournie, pas un master original",
-      font: "Sora 800, OFL, tracés via fontkit ; Q à queue diagonale reconstruit",
+        "Prisme — proposition 02 choisie le 27 octobre 2026, reconstruite en tracés vectoriels éditables",
+      font: "Sora 800, OFL, tracés via fontkit ; Q rond à pied diagonal, sans point final",
       source: "assets/brand/source/symbol.svg",
       transparentLogos: true,
       assets: entries,
@@ -249,47 +259,95 @@ await writeFile(
     2,
   ) + "\n",
 );
-const tiles = [];
-let y = 0;
-for (const theme of ["dark", "light"]) {
-  tiles.push({
-    input: await sharp({
-      create: {
-        width: 1200,
-        height: 360,
-        channels: 4,
-        background: theme === "dark" ? "#0A0F28" : "#FAF9FD",
-      },
-    })
-      .png()
-      .toBuffer(),
-    top: y,
-    left: 0,
-  });
-  tiles.push({
-    input: await sharp(`${out}/horizontal-${theme}.svg`)
-      .resize({ width: 570 })
-      .png()
-      .toBuffer(),
-    top: y + 28,
-    left: 30,
-  });
-  for (const [i, n] of [16, 24, 32, 48, 128].entries())
-    tiles.push({
-      input: await sharp(`${out}/symbol-${theme}.svg`)
-        .resize(n, n)
-        .png()
-        .toBuffer(),
-      top: y + 220,
-      left: 40 + i * 110,
-    });
-  tiles.push({ input: pngs.get(256), top: y + 40, left: 880 });
-  y += 360;
+// Review sheet is vector too: the symbols shown are the exact shipped paths.
+const boardParts = [];
+for (const [index, theme] of ["light", "dark"].entries()) {
+  const y = index * 360;
+  const background = theme === "dark" ? "#0A0F28" : "#FAF9FD";
+  boardParts.push(
+    `<rect y="${y}" width="1200" height="360" fill="${background}"/>`,
+  );
+  boardParts.push(
+    `<g transform="translate(30 ${y + 28}) scale(${570 / horizontalWidth})">${inner(await readFile(`${out}/horizontal-${theme}.svg`, "utf8"))}</g>`,
+  );
+  for (const [i, n] of [16, 24, 32, 48, 128].entries()) {
+    boardParts.push(
+      `<g transform="translate(${40 + i * 110} ${y + 220}) scale(${n / 128})">${symbol("#D600A8")}</g>`,
+    );
+  }
+  boardParts.push(
+    `<g transform="translate(880 ${y + 40}) scale(.25)">${inner(appIcon(background))}</g>`,
+  );
 }
-await sharp({
-  create: { width: 1200, height: 720, channels: 4, background: "#FAF9FD" },
-})
-  .composite(tiles)
-  .png()
-  .toFile(`${out}/review-board.png`);
-console.log(`${entries.length} assets Quasar générés et dimensions vérifiées.`);
+for (const [index, ink, bg] of [
+  [0, "#000000", "#FAF9FD"],
+  [1, "#FFFFFF", "#0A0F28"],
+]) {
+  const x = index * 600;
+  boardParts.push(
+    `<rect x="${x}" y="720" width="600" height="260" fill="${bg}"/>`,
+  );
+  boardParts.push(
+    `<g transform="translate(${x + 30} 740) scale(${500 / horizontalWidth})">${compositions(ink, true).horizontal[2]}</g>`,
+  );
+  boardParts.push(
+    `<g transform="translate(${x + 30} 910) scale(.3)">${symbol(ink, true)}</g>`,
+  );
+}
+const board = wrap(1200, 980, boardParts.join("").replace(/ id="[^"]+"/g, ""));
+await writeFile(`${out}/review-board.svg`, board);
+await sharp(Buffer.from(board)).png().toFile(`${out}/review-board.png`);
+await sharp(Buffer.from(board))
+  .flatten({ background: "#FAF9FD" })
+  .jpeg({ quality: 95 })
+  .toFile(`${out}/review-board.jpg`);
+const kit = {};
+for (const { file } of entries) kit[file] = await readFile(file);
+for (const name of [
+  "symbol",
+  "horizontal",
+  "vertical",
+  "compact",
+  "wordmark",
+  "app-icon",
+]) {
+  const file = `${source}/${name}.svg`;
+  kit[file] = await readFile(file);
+}
+for (const name of [
+  "manifest.json",
+  "review-board.svg",
+  "review-board.png",
+  "review-board.jpg",
+])
+  kit[`${out}/${name}`] = await readFile(`${out}/${name}`);
+kit["LICENSE-Sora.txt"] = await readFile("assets/fonts/Sora-OFL.txt");
+kit["LIRE-MOI.txt"] = Buffer.from(`QUASAR — PRISME
+Proposition 02 validée le 27 octobre 2026.
+
+SVG éditables et exports en tracés, sans police à installer.
+PNG transparents et JPEG sur fond uni : 128, 256, 512, 1024 et 2048 pixels de large.
+Compositions : symbole, mot seul, horizontale, compacte et verticale.
+Couleurs : magenta sur fond clair ou sombre, monochromes noir/blanc.
+Icônes : variantes claire/sombre/monochrome, ICNS macOS, ICO Windows, PNG Linux et favicons.
+
+Conserver les proportions et la découpe diagonale. Minimum conseillé : symbole 24 px ; favicon 16 px sans lettrage.
+Les JPEG n'ont pas de transparence. Choisir PNG ou SVG pour superposer un logo.
+Les noms light/dark indiquent le fond d'utilisation.
+Source géométrique : assets/brand/source/symbol.svg.
+Reconstruction vectorielle de la référence validée ; logotype dérivé de Sora 800 sous SIL OFL (licence jointe).
+`);
+await writeFile(
+  "assets/brand/quasar-prisme-kit.zip",
+  zipSync(
+    Object.fromEntries(
+      Object.entries(kit).map(([name, data]) => [
+        name,
+        [data, { mtime: new Date("2026-10-27T00:00:00Z") }],
+      ]),
+    ),
+  ),
+);
+console.log(
+  `${entries.length} assets Quasar Prisme générés, planche SVG/PNG/JPEG et kit ZIP prêts.`,
+);

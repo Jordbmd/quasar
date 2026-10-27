@@ -10,6 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import { Brand } from "../src/renderer/design-system/Brand";
+import prismBoard from "../assets/brand/generated/review-board.png";
 import tokens from "../src/renderer/design-system/tokens.json";
 export default {
   title: "Foundations",
@@ -17,7 +18,7 @@ export default {
     docs: {
       description: {
         component:
-          "Tokens Quasar partagés avec l’application. Palette unie, accents framboise, états distingués par couleur, icône et texte. Polices locales sous SIL OFL.",
+          "Tokens Quasar partagés avec l’application. Palette unie, identité Prisme et accents magenta, états distingués par couleur, icône et texte. Polices locales sous SIL OFL.",
       },
     },
   },
@@ -117,6 +118,23 @@ export const Themes = {
         mêmes composants utilisent deux jeux de tokens sémantiques.
       </p>
       <p>{Object.keys(tokens).join(" · ")}</p>
+    </div>
+  ),
+};
+
+export const Identity = {
+  render: () => (
+    <div className="story-stack">
+      <h1>Quasar · Prisme</h1>
+      <p>
+        Ruban angulaire, queue détachée, magenta sur bleu nuit ou fond clair.
+        Les variantes monochromes conservent la même géométrie.
+      </p>
+      <img
+        src={prismBoard}
+        alt="Logo Quasar Prisme sur fonds sombre et clair, symbole de 16 à 128 pixels et icône d’application"
+        style={{ width: "100%", maxWidth: 1200, height: "auto" }}
+      />
     </div>
   ),
 };

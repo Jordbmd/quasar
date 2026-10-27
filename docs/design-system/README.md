@@ -4,9 +4,9 @@ Quasar configure et diagnostique des caméras IP localement. Deux écrans existe
 
 ## Sources et reproduction
 
-La planche fournie est une référence raster. Les SVG sont une **reconstruction vectorielle**, pas un master original. `assets/brand/source/symbol.svg` est la source géométrique éditable : quatre pales symétriques, étoile à quatre branches et cercle central parfaitement rond. Aucun bitmap embarqué, filtre, halo ou relief.
+L’identité **Prisme**, choisie le 27 octobre 2026, remplace le symbole à quatre pales. `assets/brand/source/symbol.svg` est son master éditable : ruban angulaire magenta à facette plus sombre, découpe diagonale et queue détachée formant un Q. La proposition n°2 fournie a été reconstruite en trois tracés géométriques ; aucun bitmap embarqué, dégradé, filtre, halo ou relief.
 
-Le logotype est dérivé de Sora 800, mis en tracés avec fontkit et ses avances/crénages. Le Q utilise le contour rond du O et une queue diagonale dessinée dans le générateur pour se rapprocher du Q de la référence. Les proportions et le placement du point magenta sont explicites. Les exports fonctionnent sans police installée. La reconstruction reste distincte d’un fichier de marque original validé par son auteur.
+La facette utilise #BC0094 et le magenta principal #D600A8 ; les variantes monochromes utilisent une seule encre. Le logotype est dérivé de Sora 800, mis en tracés avec fontkit et ses avances/crénages. Le Q utilise le contour rond du O avec un pied diagonal, comme la proposition retenue. Le point final de l’ancienne identité est supprimé. Tous les exports fonctionnent sans police installée.
 
 `npm run brand:build` lit le symbole et la police, produit les autres SVG sources (wordmark, horizontal, compact, vertical, app-icon), les exports et les tokens CSS. Modifier la géométrie dans le symbole source, la composition/logotype dans `scripts/brand-build.mjs`, les tokens dans `src/renderer/design-system/tokens.json`. Ne pas corriger à la main un export généré.
 
@@ -20,17 +20,17 @@ Le logotype est dérivé de Sora 800, mis en tracés avec fontkit et ses avances
 | `assets/fonts` | Sora et JetBrains Mono, fichiers de licence OFL |
 | `src/renderer/assets` | Inter Variable et sa licence OFL |
 
-Le manifeste `assets/brand/generated/manifest.json` recense 98 fichiers avec usage, dimensions, transparence, format, taille et SHA-256. La planche `review-board.png` est un contrôle supplémentaire. Les PNG de logos ont une largeur de 128, 256, 512 ou 1024 px, hauteur proportionnelle. Les JPEG de présentation ont une largeur de 1024 px et un fond explicite. Aucun JPEG de favicon.
+Le manifeste `assets/brand/generated/manifest.json` recense 275 fichiers avec usage, dimensions, transparence, format, taille et SHA-256. La planche `review-board.png` est un contrôle supplémentaire. Chaque composition possède un SVG et des PNG/JPEG de 128, 256, 512, 1024 et 2048 px de large, hauteur proportionnelle. Les PNG gardent la transparence et les JPEG utilisent un fond uni explicite adapté à la variante. La planche de contrôle existe aussi en SVG et JPEG. Le kit `assets/brand/quasar-prisme-kit.zip` réunit les exports, masters, manifeste, planches, conseils d’utilisation et licence Sora. Aucun JPEG de favicon.
 
 ## Choisir une variante
 
-- `horizontal-dark` : pales et lettres blanches, sur fond sombre. `horizontal-light` : bleu nuit, sur fond clair. Même principe pour compact, vertical et wordmark.
-- `symbol-dark/light` : symbole couleur autonome ; `symbol-mono-black/white` : une seule encre, cercle central en réserve. `horizontal-mono-*` : logo entièrement monochrome.
+- `horizontal-dark` : symbole magenta et lettres blanches, sur fond sombre. `horizontal-light` : symbole magenta et lettres bleu nuit, sur fond clair. Même principe pour compact, vertical et wordmark.
+- `symbol-dark/light` : symbole couleur autonome ; `symbol-mono-black/white` : une seule encre, ouverture transparente. Toutes les compositions (horizontal, compact, vertical et wordmark) existent aussi en noir et blanc.
 - `compact` : petits espaces verticaux ; `vertical` : présentation empilée avec respiration supérieure.
-- `app-icon` : symbole sur carré bleu nuit à angles arrondis. `quasar.icns` est intégré au paquet macOS ; `quasar.ico` est prêt pour un futur packaging Windows. Ces assets ne signifient pas que le backend Windows/Linux est implémenté.
+- `app-icon` : symbole magenta sur carré clair à angles arrondis, comme la référence validée. Les variantes `app-icon-light`, `app-icon-dark` et `app-icon-mono` sont exportées en SVG et PNG. `quasar.icns` est intégré au paquet macOS ; `quasar.ico` au packaging Windows et les PNG au packaging Linux. Leur génération ne valide pas une exécution native Windows/Linux.
 - Favicons : SVG, ICO (16/32/48/64/128/256), PNG 16/32/48, Apple 180, Android 192/512.
 
-Conserver le ratio, les couleurs et le cercle central. Ne pas étirer, ombrer, entourer d’un glow ou ajouter de texture au symbole. Pour une composition externe, réserver autour du logo une zone libre d’une largeur de symbole ; les SVG contiennent une marge technique, pas toute cette zone. Symbole autonome : 24 px minimum conseillé, 32 px préférable. Favicon 16 px : exception testée, sans mot. Logo horizontal dans l’application : largeur 182 px. Ne pas utiliser le wordmark à 16 px. Les fonds cosmiques ne sont pas des fonds de travail.
+Conserver le ratio, les couleurs, l’ouverture du ruban et la séparation de la queue. Ne pas étirer, ombrer, entourer d’un glow ou ajouter de texture au symbole. Pour une composition externe, réserver autour du logo une zone libre d’une largeur de symbole ; les SVG contiennent une marge technique, pas toute cette zone. Symbole autonome : 24 px minimum conseillé, 32 px préférable. Favicon 16 px : exception testée, sans mot. Logo horizontal dans l’application : largeur 182 px. Ne pas utiliser le wordmark à 16 px. Les fonds cosmiques ne sont pas des fonds de travail.
 
 ## Tokens et thèmes
 
@@ -42,9 +42,9 @@ Conserver le ratio, les couleurs et le cercle central. Ne pas étirer, ombrer, e
 | Surface | `#121A36` | `#FFFFFF` |
 | Texte principal | `#F4F3FA` | `#0A0F28` |
 | Texte secondaire | `#BAC3DC` | `#46516A` |
-| Action principale | `#B02C73` + blanc | `#A92368` + blanc |
-| Sélection | `#2D2144` | `#F6E6F0` |
-| Focus | `#FFB4D8` | `#A11E64` |
+| Action principale | `#D600A8` + blanc | `#C00097` + blanc |
+| Sélection | `#30203E` | `#FBE8F7` |
+| Focus | `#FFB4E9` | `#AD0088` |
 | Succès | `#69DAA2` | `#0F6B42` |
 | Avertissement | `#F2C37B` | `#805000` |
 | Erreur | `#FF9DA8` | `#B32345` |
@@ -101,7 +101,7 @@ npm run test:stories
 npm run test:visual
 ```
 
-`test:brand` vérifie les SHA-256, le XML SVG, l’absence de bitmap/filtre/texte dépendant d’une police, le cercle central, les dimensions, les transparences, les répertoires ICO/ICNS et l’intégration de l’icône au générateur de lanceur. `test:contrast` calcule 130 rapports selon la luminance WCAG : textes ≥ 4,5:1, composants et focus ≥ 3:1.
+`test:brand` vérifie les SHA-256, le XML SVG, l’absence de bitmap/filtre/texte dépendant d’une police, l’ouverture du Q, la queue détachée, la découpe, la couleur et la synchronisation des SVG intégrés, les dimensions, les transparences, les répertoires ICO/ICNS et l’intégration de l’icône au générateur de lanceur. `test:contrast` calcule 130 rapports selon la luminance WCAG : textes ≥ 4,5:1, composants et focus ≥ 3:1.
 
 Axe contrôle toutes les stories dans les deux thèmes et les parcours de l’application. Les scénarios Playwright vérifient aussi clavier, focus, thèmes système/manuel, recherche parmi 180 caméras, formulaire, OSD, erreur vidéo, diagnostic et absence de choix réseau. Les 70 tests Vitest couvrent les protections et transports existants via simulations locales.
 
@@ -115,7 +115,7 @@ L’inspection visuelle complète les calculs : logo sur fonds unis clair/sombre
 
 Le bundle ID `fr.sezaam.camera-tool`, le nom npm, l’IPC `sezaam:*`, le pont `window.sezaam`, les variables `SEZAAM_*` et `.runtime` restent stables pour préserver préférences, sauvegardes et autorisations. L’UUID Mach-O de l’exécutable est conservé avec la même version Electron. macOS peut encore afficher l’ancien nom dans un consentement déjà enregistré.
 
-Aucun matériel n’est contacté par Storybook ou les tests simulés. La compatibilité réelle de chaque caméra/firmware, le PoE, l’authentification, le flux et les écritures restent à valider avec le matériel branché selon [la recette matérielle](../RECETTE-MATERIELLE.md). Les icônes Windows/Linux sont prêtes, leurs exécutables et leur réseau système restent à porter.
+Aucun matériel n’est contacté par Storybook ou les tests simulés. La compatibilité réelle de chaque caméra/firmware, le PoE, l’authentification, le flux et les écritures restent à valider avec le matériel branché selon [la recette matérielle](../RECETTE-MATERIELLE.md). Les limites de packaging et de validation native Windows/Linux sont détaillées dans [PLATEFORMES.md](../PLATEFORMES.md).
 
 ## Résultat de la recette locale — 19–20 octobre 2026
 
@@ -130,3 +130,11 @@ Aucun matériel n’est contacté par Storybook ou les tests simulés. La compat
 Sources des outils : [Storybook React + Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite/), [accessibilité Storybook](https://storybook.js.org/docs/writing-tests/accessibility-testing). Polices : [Sora](https://github.com/google/fonts/tree/main/ofl/sora), [JetBrains Mono](https://github.com/google/fonts/tree/main/ofl/jetbrainsmono), [Inter](https://github.com/rsms/inter). Les licences distribuées sont la référence locale.
 
 Pour réinstaller volontairement une version reconstruite : `npm run launcher:install`. Fermer d’abord Quasar. Le script conserve les anciens lanceurs avant installation et enregistre Quasar auprès de Launch Services et Spotlight.
+
+## Migration Prisme — 27 octobre 2026
+
+Les builds application, Storybook, lanceur et paquet autonome régénèrent automatiquement les assets depuis le master. Les noms de fichiers et les identifiants techniques restent stables. Le logo horizontal du header, les variantes de thème, le favicon, les icônes des fenêtres/dialogues et les icônes des trois packagings utilisent Prisme. Les couleurs d’action, sélection et focus sont accordées au magenta ; les couleurs d’état restent sémantiques.
+
+Le dossier `assets/brand/generated` fournit les SVG, PNG, JPEG et favicons ; `build/icons` fournit les ICNS/ICO/PNG desktop. La planche de contrôle présente les exports réels et leurs petits formats. Les sections de recette datées du 19–20 octobre ci-dessus décrivent l’ancienne identité et ne constituent pas une validation du nouveau logo installé. Le remplacement de l’application installée reste une opération séparée.
+
+La référence approuvée est conservée dans `assets/brand/reference/prisme-approved.png`. Validation Prisme : 275 assets vérifiés avec contrôle du contenu du ZIP et de la couverture SVG/PNG/JPEG, typage et format réussis, 130 contrastes conformes. Les 12 comparaisons visuelles passent ; les captures de logo clair/sombre ont été inspectées et les références actualisées. Reflow 1100/724 px réussi. Paquet macOS arm64 et lanceur local reconstruits, ICNS/favicons/PNG embarqués comparés aux exports ; démarrage, thèmes, accessibilité et relancement du paquet testés en session isolée sans réseau caméra. L’application installée reste distincte ; aucune exécution native Windows/Linux dans cette recette.

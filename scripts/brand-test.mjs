@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
+import { unzipSync } from "fflate";
 import { XMLValidator } from "fast-xml-parser";
 const manifest = JSON.parse(
   await readFile("assets/brand/generated/manifest.json", "utf8"),
@@ -13,8 +14,8 @@ for (const a of manifest.assets) {
     const s = b.toString();
     assert.equal(XMLValidator.validate(s), true, a.file);
     assert.ok(!/<(?:image|text|filter)\b/i.test(s), a.file);
-    if (!a.file.includes("wordmark"))
-      assert.match(s, /circle id="core-circle" cx="64" cy="64" r="7"/);
+    if (!a.file.includes("wordmark")) assert.match(s, /id="prism-band"/);
+    assert.ok(!/core-circle|id="blades"|id="star"|linearGradient/.test(s));
   }
   if (/\.(png|jpg)$/.test(a.file)) {
     const m = await sharp(b).metadata();
@@ -65,8 +66,8 @@ for (const n of [16, 24, 32, 48, 128, 512]) {
     .toBuffer({ resolveWithObject: true });
   const center = ((n / 2) * n + n / 2) * 4;
   assert.ok(
-    data[center] > 180 && data[center + 1] > 110,
-    "Cercle central visible " + n,
+    data[center] > 230 && data[center + 1] > 230 && data[center + 2] > 230,
+    "Ouverture du Q sur fond clair " + n,
   );
   assert.equal(info.width, n);
 }
@@ -74,6 +75,55 @@ const launcher = await readFile("scripts/create-launcher.mjs", "utf8");
 assert.match(launcher, /CFBundleIconFile: "quasar.icns"/);
 assert.match(launcher, /Resources\/quasar.icns/);
 assert.match(launcher, /fr.sezaam.camera-tool/);
+
+// Every integration must contain exactly the exported variant.
+for (const theme of ["light", "dark"]) {
+  assert.deepEqual(
+    await readFile(`src/renderer/assets/brand/horizontal-${theme}.svg`),
+    await readFile(`assets/brand/generated/horizontal-${theme}.svg`),
+  );
+}
+assert.deepEqual(
+  await readFile("src/renderer/public/favicon.svg"),
+  await readFile("assets/brand/generated/favicon.svg"),
+);
+const prism = await sharp("assets/brand/generated/symbol-light.svg")
+  .ensureAlpha()
+  .raw()
+  .toBuffer();
+const pixel = (x, y) => [
+  ...prism.subarray((y * 128 + x) * 4, (y * 128 + x) * 4 + 4),
+];
+assert.deepEqual(pixel(60, 60), [0, 0, 0, 0], "Centre transparent");
+assert.equal(pixel(100, 100)[3], 255, "Queue détachée visible");
+assert.equal(pixel(106, 82)[3], 0, "Découpe diagonale entre ruban et queue");
+assert.deepEqual(pixel(60, 15), [214, 0, 168, 255], "Magenta Prisme");
+const archive = unzipSync(await readFile("assets/brand/quasar-prisme-kit.zip"));
+for (const asset of manifest.assets)
+  assert.deepEqual(
+    Buffer.from(archive[asset.file]),
+    await readFile(asset.file),
+    `Kit ZIP : ${asset.file}`,
+  );
+for (const kind of [
+  "symbol",
+  "wordmark",
+  "horizontal",
+  "compact",
+  "vertical",
+]) {
+  for (const variant of ["light", "dark", "mono-black", "mono-white"]) {
+    for (const width of [128, 256, 512, 1024, 2048]) {
+      for (const extension of ["png", "jpg"]) {
+        const file = `assets/brand/generated/${kind}-${variant}-${width}.${extension}`;
+        assert.ok(
+          manifest.assets.some((asset) => asset.file === file),
+          `Déclinaison absente : ${file}`,
+        );
+      }
+    }
+  }
+}
 console.log(
-  `${manifest.assets.length} assets vérifiés : intégrité, formats, dimensions, transparence, cercle central, ICO/ICNS et packaging.`,
+  `${manifest.assets.length} assets vérifiés : intégrité, formats, dimensions, transparence, ouverture Prisme, ICO/ICNS et packaging.`,
 );

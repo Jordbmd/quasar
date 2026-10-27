@@ -4,7 +4,7 @@ Le projet local est conservé : Electron 44, React 19, Vite 7, TypeScript et Luc
 
 | Zone | Avant | Migration réalisée |
 | --- | --- | --- |
-| Identité | Sezaam, pictogramme caméra générique, Inter seule | Quasar, symbole vectoriel reconstruit, logotype en tracés, Sora / Inter / JetBrains Mono |
+| Identité | Sezaam, pictogramme caméra générique, Inter seule | Quasar Prisme, Q magenta à queue détachée, logotype en tracés sans point final, Sora / Inter / JetBrains Mono |
 | Styles | Variables clair/sombre et composants dans style.css | Tokens séparés, primitives React partagées, styles de composants et mise en page |
 | Caméras | Ethernet automatique, liste, aperçu, identité et trois formulaires | Même disposition, palette et composants Quasar |
 | Diagnostic | Synthèse, sélection caméra, résultats, journal | Composants métier documentés et états sémantiques partagés |

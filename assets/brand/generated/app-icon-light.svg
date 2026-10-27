@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect x="32" y="32" width="960" height="960" rx="216" fill="#FAF9FD"/><g transform="translate(176 176) scale(5.25)">
+  <title>Quasar — Prisme</title>
+  <path id="prism-band" fill="#D600A8" d="M40 4 H92 Q95 4 97 6 L122 31 Q124 33 124 37 V87 Q124 89 122 87 L64 31 L30 66 L84 120 Q87 124 82 124 H40 Q36 124 34 122 L6 94 Q4 92 4 88 V40 Q4 36 6 34 L34 6 Q36 4 40 4 Z"/>
+  <path id="prism-facet" fill="#BC0094" d="M40 4 L64 31 L4 92 V40 Q4 36 6 34 L34 6 Q36 4 40 4 Z"/>
+  <path id="prism-tail" fill="#D600A8" d="M90 72 Q88 70 86 72 L70 88 Q68 90 70 92 L100 122 Q102 124 105 124 H120 Q124 124 124 120 V108 Q124 106 122 104 Z"/>
+</g></svg>
