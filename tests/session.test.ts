@@ -115,7 +115,11 @@ it("connecte cinq caméras avec une saisie et retrouve les paramètres sans se r
   const id = service.cameras[0].id;
   const first = await service.dispatch("selectCamera", { id });
   await service.dispatch("selectCamera", { id: service.cameras[1].id });
-  expect(await service.dispatch("selectCamera", { id })).toBe(first);
+  expect(await service.dispatch("selectCamera", { id })).toEqual({
+    ...first,
+    readState: "cached",
+  });
+  expect(first.readState).toBe("live");
   expect(mock.connections[0].reads).toBe(1);
   await service.dispatch("readCamera", { id });
   expect(mock.connections[0].reads).toBe(2);

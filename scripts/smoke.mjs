@@ -8,12 +8,14 @@ const require = createRequire(import.meta.url);
 await mkdir("test-results", { recursive: true });
 const env = {
   ...process.env,
+  QUASAR_TEST_NO_NETWORK: "1",
   SEZAAM_TEST_USER_DATA: await mkdtemp(path.join(tmpdir(), "sezaam-ui-")),
 };
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.SEZAAM_DEV_URL;
 let app = await electron.launch({
-  args: [path.resolve(".")],
+  args: process.env.QUASAR_PACKAGED_EXECUTABLE ? [] : [path.resolve(".")],
+  executablePath: process.env.QUASAR_PACKAGED_EXECUTABLE || undefined,
   env,
   timeout: 30000,
 });
@@ -23,14 +25,34 @@ try {
   const page = await app.firstWindow();
   page.on("pageerror", (e) => errors.push(e.message));
   await page
-    .getByRole("heading", { name: "Configuration des caméras", exact: true })
-    .waitFor();
+    .getByRole("heading", { name: "Caméras", exact: true })
+    .waitFor()
+    .catch(async (error) => {
+      console.error(
+        "Isolated test window",
+        page.url(),
+        await page.locator("body").innerText(),
+        errors,
+      );
+      await page.screenshot({ path: "test-results/startup-failure.png" });
+      throw error;
+    });
   await page.locator(".operation").waitFor({ state: "hidden" });
   const state = await page.evaluate(() =>
     window.sezaam.call("state", undefined),
   );
   assert.equal(state.cameras.length, 0);
   assert.equal(state.reports.length, 0);
+  assert.equal(state.videoReady, true, "Relais embarqué disponible");
+  if (process.env.QUASAR_PACKAGED_EXECUTABLE) {
+    const runtime = await app.evaluate(({ app }) => ({
+      packaged: app.isPackaged,
+      appPath: app.getAppPath(),
+    }));
+    assert.equal(runtime.packaged, true);
+    assert.match(runtime.appPath, /app\.asar$/);
+    checks.push("Paquet autonome : app.asar et relais embarqué disponibles");
+  }
   assert.equal(await page.evaluate(() => typeof window.require), "undefined");
   assert.equal(
     await page.getByText("Préparation Ethernet", { exact: true }).count(),
@@ -77,9 +99,7 @@ try {
         })
         .click();
     await page.getByRole("button", { name: /Caméras Configuration/ }).click();
-    await page
-      .getByRole("heading", { name: "Configuration des caméras", exact: true })
-      .waitFor();
+    await page.getByRole("heading", { name: "Caméras", exact: true }).waitFor();
     await page.locator(".operation").waitFor({ state: "hidden" });
     await page
       .getByRole("button", { name: "Ajouter par IP", exact: true })
@@ -145,13 +165,14 @@ try {
   await page.getByRole("button", { name: "Activer le thème sombre" }).click();
   await app.close();
   app = await electron.launch({
-    args: [path.resolve(".")],
+    args: process.env.QUASAR_PACKAGED_EXECUTABLE ? [] : [path.resolve(".")],
+    executablePath: process.env.QUASAR_PACKAGED_EXECUTABLE || undefined,
     env,
     timeout: 30000,
   });
   const reopened = await app.firstWindow();
   await reopened
-    .getByRole("heading", { name: "Configuration des caméras", exact: true })
+    .getByRole("heading", { name: "Caméras", exact: true })
     .waitFor();
   assert.equal(
     await reopened.locator("html").getAttribute("data-theme"),
@@ -160,7 +181,9 @@ try {
   checks.push("Préférence thème persistée après fermeture et relancement");
   assert.deepEqual(errors, []);
   await writeFile(
-    "test-results/smoke.json",
+    process.env.QUASAR_PACKAGED_EXECUTABLE
+      ? "test-results/smoke-packaged.json"
+      : "test-results/smoke.json",
     JSON.stringify(
       {
         at: new Date().toISOString(),

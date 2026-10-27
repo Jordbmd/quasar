@@ -1,30 +1,10 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import { networkInterfaces } from "node:os";
 import type { Adapter } from "../shared/types";
 import { ipNumber } from "./ip";
-const exec = promisify(execFile);
-export type Run = (
-  file: string,
-  args: string[],
-  timeout?: number,
-) => Promise<string>;
-export const run: Run = async (file, args, timeout = 6000) => {
-  const r = await exec(file, args, {
-    timeout,
-    maxBuffer: 1024 * 1024,
-    env: { ...process.env, LC_ALL: "C", LANG: "C" },
-  });
-  if (/AuthorizationCreate\(\) failed|Error:/.test(r.stdout))
-    throw new Error(r.stdout.trim());
-  return r.stdout.trim();
-};
-export interface SystemNetwork {
-  list(): Promise<Adapter[]>;
-  route(ip: string, interfaceId: string): Promise<string>;
-  neighbors(id: string): Promise<{ ip: string; mac: string }[]>;
-  probe(ip: string, source: string): Promise<void>;
-}
+import { LinuxNetwork } from "./platforms/linux";
+import { WindowsNetwork } from "./platforms/windows";
+import { run, type Run, type SystemNetwork } from "./platforms/contract";
+export { type Run, type SystemNetwork } from "./platforms/contract";
 export function parseServices(s: string) {
   return [
     ...s.matchAll(
@@ -156,8 +136,9 @@ export class MacNetwork implements SystemNetwork {
     }
   }
 }
-export class UnsupportedNetwork implements SystemNetwork {
+class UnsupportedNetwork implements SystemNetwork {
   async list() {
+    throw new Error("Plateforme réseau non prise en charge.");
     return [];
   }
   async route() {
@@ -170,4 +151,12 @@ export class UnsupportedNetwork implements SystemNetwork {
   async probe() {
     throw new Error("Plateforme non prise en charge.");
   }
+}
+export function systemNetwork(
+  platform: string = process.platform,
+): SystemNetwork {
+  if (platform === "darwin") return new MacNetwork();
+  if (platform === "linux") return new LinuxNetwork();
+  if (platform === "win32") return new WindowsNetwork();
+  return new UnsupportedNetwork();
 }

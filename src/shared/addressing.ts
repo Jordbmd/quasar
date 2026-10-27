@@ -9,3 +9,11 @@ export type AddressRow = {
   message: string;
 };
 export type AddressPlan = { id: string; createdAt: string; rows: AddressRow[] };
+
+export type AddressProgress = {
+  planId: string;
+  camera: string;
+  completed: number;
+  total: number;
+  stage: string;
+};

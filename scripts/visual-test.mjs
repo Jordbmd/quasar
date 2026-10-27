@@ -86,6 +86,12 @@ try {
       true,
       `Barre d’actions tronquée à ${width}px`,
     );
+    assert.ok(
+      await h.page
+        .locator(".list-scroll")
+        .evaluate((el) => el.clientHeight >= 96),
+      "Liste utilisable au zoom : au moins une ligne visible",
+    );
     await h.page.screenshot({
       path: `test-results/visual/reflow-${width}-bottom.png`,
     });

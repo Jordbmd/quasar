@@ -45,7 +45,10 @@ type Action = {
 type Prepared = DefaultsCameraPlan & { actions: Action[]; fingerprint: string };
 export class DefaultsStore {
   private memory: DefaultsProfile;
-  constructor(private file?: string, seed: unknown = initialDefaults()) {
+  constructor(
+    private file?: string,
+    seed: unknown = initialDefaults(),
+  ) {
     this.memory = validateDefaults(seed);
   }
   async read(): Promise<DefaultsProfile> {

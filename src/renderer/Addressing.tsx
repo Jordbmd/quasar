@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import type { AddressPlan } from "../shared/addressing";
+import React, { useEffect, useState } from "react";
+import type { AddressPlan, AddressProgress } from "../shared/addressing";
 import type { Camera } from "../shared/types";
 import { Button, Modal, Alert, Field } from "./design-system/components";
+import { BatchProgress, AddressOutcome } from "./BatchFeedback";
 import type { Run } from "./ui";
 
 export function Addressing({
@@ -24,14 +25,29 @@ export function Addressing({
   const [error, setError] = useState("");
   const [isolating, setIsolating] = useState("");
   const [isolated, setIsolated] = useState(false);
+  const [phase, setPhase] = useState("");
+  const [progress, setProgress] = useState<AddressProgress>();
+  const [finished, setFinished] = useState(false);
+  useEffect(
+    () =>
+      window.sezaam.onAddressProgress?.((update) => {
+        if (update.planId === plan?.id) setProgress(update);
+      }),
+    [plan?.id],
+  );
   const [applied, setApplied] = useState(false);
   const execute = (label: string, work: () => Promise<void>) =>
     void run(label, async () => {
       setError("");
+      setPhase(label);
+      setProgress(undefined);
+      setFinished(false);
       try {
         await work();
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setPhase("");
       }
     });
   const selected = cameras.find((c) => c.id === isolating);
@@ -39,7 +55,24 @@ export function Addressing({
   return (
     <Modal
       open={open}
-      title="Attribuer les IP par casier"
+      title={
+        finished ? "Bilan d’attribution des IP" : "Attribuer les IP par casier"
+      }
+      busy={busy}
+      status={
+        <>
+          {phase && (
+            <BatchProgress key={phase} title={phase} progress={progress} />
+          )}
+          {finished && plan && <AddressOutcome plan={plan} />}
+          {error && <Alert kind="danger">{error}</Alert>}
+        </>
+      }
+      footer={
+        <Button disabled={busy} onClick={onClose}>
+          {finished ? "Fermer le bilan" : "Fermer"}
+        </Button>
+      }
       onClose={() => {
         if (!busy) onClose();
       }}
@@ -61,6 +94,7 @@ export function Addressing({
               setStart(e.target.value);
               setPlan(undefined);
               setApplied(false);
+              setFinished(false);
             }}
           />
         </Field>
@@ -70,6 +104,7 @@ export function Addressing({
             execute("Vérification de la plage d’adresses", async () => {
               setPlan(undefined);
               setApplied(false);
+              setFinished(false);
               setPlan(
                 await window.sezaam.call("previewAddresses", {
                   start: Number(start),
@@ -80,7 +115,6 @@ export function Addressing({
         >
           Vérifier les adresses
         </Button>
-        {error && <Alert kind="danger">{error}</Alert>}
         {plan && (
           <>
             <div className="addressing-table">
@@ -145,6 +179,7 @@ export function Addressing({
                             planId: reviewed.id,
                           }),
                         );
+                        setFinished(true);
                         onApplied();
                       },
                     )
@@ -191,6 +226,7 @@ export function Addressing({
                   setIsolated(false);
                   setPlan(undefined);
                   setApplied(false);
+                  setFinished(false);
                   onApplied();
                 })
               }

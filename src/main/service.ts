@@ -1,11 +1,9 @@
+import { syncClock } from "./sync-clock";
 import { readDaylight } from "./daylight";
 import { FactoryReset } from "./factory-reset";
-import {
-  resetConfirmation,
-  type FactoryResetPlan,
-} from "../shared/factory-reset";
+import { type FactoryResetPlan } from "../shared/factory-reset";
 import { addressRows } from "./addressing";
-import type { AddressPlan } from "../shared/addressing";
+import type { AddressPlan, AddressProgress } from "../shared/addressing";
 import { readWebOSD, changeWebOSD, webOSDBody } from "./web-osd";
 import { ProfileJournal } from "./profile-journal";
 import {
@@ -28,17 +26,9 @@ import {
   type FieldVerification,
   type ProfileRun,
 } from "../shared/profile-journal";
-import {
-  parseCameraClock,
-  clockSettings,
-  cameraClockPayload,
-  fixedClockSettings,
-  hasDSTClockError,
-  localClockMatches,
-  clockTimezoneMatches,
-} from "./camera-clock";
+import { parseCameraClock } from "./camera-clock";
 import { DefaultsManager, DefaultsStore } from "./defaults";
-import { validateDefaults, type DefaultsProgress } from "../shared/defaults";
+import { type DefaultsProgress } from "../shared/defaults";
 import { encoderPayload, encoderFingerprint } from "./encoding";
 import net from "node:net";
 import { WebSocket } from "ws";
@@ -53,7 +43,6 @@ import {
 } from "./osd";
 import type { DiagnosticReport } from "../shared/types";
 import { randomUUID } from "node:crypto";
-import { z } from "zod";
 import type {
   Api,
   Camera,
@@ -82,176 +71,8 @@ import {
 import { cameraAddress, prefix, host, sameSubnet } from "./ip";
 import { VideoRelay } from "./video";
 import { cancelled } from "./cancellation";
-const id = z.string().uuid();
-const ip = z.ipv4();
-const finite = z.number().finite();
-const osdFields = {
-  text: z.string().max(128).optional(),
-  textType: z.enum(["Plain", "Date", "Time", "DateAndTime"]).optional(),
-  position: z
-    .enum(["UpperLeft", "UpperRight", "LowerLeft", "LowerRight", "Custom"])
-    .optional(),
-  fontSize: finite.int().min(0).max(1000).optional(),
-  dateFormat: z.string().min(1).max(128).optional(),
-  timeFormat: z.string().min(1).max(128).optional(),
-  x: finite.min(-1).max(1).optional(),
-  y: finite.min(-1).max(1).optional(),
-};
-const osdCorner = z.enum([
-  "topLeft",
-  "topRight",
-  "bottomLeft",
-  "bottomRight",
-  "hidden",
-  "custom",
-]);
-export const schemas = {
-  previewFactoryReset: z
-    .object({
-      ids: z
-        .array(id)
-        .min(1)
-        .max(256)
-        .refine((ids) => new Set(ids).size === ids.length),
-    })
-    .strict(),
-  applyFactoryReset: z
-    .object({ planId: id, confirmation: z.literal(resetConfirmation) })
-    .strict(),
-  previewAddresses: z
-    .object({ start: z.number().int().min(1).max(244) })
-    .strict(),
-  applyAddresses: z.object({ planId: id }).strict(),
-  resolveIPConflict: z.object({ id, isolated: z.literal(true) }).strict(),
-  setWebOSD: z
-    .object({
-      id,
-      values: z
-        .object({
-          enabled: z.boolean(),
-          title: z.string().max(64),
-          titlePosition: osdCorner,
-          timePosition: osdCorner,
-        })
-        .strict(),
-    })
-    .strict(),
-  syncCameraTime: z
-    .object({ id, timezone: z.enum(["Europe/Paris", "UTC"]) })
-    .strict(),
-  getDefaults: z.undefined(),
-  auditDefaults: z
-    .object({
-      ids: z
-        .array(id)
-        .min(1)
-        .max(256)
-        .refine((ids) => new Set(ids).size === ids.length),
-    })
-    .strict(),
-  listDefaultsRuns: z.undefined(),
-  getDefaultsRun: z.object({ id }).strict(),
-  exportDefaultsRun: z.object({ id }).strict(),
-  saveDefaults: z.unknown().transform((v) => validateDefaults(v)),
-  previewDefaults: z
-    .object({
-      ids: z
-        .array(id)
-        .min(1)
-        .max(256)
-        .refine((ids) => new Set(ids).size === ids.length, "Cibles dupliquées"),
-    })
-    .strict(),
-  applyDefaults: z.object({ planId: id }).strict(),
-  state: z.undefined(),
-  discover: z.undefined(),
-  addCamera: z
-    .object({ ip, port: z.number().int().min(1).max(65535) })
-    .strict(),
-  connectSession: z
-    .object({
-      username: z.string().max(128),
-      password: z.string().max(256),
-    })
-    .strict(),
-  disconnectSession: z.undefined(),
-  retryConnections: z.undefined(),
-  selectCamera: z
-    .object({ id, requestId: z.string().max(100).optional() })
-    .strict(),
-  readCamera: z
-    .object({ id, requestId: z.string().max(100).optional() })
-    .strict(),
-  cancelCameraRead: z.undefined(),
-  changeIP: z
-    .object({ id, address: ip, mask: ip, isolated: z.boolean() })
-    .strict(),
-  setVideo: z
-    .object({
-      id,
-      token: z.string().min(1).max(256),
-      width: finite.int().positive(),
-      height: finite.int().positive(),
-      fps: finite.positive(),
-      codec: z.enum(["H264", "H265", "JPEG", "MPEG4"]).optional(),
-      constantBitrate: z.boolean().optional(),
-      govLength: finite.int().positive().optional(),
-      h264Profile: z.enum(["Baseline", "Main", "Extended", "High"]).optional(),
-      quality: finite.optional(),
-      bitrate: finite.int().positive().optional(),
-    })
-    .strict(),
-  setImage: z
-    .object({
-      id,
-      values: z.record(
-        z.enum([
-          "brightness",
-          "contrast",
-          "colorSaturation",
-          "sharpness",
-          "irCutFilter",
-        ]),
-        z.union([finite, z.enum(["ON", "OFF", "AUTO"])]),
-      ),
-    })
-    .strict(),
-  setOSD: z
-    .object({
-      id,
-      token: z.string().min(1).max(256),
-      ...osdFields,
-    })
-    .strict(),
-  createOSD: z
-    .object({ id, source: z.string().min(1).max(256), ...osdFields })
-    .strict(),
-  disableOSD: z
-    .object({
-      id,
-      tokens: z.array(z.string().min(1).max(256)).min(1).max(64).optional(),
-    })
-    .strict(),
-  restoreOSD: z.object({ id }).strict(),
-  diagnose: z.object({ id }).strict(),
-  setCameraNetwork: z
-    .object({
-      id,
-      dhcp: z.boolean().optional(),
-      address: ip.optional(),
-      mask: ip.optional(),
-      gateway: z.union([ip, z.literal("")]).optional(),
-      dns: z.array(ip).max(4).optional(),
-      isolated: z.boolean(),
-    })
-    .strict(),
-  previewProfiles: z.object({ id }).strict(),
-  startVideo: z.object({ id, profile: z.string().min(1).max(256) }).strict(),
-  stopVideo: z.undefined(),
-  openWeb: z.object({ id }).strict(),
-  exportLogs: z.undefined(),
-  copyLogs: z.undefined(),
-};
+export { schemas } from "../shared/ipc-schemas";
+import { parseRequest } from "../shared/ipc-schemas";
 export class CameraService {
   private discoveryRead?: { at: number; epoch: number };
   private addressPlan?: {
@@ -264,6 +85,7 @@ export class CameraService {
   private factoryReset: FactoryReset;
   onFactoryResetProgress?: (plan: FactoryResetPlan) => void;
   exportProfileRun?: (run: ProfileRun) => Promise<string>;
+  onAddressProgress?: (progress: AddressProgress) => void;
   onDefaultsProgress?: (progress: DefaultsProgress) => void;
   onCameraDetail?: (update: CameraDetailUpdate) => void;
   cameras: Camera[] = [];
@@ -616,7 +438,8 @@ export class CameraService {
         array(cached.osd?.data?.options).some(
           (o) => o.result?.state === "error",
         ));
-    if (cached && !fresh && !cached.loading && !hasErrors) return cached;
+    if (cached && !fresh && !cached.loading && !hasErrors)
+      return { ...cached, readState: "cached" as const };
     if (fresh) await conn.identity();
     const restoreAvailable = !!(await this.osdStore.read(c));
     const publish = (detail: CameraDetail) => {
@@ -625,6 +448,7 @@ export class CameraService {
       if (conn.closed || this.connections.get(id) !== conn)
         throw new Error("Connexion interrompue.");
       detail.osdRestoreAvailable = restoreAvailable;
+      detail.readState = "partial";
       this.details.set(id, detail);
       if (requestId) this.onCameraDetail?.({ requestId, detail });
     };
@@ -634,6 +458,8 @@ export class CameraService {
     if (conn.closed || this.connections.get(id) !== conn)
       throw new Error("Connexion interrompue.");
     detail.osdRestoreAvailable = restoreAvailable;
+    detail.readState = cached && !fresh ? "partial" : "live";
+    detail.readAt = new Date().toISOString();
     signal?.throwIfAborted();
     this.details.set(id, detail);
     if (conn.writeAttempts === 0 && detail.network.state === "available")
@@ -981,13 +807,28 @@ export class CameraService {
     )
       throw Error("Opération annulée.");
     let stopped = false;
+    let completed = 0;
+    const progress = (camera: string, stage: string) =>
+      this.onAddressProgress?.({
+        planId,
+        camera,
+        completed,
+        total: ready.length,
+        stage,
+      });
     for (const row of ready) {
       if (stopped) {
         row.state = "skipped";
         row.message =
           "Non envoyée : le changement précédent n’a pas été confirmé.";
+        completed++;
+        progress(row.from, "Non exécutée après un résultat incertain");
         continue;
       }
+      progress(
+        `${row.from} → ${row.to}`,
+        "Attribution et relecture de l’adresse",
+      );
       try {
         this.guard.ensureEpoch(saved.epoch);
         if (saved.session !== this.sessionGeneration)
@@ -1017,6 +858,11 @@ export class CameraService {
         row.message = this.log.safe(error);
         stopped = true;
       }
+      completed++;
+      progress(
+        row.to,
+        row.state === "verified" ? "Adresse vérifiée" : "Résultat à vérifier",
+      );
       this.log.add(
         row.state === "verified" ? "info" : "attention",
         "Adressage par casier",
@@ -1024,6 +870,7 @@ export class CameraService {
         row.from,
       );
     }
+    progress("", "Enregistrement du bilan");
     await this.profileJournal.backupVendor(
       {},
       "addressing-report",
@@ -1397,7 +1244,7 @@ export class CameraService {
   }
   async writeAndVerify(
     id: string,
-    send: () => Promise<any>,
+    send: () => Promise<unknown>,
     verify: () => Promise<boolean>,
   ): Promise<WriteResult> {
     this.uncertain.add(id);
@@ -2315,132 +2162,76 @@ export class CameraService {
     method: K,
     input: Api[K]["input"],
   ): Promise<Api[K]["output"]> {
-    const v: any = schemas[method].parse(input);
-    let out: any;
-    switch (method) {
-      case "previewFactoryReset":
+    const request = parseRequest(method, input);
+    let out: Api[keyof Api]["output"] = undefined;
+    switch (request.method) {
+      case "previewFactoryReset": {
+        const v = request.input;
         await this.guard.assert();
         out = await this.factoryReset.preview(
           v.ids.map((id: string) => ({ ...this.camera(id) })),
         );
         break;
-      case "applyFactoryReset":
+      }
+      case "applyFactoryReset": {
+        const v = request.input;
         await this.stopVideo();
         await this.cancelCameraRead();
         await this.finishPreviewLighting();
         out = await this.factoryReset.apply(v.planId, v.confirmation);
         break;
+      }
       case "syncCameraTime": {
-        const conn = await this.approve(
-          v.id,
-          "Synchroniser la date et l’heure avec le Mac",
-          false,
-        );
-        const originalClock = await conn.soap("GetSystemDateAndTime", "", true);
-        parseCameraClock(originalClock);
-        await this.profileJournal.backupVendor(
-          conn.camera,
-          "clock",
-          originalClock,
-        );
-        let settings = clockSettings(v.timezone);
-        let compatibility = false;
-        let fields: Record<string, FieldVerification> | undefined;
-        out = await this.writeAndVerify(
-          v.id,
-          async () => {
-            try {
-              await conn.soap(
-                "SetSystemDateAndTime",
-                cameraClockPayload(settings),
-                true,
-              );
-              const got = parseCameraClock(
-                await conn.soap("GetSystemDateAndTime", "", true),
-              );
-              conn.cam.timeShift = got.at - process.uptime() * 1000;
-              // A second, different configuration is allowed only after an
-              // acknowledged write and a precise, confirmed DST error. Never
-              // retry writes after timeout or an unavailable readback.
-              if (hasDSTClockError(got, settings)) {
-                settings = fixedClockSettings(v.timezone);
-                compatibility = true;
-                await conn.soap(
-                  "SetSystemDateAndTime",
-                  cameraClockPayload(settings),
-                  true,
-                );
-                this.log.add(
-                  "attention",
-                  "Compatibilité de l’horloge",
-                  "La caméra gère incorrectement l’heure d’été. Décalage local actuel appliqué ; resynchroniser au changement été/hiver.",
-                  conn.camera.ip,
-                );
-              }
-            } finally {
-              conn.cam.timeShift = Date.now() - process.uptime() * 1000;
-            }
-          },
-          async () => {
-            const got = parseCameraClock(
-              await conn.soap("GetSystemDateAndTime", "", true),
-            );
-            conn.cam.timeShift = got.at - process.uptime() * 1000;
-            fields = {
-              syncTime: {
-                verified:
-                  Math.abs(got.at - Date.now()) <= 10000 &&
-                  got.mode === "Manual" &&
-                  (got.localAt === undefined
-                    ? !compatibility
-                    : localClockMatches(got, v.timezone)),
-                observed: new Date(got.at).toISOString(),
-              },
-              clockTimezone: {
-                verified: clockTimezoneMatches(got, settings),
-                observed: compatibility
-                  ? `${got.timezone} · compatibilité : décalage actuel, resynchronisation nécessaire au changement été/hiver`
-                  : got.timezone,
-              },
-            };
-            return Object.values(fields).every((f) => f.verified);
-          },
-        );
-        out.fields = fields;
-        if (compatibility && out.verified)
-          out.message +=
-            " Compatibilité horloge : resynchronisez au changement été/hiver.";
+        const v = request.input;
+        out = await syncClock(this, v);
         break;
       }
-      case "auditDefaults":
+      case "auditDefaults": {
+        const v = request.input;
         await this.stopVideo();
         out = await this.defaults.audit(v.ids);
         break;
-      case "listDefaultsRuns":
+      }
+      case "listDefaultsRuns": {
+        const v = request.input;
         out = await this.profileJournal.list();
         break;
-      case "getDefaultsRun":
+      }
+      case "getDefaultsRun": {
+        const v = request.input;
         out = await this.profileJournal.get(v.id);
         break;
-      case "exportDefaultsRun":
+      }
+      case "exportDefaultsRun": {
+        const v = request.input;
         if (!this.exportProfileRun) throw Error("Export indisponible.");
         out = await this.exportProfileRun(await this.profileJournal.get(v.id));
         break;
-      case "getDefaults":
+      }
+      case "getDefaults": {
+        const v = request.input;
         out = await this.defaults.store.read();
         break;
-      case "saveDefaults":
+      }
+      case "saveDefaults": {
+        const v = request.input;
         out = await this.defaults.store.save(v);
         break;
-      case "previewDefaults":
+      }
+      case "previewDefaults": {
+        const v = request.input;
         await this.stopVideo();
         out = await this.defaults.preview(v.ids);
         break;
-      case "applyDefaults":
+      }
+      case "applyDefaults": {
+        const v = request.input;
         await this.stopVideo();
         out = await this.defaults.apply(v.planId);
         break;
-      case "state":
+      }
+      case "state": {
+        const v = request.input;
         out = {
           platform: process.platform,
           arch: process.arch,
@@ -2452,19 +2243,30 @@ export class CameraService {
           session: this.session(),
         };
         break;
-      case "previewAddresses":
+      }
+      case "previewAddresses": {
+        const v = request.input;
         out = await this.previewAddresses(v.start);
         break;
-      case "applyAddresses":
+      }
+      case "applyAddresses": {
+        const v = request.input;
         out = await this.applyAddresses(v.planId);
         break;
-      case "resolveIPConflict":
+      }
+      case "resolveIPConflict": {
+        const v = request.input;
         out = await this.resolveIPConflict(v.id);
         break;
-      case "discover":
+      }
+      case "discover": {
+        const v = request.input;
         out = await this.discovery();
         break;
+      }
       case "addCamera": {
+        const v = request.input;
+
         const a = await this.guard.assert(v.ip);
 
         out = this.cameras.find((c) => c.ip === v.ip && c.port === v.port);
@@ -2483,6 +2285,8 @@ export class CameraService {
         break;
       }
       case "connectSession": {
+        const v = request.input;
+
         await this.guard.assert();
         await this.disconnectSession();
         this.credentials = { username: v.username, password: v.password };
@@ -2493,30 +2297,44 @@ export class CameraService {
         out = this.session();
         break;
       }
-      case "disconnectSession":
+      case "disconnectSession": {
+        const v = request.input;
         await this.disconnectSession();
         break;
-      case "retryConnections":
+      }
+      case "retryConnections": {
+        const v = request.input;
         await this.guard.assert();
         if (!this.credentials)
           throw new Error("Ouvrez d’abord une session dans l’application.");
         await this.connectPending(true);
         out = this.session();
         break;
-      case "selectCamera":
+      }
+      case "selectCamera": {
+        const v = request.input;
         out = await this.selectDetail(v.id, false, v.requestId);
         break;
+      }
       case "readCamera": {
+        const v = request.input;
+
         out = await this.selectDetail(v.id, true, v.requestId);
         break;
       }
-      case "cancelCameraRead":
+      case "cancelCameraRead": {
+        const v = request.input;
         await this.cancelCameraRead();
         break;
-      case "changeIP":
+      }
+      case "changeIP": {
+        const v = request.input;
         out = await this.changeIP(v);
         break;
+      }
       case "setVideo": {
+        const v = request.input;
+
         let conn = await this.connection(v.id);
         const entry = await conn.videoEntry(v.token);
         validateVideo(entry, v);
@@ -2592,6 +2410,8 @@ export class CameraService {
         break;
       }
       case "setImage": {
+        const v = request.input;
+
         let conn = await this.connection(v.id);
         const detail = await conn.detail();
         if (detail.image.state !== "available" || !Object.keys(v.values).length)
@@ -2645,33 +2465,51 @@ export class CameraService {
         out.fields = fields;
         break;
       }
-      case "setWebOSD":
+      case "setWebOSD": {
+        const v = request.input;
         out = await this.setWebOSD(v);
         break;
-      case "createOSD":
+      }
+      case "createOSD": {
+        const v = request.input;
         out = await this.createOSD(v);
         break;
-      case "setOSD":
+      }
+      case "setOSD": {
+        const v = request.input;
         out = await this.editOSD(v);
         break;
-      case "disableOSD":
+      }
+      case "disableOSD": {
+        const v = request.input;
         out = await this.disableOSD(v);
         break;
-      case "restoreOSD":
+      }
+      case "restoreOSD": {
+        const v = request.input;
         out = await this.restoreOSD(v.id);
         break;
-      case "diagnose":
+      }
+      case "diagnose": {
+        const v = request.input;
         out = await this.diagnose(v.id);
         break;
-      case "setCameraNetwork":
+      }
+      case "setCameraNetwork": {
+        const v = request.input;
         out = await this.setCameraNetwork(v);
         break;
+      }
       case "previewProfiles": {
+        const v = request.input;
+
         const conn = await this.connection(v.id);
         out = array(conn.cam.profiles);
         break;
       }
       case "startVideo": {
+        const v = request.input;
+
         const stopping = this.stopVideo();
         const controller = new AbortController();
         this.videoRequest = controller;
@@ -2698,20 +2536,28 @@ export class CameraService {
           .catch(() => {});
         break;
       }
-      case "stopVideo":
+      case "stopVideo": {
+        const v = request.input;
         await this.stopVideo();
         break;
+      }
       case "openWeb": {
+        const v = request.input;
+
         const c = this.camera(v.id);
         await this.guard.assert(c.ip);
         await this.open(`http://${c.ip}/`);
         break;
       }
-      case "exportLogs":
+      case "copyLogs":
+        throw Error("La copie des journaux est gérée par le contrôleur IPC.");
+      case "exportLogs": {
+        const v = request.input;
         out = await this.exportFile();
         break;
+      }
     }
-    return out;
+    return out as Api[K]["output"];
   }
   shutdown() {
     return this.disconnectSession();

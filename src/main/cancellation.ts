@@ -1,4 +1,7 @@
-export const cancelled = () => new Error("Lecture remplacée.");
+export const cancelled = () =>
+  Object.assign(new Error("Lecture remplacée."), {
+    code: "CANCELLED" as const,
+  });
 
 export function abortable<T>(
   work: Promise<T>,

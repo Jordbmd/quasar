@@ -1,5 +1,6 @@
 import { ProfileInsights } from "./ProfileInsights";
 import { fieldSupport, supportLabels } from "../shared/default-support";
+import { BatchProgress, ProfileOutcome } from "./BatchFeedback";
 import { DefaultsResults } from "./DefaultsResults";
 import { type ProfileRun } from "../shared/profile-journal";
 import React, { useEffect, useState } from "react";
@@ -360,6 +361,7 @@ export function DefaultsApply({
   const [report, setReport] = useState(false);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState<DefaultsProgress>();
+  const [phase, setPhase] = useState<"preview" | "apply">();
   useEffect(() => window.sezaam.onDefaultsProgress?.(setProgress), []);
   useEffect(() => {
     if (!targets) return;
@@ -368,10 +370,13 @@ export function DefaultsApply({
     setError("");
     setProgress(undefined);
     void run("Vérification du profil et des caméras", async () => {
+      setPhase("preview");
       try {
         setPlan(await window.sezaam.call("previewDefaults", { ids: targets }));
       } catch (e) {
         setError((e as Error).message);
+      } finally {
+        setPhase(undefined);
       }
     });
   }, [targets]);
@@ -379,6 +384,9 @@ export function DefaultsApply({
   const ready = rows.filter((r) => r.state === "ready").length;
   const apply = async () => {
     await run("Application du profil Sezaam", async () => {
+      setPhase("apply");
+      setProgress(undefined);
+      setError("");
       try {
         const result = await window.sezaam.call("applyDefaults", {
           planId: plan!.id,
@@ -388,6 +396,8 @@ export function DefaultsApply({
       } catch (e) {
         setError((e as Error).message);
         setPlan(undefined);
+      } finally {
+        setPhase(undefined);
       }
     });
     await onApplied();
@@ -395,6 +405,24 @@ export function DefaultsApply({
   return (
     <Modal
       open={!!targets}
+      busy={busy}
+      status={
+        <>
+          {phase && (
+            <BatchProgress
+              key={phase}
+              title={
+                phase === "apply"
+                  ? "Application du profil en cours"
+                  : "Vérification des caméras en cours"
+              }
+              progress={progress}
+            />
+          )}
+          {report && plan && <ProfileOutcome plan={plan} />}
+          {error && <Alert kind="danger">{error}</Alert>}
+        </>
+      }
       title={
         report
           ? "Bilan d’application du profil"
@@ -411,6 +439,7 @@ export function DefaultsApply({
           {!report && (
             <Button
               className="primary"
+              loading={phase === "apply"}
               disabled={busy || !ready || !!error}
               onClick={() => void apply()}
             >
@@ -421,7 +450,6 @@ export function DefaultsApply({
       }
     >
       <div className="defaults-review">
-        {error && <Alert kind="danger">{error}</Alert>}
         {(plan as ProfileRun)?.journalWarning && (
           <Alert kind="warning">{(plan as ProfileRun).journalWarning}</Alert>
         )}
@@ -430,19 +458,6 @@ export function DefaultsApply({
             Rapport enregistré dans Profil Sezaam → Journal et erreurs, sauf
             avertissement de sauvegarde ci-dessus.
           </p>
-        )}
-        {busy && (
-          <div className="defaults-progress" role="status">
-            <progress
-              max={progress?.total || 1}
-              value={progress?.completed || 0}
-            />
-            <span>
-              {progress
-                ? `${progress.stage} · ${progress.camera} · ${progress.completed}/${progress.total}`
-                : "Préparation…"}
-            </span>
-          </div>
         )}
         {plan && (
           <>

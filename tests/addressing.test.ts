@@ -129,3 +129,33 @@ it("refuse une identité qui change après la revue et une fausse attestation d�
     schemas.resolveIPConflict.parse({ id: camera(16).id, isolated: false }),
   ).toThrow();
 });
+it("publie la progression sans annoncer une adresse vérifiée avant sa relecture", async () => {
+  const { service, plan } = fixture();
+  const updates: any[] = [];
+  service.onAddressProgress = (update: unknown) =>
+    updates.push(structuredClone(update));
+  let finish!: (result: { verified: boolean; message: string }) => void;
+  service.changeIP.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const applying = service.applyAddresses(plan.id);
+  await vi.waitFor(() => expect(service.changeIP).toHaveBeenCalledOnce());
+  expect(updates).toEqual([
+    {
+      planId: plan.id,
+      camera: "192.168.1.16 → 192.168.1.11",
+      completed: 0,
+      total: 2,
+      stage: "Attribution et relecture de l’adresse",
+    },
+  ]);
+  finish({ verified: false, message: "Relecture incertaine" });
+  await applying;
+  expect(updates.map((p) => p.completed)).toEqual([0, 1, 2, 2]);
+  expect(updates.some((p) => p.stage === "Adresse vérifiée")).toBe(false);
+  expect(updates[2].stage).toContain("Non exécutée");
+  expect(service.changeIP).toHaveBeenCalledOnce();
+});

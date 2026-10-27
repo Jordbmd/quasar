@@ -55,16 +55,13 @@ function run(): ProfileRun {
     ],
   };
 }
-it("persiste, protège le fichier et signale une interruption après redémarrage sans inventer un échec", async () => {
+it("persiste et signale une interruption après redémarrage sans inventer un échec", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "quasar-journal-"));
   try {
     const j = new ProfileJournal(dir),
       r = run();
     await j.save(r);
     expect((await j.get(r.id)).status).toBe("running");
-    expect((await stat(path.join(dir, r.id + ".json"))).mode & 0o777).toBe(
-      0o600,
-    );
     const reopened = await new ProfileJournal(dir).get(r.id);
     expect(reopened.status).toBe("interrupted");
     expect(reopened.cameras[0].rows.map((r) => r.state)).toEqual([
@@ -84,6 +81,21 @@ it("persiste, protège le fichier et signale une interruption après redémarrag
     await rm(dir, { recursive: true, force: true });
   }
 });
+it.skipIf(process.platform === "win32")(
+  "restreint les permissions POSIX du journal",
+  async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "quasar-journal-mode-"));
+    try {
+      const r = run();
+      await new ProfileJournal(dir).save(r);
+      expect((await stat(path.join(dir, r.id + ".json"))).mode & 0o777).toBe(
+        0o600,
+      );
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  },
+);
 it("limite l’historique aux cinquante derniers rapports terminés", async () => {
   const j = new ProfileJournal();
   const ids = [];

@@ -1,53 +1,37 @@
-import type { DefaultsProgress } from "../shared/defaults";
-import type { FactoryResetPlan } from "../shared/factory-reset";
 import { contextBridge, ipcRenderer } from "electron";
-import type { Call, NetworkState, CameraDetailUpdate } from "../shared/types";
-const call: Call = async (method, input) => {
-  const result = await ipcRenderer.invoke("sezaam:call", method, input);
-  if (!result.ok) throw new Error(result.error);
-  return result.value;
+import { channels, type Events, type Reply } from "../shared/ipc";
+import type { Api, Call } from "../shared/types";
+
+const call: Call = async <K extends keyof Api>(
+  method: K,
+  input: Api[K]["input"],
+) => {
+  const result: Reply<Api[K]["output"]> = await ipcRenderer.invoke(
+    channels.call,
+    method,
+    input,
+  );
+  if (!result.ok)
+    throw Object.assign(new Error(result.error), { code: result.code });
+  return result.value as Api[K]["output"];
 };
-contextBridge.exposeInMainWorld(
-  "sezaam",
-  Object.freeze({
-    call,
-    onFactoryResetProgress: (fn: (update: FactoryResetPlan) => void) => {
-      const listener = (_: unknown, update: FactoryResetPlan) => fn(update);
-      ipcRenderer.on("sezaam:factory-reset-progress", listener);
-      return () =>
-        ipcRenderer.removeListener("sezaam:factory-reset-progress", listener);
-    },
-    onDefaultsProgress: (fn: (update: DefaultsProgress) => void) => {
-      const listener = (_: unknown, update: DefaultsProgress) => fn(update);
-      ipcRenderer.on("sezaam:defaults-progress", listener);
-      return () =>
-        ipcRenderer.removeListener("sezaam:defaults-progress", listener);
-    },
-    onPreviewLighting: (
-      fn: (update: { id: string; url: string; warning?: string }) => void,
-    ) => {
-      const listener = (
-        _: unknown,
-        update: { id: string; url: string; warning?: string },
-      ) => fn(update);
-      ipcRenderer.on("sezaam:preview-lighting", listener);
-      return () =>
-        ipcRenderer.removeListener("sezaam:preview-lighting", listener);
-    },
-    onCameraDetail: (fn: (update: CameraDetailUpdate) => void) => {
-      const listener = (_: unknown, update: CameraDetailUpdate) => fn(update);
-      ipcRenderer.on("sezaam:camera-detail", listener);
-      return () => ipcRenderer.removeListener("sezaam:camera-detail", listener);
-    },
-    onNetworkChanged: (fn: (network: NetworkState) => void) => {
-      const listener = (_: unknown, network: NetworkState) => fn(network);
-      ipcRenderer.on("sezaam:network", listener);
-      return () => ipcRenderer.removeListener("sezaam:network", listener);
-    },
-    onInvalidated: (fn: (reason: string) => void) => {
-      const listener = (_: unknown, reason: string) => fn(reason);
-      ipcRenderer.on("sezaam:invalidated", listener);
-      return () => ipcRenderer.removeListener("sezaam:invalidated", listener);
-    },
-  }),
-);
+function subscribe<K extends keyof Events>(
+  key: K,
+  callback: (value: Events[K]) => void,
+) {
+  // Never expose the privileged Electron event object to the renderer.
+  const listener = (_event: unknown, value: Events[K]) => callback(value);
+  ipcRenderer.on(channels[key], listener);
+  return () => ipcRenderer.removeListener(channels[key], listener);
+}
+const bridge: Window["sezaam"] = {
+  call,
+  onFactoryResetProgress: (fn) => subscribe("reset", fn),
+  onAddressProgress: (fn) => subscribe("addressing", fn),
+  onDefaultsProgress: (fn) => subscribe("defaults", fn),
+  onPreviewLighting: (fn) => subscribe("lighting", fn),
+  onCameraDetail: (fn) => subscribe("detail", fn),
+  onNetworkChanged: (fn) => subscribe("network", fn),
+  onInvalidated: (fn) => subscribe("invalidated", fn),
+};
+contextBridge.exposeInMainWorld("sezaam", Object.freeze(bridge));

@@ -16,7 +16,7 @@ import {
 } from "../shared/profile-journal";
 import type { Camera } from "../shared/types";
 import type { Run } from "./ui";
-export function RunDetails({ report }: { report: ProfileRun }) {
+function RunDetails({ report }: { report: ProfileRun }) {
   const [camera, setCamera] = useState("all"),
     [filter, setFilter] = useState("all"),
     [search, setSearch] = useState("");

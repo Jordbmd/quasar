@@ -56,7 +56,7 @@ export class RTSPResponseGuard extends Transform {
     }
   }
 }
-export async function port() {
+async function port() {
   const server = net.createServer();
   await new Promise<void>((r, j) => {
     server.once("error", j);
@@ -87,10 +87,17 @@ export class VideoRelay {
     private root: string,
     private guard: NetworkGuard,
     private log: Diagnostics,
+    private temporary = path.join(root, ".runtime"),
   ) {}
   async available() {
     try {
-      await access(path.join(this.root, "bin/go2rtc"));
+      await access(
+        path.join(
+          this.root,
+          "bin",
+          process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+        ),
+      );
       return true;
     } catch {
       return false;
@@ -180,22 +187,27 @@ export class VideoRelay {
         log: { level: "fatal" },
         streams: {},
       });
-      await mkdir(path.join(this.root, ".runtime"), {
+      await mkdir(this.temporary, {
         recursive: true,
         mode: 0o700,
       });
-      this.config = path.join(this.root, ".runtime", `go2rtc-${secret}.json`);
+      this.config = path.join(this.temporary, `go2rtc-${secret}.json`);
       await writeFile(this.config, config, { mode: 0o600 });
       this.child = spawn(
         process.execPath,
         [
           path.join(this.root, "scripts/video-supervisor.cjs"),
-          path.join(this.root, "bin/go2rtc"),
+          path.join(
+            this.root,
+            "bin",
+            process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+          ),
           this.config,
         ],
         {
           env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
           stdio: ["pipe", "ignore", "ignore"],
+          windowsHide: true,
         },
       );
       let exited = false;

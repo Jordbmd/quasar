@@ -7,6 +7,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 import { WebSocketServer } from "ws";
 import assert from "node:assert/strict";
+import { checkSettingsHydration } from "./settings-drafts-test.mjs";
 const compiledDefaults = await build({
   stdin: {
     contents:
@@ -69,7 +70,10 @@ wss.on(
       }),
     ),
 );
-const browser = await chromium.launch({ channel: "chrome", headless: true });
+const browser = await chromium.launch({
+  channel: process.env.PLAYWRIGHT_CHANNEL || "chrome",
+  headless: true,
+});
 try {
   const context = await browser.newContext({
     viewport: { width: 1448, height: 1086 },
@@ -106,6 +110,8 @@ try {
       const available = (data) => ({ state: "available", data });
       const details = new Map();
       const detailListeners = new Set();
+      const defaultsListeners = new Set();
+      const addressListeners = new Set();
       let active = false;
       let sessionUsername = "";
       const session = () => ({
@@ -251,6 +257,13 @@ try {
       });
       window.__sezaamTest = {
         calls,
+        detailFixture: () => makeDetail(cameras[0]),
+        emitBatch: (kind, update) => {
+          for (const fn of kind === "address"
+            ? addressListeners
+            : defaultsListeners)
+            fn(update);
+        },
         failSecond: true,
         webOSDFixture: () => {
           const id = cameras[0].id;
@@ -269,6 +282,14 @@ try {
         network: () => structuredClone(state().network),
       };
       window.sezaam = {
+        onDefaultsProgress: (fn) => {
+          defaultsListeners.add(fn);
+          return () => defaultsListeners.delete(fn);
+        },
+        onAddressProgress: (fn) => {
+          addressListeners.add(fn);
+          return () => addressListeners.delete(fn);
+        },
         onCameraDetail: (fn) => {
           detailListeners.add(fn);
           return () => detailListeners.delete(fn);
@@ -282,13 +303,46 @@ try {
         onInvalidated: () => () => {},
         call: async (method, v) => {
           calls.push({ method, input: v });
+          if (window.__sezaamTest.holdBatch === method) {
+            await new Promise((resolve, reject) => {
+              window.__sezaamTest.finishBatch = (error) =>
+                error ? reject(new Error(error)) : resolve();
+            });
+            window.__sezaamTest.holdBatch = undefined;
+          }
           if (method === "previewFactoryReset") {
-            resetPlan = { id: "reset-fixture", createdAt: new Date().toISOString(), phase: "preview", rows: cameras.slice(0, 3).map((camera,i)=>({camera, state: i===0 ? "blocked" : "ready", message: i===0 ? "SIMULATION — conflit IP" : "SIMULATION — identité vérifiée"})) };
+            resetPlan = {
+              id: "reset-fixture",
+              createdAt: new Date().toISOString(),
+              phase: "preview",
+              rows: cameras.slice(0, 3).map((camera, i) => ({
+                camera,
+                state: i === 0 ? "blocked" : "ready",
+                message:
+                  i === 0
+                    ? "SIMULATION — conflit IP"
+                    : "SIMULATION — identité vérifiée",
+              })),
+            };
             return structuredClone(resetPlan);
           }
           if (method === "applyFactoryReset") {
-            if(v.confirmation!=="EFFACER")throw Error("Confirmation absente");
-            return { ...resetPlan, phase: "complete", rows: resetPlan.rows.map(r=>r.state==="ready"?{...r,state:"accepted",message:"SIMULATION — commande acceptée, état d’usine à contrôler"}:r) };
+            if (v.confirmation !== "EFFACER")
+              throw Error("Confirmation absente");
+            return {
+              ...resetPlan,
+              phase: "complete",
+              rows: resetPlan.rows.map((r) =>
+                r.state === "ready"
+                  ? {
+                      ...r,
+                      state: "accepted",
+                      message:
+                        "SIMULATION — commande acceptée, état d’usine à contrôler",
+                    }
+                  : r,
+              ),
+            };
           }
           if (method === "previewAddresses")
             return {
@@ -343,7 +397,14 @@ try {
                 rows: [
                   ...(v.ids.length > 1 && cameraIndex === 1
                     ? [
-                        { id: "brightness", label: "Luminosité", value: 128, state: "blocked", code: "TIMEOUT", message: "SIMULATION — lecture impossible" },
+                        {
+                          id: "brightness",
+                          label: "Luminosité",
+                          value: 128,
+                          state: "blocked",
+                          code: "TIMEOUT",
+                          message: "SIMULATION — lecture impossible",
+                        },
                         {
                           id: "resolution",
                           label: "Résolution",
@@ -1083,6 +1144,7 @@ try {
   await page.getByRole("button", { name: "Arrêter", exact: true }).waitFor();
   assert.equal(await page.locator("video").getAttribute("controls"), null);
   await page.getByRole("button", { name: "Arrêter", exact: true }).click();
+  await page.locator(".camera-maintenance summary").click();
   await page
     .getByRole("button", { name: "Attribuer les IP", exact: true })
     .click();
@@ -1105,12 +1167,59 @@ try {
     0,
   );
   await page.screenshot({ path: "test-results/addressing-SIMULATION.png" });
+  await page.evaluate(() => {
+    window.__sezaamTest.holdBatch = "applyAddresses";
+  });
   await page
     .getByRole("button", {
       name: "Attribuer les IP à 2 caméra(s)",
       exact: true,
     })
     .click();
+  await page.locator(".batch-progress").waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Fermer la fenêtre", exact: true })
+      .isDisabled(),
+    true,
+  );
+  assert.equal(await page.getByRole("progressbar").getAttribute("value"), null);
+  await page.evaluate(() => {
+    window.__sezaamTest.emitBatch("address", {
+      planId: "wrong-plan",
+      completed: 99,
+      total: 99,
+      camera: "incorrecte",
+      stage: "incorrecte",
+    });
+  });
+  assert.equal(await page.getByText("incorrecte", { exact: false }).count(), 0);
+  await page.evaluate(() => {
+    window.__sezaamTest.emitBatch("address", {
+      planId: "address-fixture",
+      completed: 1,
+      total: 2,
+      camera: "192.0.2.12 → 192.168.1.12",
+      stage: "Attribution et relecture de l’adresse",
+    });
+  });
+  await page.waitForFunction(
+    () => document.querySelector(".batch-progress progress")?.value === 1,
+  );
+  await page.locator("dialog[open] .dialog-content").evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  assert.equal(
+    await page.locator(".batch-progress").evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top >= 0 && r.bottom <= innerHeight;
+    }),
+    true,
+  );
+  await page.screenshot({
+    path: "test-results/addressing-progress-SIMULATION.png",
+  });
+  await page.evaluate(() => window.__sezaamTest.finishBatch());
   await page
     .getByText("SIMULATION — adresse vérifiée", { exact: true })
     .first()
@@ -1123,6 +1232,15 @@ try {
     ),
     1,
   );
+  await page
+    .getByText("Attribution des IP terminée — points à vérifier.", {
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await page.locator(".batch-progress").count(), 0);
+  await page.screenshot({
+    path: "test-results/addressing-complete-SIMULATION.png",
+  });
   await page
     .getByRole("button", { name: "Fermer la fenêtre", exact: true })
     .click();
@@ -1281,6 +1399,9 @@ try {
     })
     .waitFor();
   assert.equal(await page.locator(".review-camera-accordion").count(), 1);
+  await page.evaluate(() => {
+    window.__sezaamTest.holdBatch = "applyDefaults";
+  });
   await page
     .getByRole("button", {
       name: "Appliquer les réglages compatibles",
@@ -1288,11 +1409,50 @@ try {
     })
     .click();
   await page
+    .getByText("Application du profil en cours", { exact: true })
+    .waitFor();
+  assert.equal(await page.getByRole("progressbar").getAttribute("value"), null);
+  await page.evaluate(() =>
+    window.__sezaamTest.emitBatch("defaults", {
+      completed: 0,
+      total: 1,
+      camera: "192.0.2.15",
+      stage: "Encodage vidéo",
+    }),
+  );
+  await page
+    .getByText("Encodage vidéo · 192.0.2.15", { exact: true })
+    .waitFor();
+  await page.locator(".review-camera-accordion > summary").click();
+  await page.locator("dialog[open] .dialog-content").evaluate((el) => {
+    el.scrollTop = el.scrollHeight;
+  });
+  assert.equal(
+    await page.locator(".batch-progress").evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top >= 0 && r.bottom <= innerHeight;
+    }),
+    true,
+  );
+  await page.screenshot({
+    path: "test-results/profile-progress-SIMULATION.png",
+  });
+  await page.evaluate(() => window.__sezaamTest.finishBatch());
+  await page
     .getByRole("heading", {
       name: "Bilan d’application du profil",
       exact: true,
     })
     .waitFor();
+  await page
+    .getByText("Application du profil terminée — points à vérifier.", {
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await page.locator(".batch-progress").count(), 0);
+  await page.screenshot({
+    path: "test-results/profile-complete-SIMULATION.png",
+  });
   assert.equal(await page.locator(".review-camera-accordion[open]").count(), 0);
   await page.locator(".review-camera-accordion > summary").click();
   await page.locator(".review-result-group.manual > summary").click();
@@ -1504,24 +1664,63 @@ try {
     await page.getByLabel("FPS (images/s)", { exact: true }).count(),
     0,
   );
-  await page.getByRole("button", { name: "Réinitialiser les caméras…", exact: true }).click();
-  const resetDialog=page.getByRole("dialog",{name:"Remise à zéro d’usine"});
-  await resetDialog.getByRole("button",{name:/Vérifier les/}).click();
-  await resetDialog.getByText("SIMULATION — conflit IP",{exact:true}).waitFor();
-  const resetButton=resetDialog.getByRole("button",{name:"Réinitialiser 2 caméra(s)",exact:true});
-  assert.equal(await resetButton.isDisabled(),true);
-  await resetDialog.getByLabel("Saisissez EFFACER pour autoriser le reset").fill("oui");
-  assert.equal(await resetButton.isDisabled(),true);
-  await resetDialog.getByLabel("Saisissez EFFACER pour autoriser le reset").fill("EFFACER");
-  assert.equal(await resetButton.isEnabled(),true);
-  await page.screenshot({path:"test-results/factory-reset-review.png"});
+  if (!(await page.locator(".camera-maintenance").getAttribute("open"))) {
+    const isOpen = await page
+      .locator(".camera-maintenance")
+      .evaluate((el) => el.open);
+    if (!isOpen) await page.locator(".camera-maintenance summary").click();
+  }
+  await page
+    .getByRole("button", { name: "Réinitialiser les caméras…", exact: true })
+    .click();
+  const resetDialog = page.getByRole("dialog", {
+    name: "Remise à zéro d’usine",
+  });
+  await resetDialog.getByRole("button", { name: /Vérifier les/ }).click();
+  await resetDialog
+    .getByText("SIMULATION — conflit IP", { exact: true })
+    .waitFor();
+  const resetButton = resetDialog.getByRole("button", {
+    name: "Réinitialiser 2 caméra(s)",
+    exact: true,
+  });
+  assert.equal(await resetButton.isDisabled(), true);
+  await resetDialog
+    .getByLabel("Saisissez EFFACER pour autoriser le reset")
+    .fill("oui");
+  assert.equal(await resetButton.isDisabled(), true);
+  await resetDialog
+    .getByLabel("Saisissez EFFACER pour autoriser le reset")
+    .fill("EFFACER");
+  assert.equal(await resetButton.isEnabled(), true);
+  await page.screenshot({ path: "test-results/factory-reset-review.png" });
   await resetButton.click();
-  await resetDialog.getByRole("button",{name:"Redétecter les caméras"}).waitFor();
-  assert.equal(await resetDialog.getByRole("cell",{name:/Commande acceptée/}).count(),2);
-  assert.equal(await page.evaluate(()=>window.__sezaamTest.calls.filter(c=>c.method==="applyFactoryReset").length),1);
-  assert.equal(await resetDialog.getByRole("button",{name:/Réinitialiser 2/}).count(),0);
-  await resetDialog.getByRole("button",{name:"Fermer la fenêtre"}).click();
+  await resetDialog
+    .getByRole("button", { name: "Redétecter les caméras" })
+    .waitFor();
+  assert.equal(
+    await resetDialog.getByRole("cell", { name: /Commande acceptée/ }).count(),
+    2,
+  );
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.__sezaamTest.calls.filter(
+          (c) => c.method === "applyFactoryReset",
+        ).length,
+    ),
+    1,
+  );
+  assert.equal(
+    await resetDialog.getByRole("button", { name: /Réinitialiser 2/ }).count(),
+    0,
+  );
+  await resetDialog.getByRole("button", { name: "Fermer la fenêtre" }).click();
   assert.deepEqual(errors, []);
+  await checkSettingsHydration(
+    page,
+    await page.evaluate(() => window.__sezaamTest.detailFixture()),
+  );
   await writeFile(
     "test-results/ui-fixtures.json",
     JSON.stringify(

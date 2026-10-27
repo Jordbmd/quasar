@@ -4,7 +4,7 @@ import type { SystemNetwork } from "./platform";
 import { ipNumber, overlap } from "./ip";
 import { Diagnostics } from "./diagnostics";
 
-export const fingerprint = (a: Adapter) =>
+const fingerprint = (a: Adapter) =>
   JSON.stringify([
     a.id,
     a.service,
@@ -47,9 +47,22 @@ export class NetworkGuard {
   }
   refresh(): Promise<NetworkState> {
     if (!this.pending)
-      this.pending = this.readEthernet().finally(() => {
-        this.pending = undefined;
-      });
+      this.pending = this.readEthernet()
+        .catch((error: unknown) => {
+          const code = (error as NodeJS.ErrnoException)?.code;
+          const reason =
+            code === "ENOENT"
+              ? "Outil réseau système absent. Linux nécessite iproute2 ; Windows nécessite PowerShell et NetTCPIP."
+              : code === "EACCES" || code === "EPERM"
+                ? "Lecture du réseau refusée par le système. Vérifiez les permissions réseau."
+                : `Lecture du réseau impossible : ${this.log.safe(error)}`;
+          if (this.state.ready || this.stamp) this.suspend(reason);
+          this.state = { ready: false, reason, overlaps: [] };
+          return this.state;
+        })
+        .finally(() => {
+          this.pending = undefined;
+        });
     return this.pending;
   }
   private async readEthernet() {
@@ -78,6 +91,7 @@ export class NetworkGuard {
           try {
             if (
               id !== a.id &&
+              ip.address !== a.address &&
               ip.family === "IPv4" &&
               !ip.internal &&
               overlap(a.address, a.mask, ip.address, ip.netmask)
@@ -86,7 +100,13 @@ export class NetworkGuard {
           } catch {}
         }
     }
-    this.state.ready = !!(a?.enabled && a.link && a.address && a.mask);
+    this.state.ready = !!(
+      a?.enabled &&
+      a.link &&
+      a.address &&
+      a.mask &&
+      !a.issue
+    );
     // Link-local IPv4 can still discover a peer on the same segment. Keep
     // discovery available, but don't present it as a normal DHCP lease.
     this.state.warning =
@@ -95,13 +115,15 @@ export class NetworkGuard {
         : undefined;
     this.state.reason = ambiguous
       ? "Plusieurs connexions Ethernet sont actives. Gardez uniquement le hub des caméras branché."
-      : !a || !a.link
-        ? "Branchez le hub Ethernet et le câble RJ45 des caméras, directement ou via le routeur/switch."
-        : !a.address || !a.mask
-          ? a.mode === "dhcp"
-            ? "Ethernet connecté, mais IPv4 indisponible : attente d’une adresse DHCP. Avec un routeur, vérifiez le port LAN et son serveur DHCP. Sans serveur DHCP, une adresse Ethernet manuelle dans le sous-réseau de la caméra est nécessaire."
-            : "Ethernet connecté, mais IPv4 indisponible. Vérifiez son adressage dans les Réglages Système."
-          : "Connexion Ethernet des caméras disponible.";
+      : a?.issue
+        ? a.issue
+        : !a || !a.link
+          ? "Branchez le hub Ethernet et le câble RJ45 des caméras, directement ou via le routeur/switch."
+          : !a.address || !a.mask
+            ? a.mode === "dhcp"
+              ? "Ethernet connecté, mais IPv4 indisponible : attente d’une adresse DHCP. Avec un routeur, vérifiez le port LAN et son serveur DHCP. Sans serveur DHCP, une adresse Ethernet manuelle dans le sous-réseau de la caméra est nécessaire."
+              : "Ethernet connecté, mais IPv4 indisponible. Vérifiez son adressage dans les réglages réseau du système."
+            : "Connexion Ethernet des caméras disponible.";
     if (this.state.ready && a) this.stamp = fingerprint(a);
     return this.state;
   }
@@ -118,10 +140,10 @@ export class NetworkGuard {
         first >= 224 ||
         this.ownAddresses().includes(ip)
       )
-        throw new Error("Destination caméra invalide ou attribuée au Mac.");
-      if ((await this.system.route(ip, a.id)) !== a.id)
+        throw new Error("Destination caméra invalide ou attribuée au poste.");
+      if ((await this.system.route(ip, a.id, a.address)) !== a.id)
         throw new Error(
-          `La route vers ${ip} ne passe pas par ${a.service}. Vérifiez le branchement RJ45 des caméras et l’adressage Ethernet du Mac.`,
+          `La route vers ${ip} ne passe pas par ${a.service}. Vérifiez le branchement RJ45 des caméras et l’adressage Ethernet du poste.`,
         );
     }
     return a;

@@ -63,11 +63,12 @@ export async function discoverOnInterface(
   mask: string,
   signal: AbortSignal,
   timeout = 3500,
+  createSocket: () => dgram.Socket = () => dgram.createSocket("udp4"),
 ): Promise<Omit<Camera, "id">[]> {
   const id = "urn:uuid:" + randomUUID();
   const body = `<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:d="http://schemas.xmlsoap.org/ws/2005/04/discovery" xmlns:dn="http://www.onvif.org/ver10/network/wsdl"><s:Header><a:MessageID>${id}</a:MessageID><a:To>urn:schemas-xmlsoap-org:ws:2005:04:discovery</a:To><a:Action>http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</a:Action></s:Header><s:Body><d:Probe><d:Types>dn:NetworkVideoTransmitter</d:Types></d:Probe></s:Body></s:Envelope>`;
   return new Promise((resolve, reject) => {
-    const socket = dgram.createSocket("udp4");
+    const socket = createSocket();
     const found = new Map<string, Omit<Camera, "id">>();
     let done = false;
     const finish = (err?: Error) => {
@@ -77,7 +78,9 @@ export async function discoverOnInterface(
       signal.removeEventListener("abort", abort);
       try {
         socket.close();
-      } catch {}
+      } catch {
+        /* Socket may already be closed, or a malformed datagram ignored. */
+      }
       err ? reject(discoveryError(err, address)) : resolve([...found.values()]);
     };
     const abort = () => finish(new Error("Découverte interrompue."));

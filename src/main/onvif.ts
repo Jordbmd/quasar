@@ -5,7 +5,7 @@ import net from "node:net";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createCipheriv } from "node:crypto";
 import type { ChildProcess } from "node:child_process";
-import { vendorHttpMac } from "./vendor-transport";
+import { vendorHttpMac, vendorHttpNode } from "./vendor-transport";
 import { parseVendorDocument, extractVendorGroup } from "./vendor-profile";
 import { vendorGroups, vendorExtraWrites } from "../shared/vendor-profile";
 import { abortable, cancelled } from "./cancellation";
@@ -338,55 +338,21 @@ export class CameraConnection {
           if (this.closed) throw Error("Connexion fermée.");
           return accept(result.status, result.xml);
         }
-        return new Promise<string>((resolve, reject) => {
-          const req = http.request(
-            {
-              hostname: this.camera.ip,
-              port: this.camera.port,
-              path: endpoint,
-              method: "POST",
-              agent: this.agent,
-              // This firmware dispatches SOAP instead if a charset is appended.
-              headers: {
-                "Content-type": "application/x-www-form-urlencoded",
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Length": Buffer.byteLength(body),
-                Connection: "close",
-              },
-            },
-            (res) => {
-              const chunks: Buffer[] = [];
-              let size = 0;
-              res.on("data", (b: Buffer) => {
-                size += b.length;
-                if (size > 1024 * 1024)
-                  req.destroy(Error("Réponse caméra trop volumineuse."));
-                else chunks.push(b);
-              });
-              res.on("error", reject);
-              res.on("end", () => {
-                clearTimeout(timer);
-                const xml = Buffer.concat(chunks).toString("utf8");
-                try {
-                  resolve(accept(res.statusCode ?? 0, xml));
-                } catch (error) {
-                  reject(error);
-                }
-              });
-            },
-          );
-          const timer = setTimeout(
-            () => req.destroy(Error("Network timeout")),
-            6000,
-          );
-          req.once("error", (error) => {
-            clearTimeout(timer);
-            reject(error);
-          });
-          req.once("close", () => clearTimeout(timer));
-          if (!read) this.writeAttempts++;
-          req.end(body);
-        });
+        if (!read) this.writeAttempts++;
+        const result = await vendorHttpNode(
+          {
+            ip: this.camera.ip,
+            port: this.camera.port,
+            source: this.source,
+            endpoint,
+            body,
+            signal: this.readSignal.getStore(),
+          },
+          this.agent,
+        );
+        this.guard.ensureEpoch(this.epoch);
+        if (this.closed) throw Error("Connexion fermée.");
+        return accept(result.status, result.xml);
       }),
     );
   }
@@ -893,9 +859,6 @@ export class CameraConnection {
     return uri.toString();
   }
 }
-export function videoOptions(entry: any, encoding?: string) {
-  return videoCapabilities(entry, encoding);
-}
 export function validateVideo(
   entry: any,
   v: {
@@ -912,7 +875,7 @@ export function validateVideo(
 ) {
   if (entry?.options?.state !== "available")
     throw new Error("Options vidéo non vérifiées.");
-  const o = videoOptions(entry, v.codec);
+  const o = videoCapabilities(entry, v.codec);
   if (
     v.h264Profile !== undefined &&
     ((v.codec ?? entry.config.encoding) !== "H264" ||

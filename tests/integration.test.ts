@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import http from "node:http";
 import net from "node:net";
 import { WebSocket } from "ws";
-import { mkdtemp, mkdir, symlink, readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, copyFile, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { CameraConnection, token, array } from "../src/main/onvif";
@@ -200,8 +200,18 @@ describe("Relais go2rtc officiel — exécution locale sans caméra", () => {
     const root = await mkdtemp(path.join(tmpdir(), "quasar-switch-"));
     await mkdir(path.join(root, "bin"));
     await mkdir(path.join(root, "scripts"));
-    await symlink(path.resolve("bin/go2rtc"), path.join(root, "bin/go2rtc"));
-    await symlink(
+    await copyFile(
+      path.resolve(
+        "bin",
+        process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+      ),
+      path.join(
+        root,
+        "bin",
+        process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+      ),
+    );
+    await copyFile(
       path.resolve("scripts/video-supervisor.cjs"),
       path.join(root, "scripts/video-supervisor.cjs"),
     );
@@ -278,8 +288,18 @@ describe("Relais go2rtc officiel — exécution locale sans caméra", () => {
     const root = await mkdtemp(path.join(tmpdir(), "sezaam-relay-"));
     await mkdir(path.join(root, "bin"));
     await mkdir(path.join(root, "scripts"));
-    await symlink(path.resolve("bin/go2rtc"), path.join(root, "bin/go2rtc"));
-    await symlink(
+    await copyFile(
+      path.resolve(
+        "bin",
+        process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+      ),
+      path.join(
+        root,
+        "bin",
+        process.platform === "win32" ? "go2rtc.exe" : "go2rtc",
+      ),
+    );
+    await copyFile(
       path.resolve("scripts/video-supervisor.cjs"),
       path.join(root, "scripts/video-supervisor.cjs"),
     );

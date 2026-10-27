@@ -3,7 +3,7 @@ export type Preferences = {
   lowLatency: boolean;
   previewQuality: "light" | "main";
 };
-export const defaultPreferences: Preferences = {
+const defaultPreferences: Preferences = {
   autoplay: true,
   lowLatency: true,
   previewQuality: "light",

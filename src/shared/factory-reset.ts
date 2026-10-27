@@ -1,6 +1,6 @@
 import type { Camera } from "./types";
 export const resetConfirmation = "EFFACER";
-export type FactoryResetRow = {
+type FactoryResetRow = {
   camera: Camera;
   state:
     | "ready"

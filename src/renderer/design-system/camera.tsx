@@ -1,3 +1,4 @@
+import { displayValue } from "../format";
 import React from "react";
 import { Camera as CameraIcon, Activity, MonitorPlay } from "lucide-react";
 import type { Camera, DiagnosticReport, LogEntry } from "../../shared/types";
@@ -67,7 +68,7 @@ export function CameraFacts({
         ].map(([label, v]) => (
           <div key={String(label)}>
             <dt>{label}</dt>
-            <dd>{v ? String(v) : "Non disponible"}</dd>
+            <dd>{displayValue(v)}</dd>
           </div>
         ))}
       </dl>

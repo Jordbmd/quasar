@@ -1,3 +1,7 @@
+import { PreferencesPage } from "./pages/Preferences";
+import { CameraReader } from "./camera-reader";
+import { Diagnostic } from "./pages/Diagnostic";
+import { displayValue as value } from "./format";
 import { DefaultsPage, DefaultsApply } from "./Defaults";
 import { Addressing } from "./Addressing";
 import { FactoryResetDialog } from "./FactoryReset";
@@ -67,7 +71,6 @@ import {
 import "./style.css";
 import { Brand } from "./design-system/Brand";
 import { arr, tok, Field, Status, type Run } from "./ui";
-const value = (v: unknown) => (v ? String(v) : "Non disponible");
 export function App() {
   const { confirm, dialog: confirmationDialog } = useConfirmation();
   const [state, setState] = useState<AppState>();
@@ -108,7 +111,8 @@ export function App() {
   const selectedRef = useRef("");
   const previewGeneration = useRef(0);
   const selectionGeneration = useRef(0);
-  const detailGeneration = useRef(0);
+  const [cameraReader] = useState(() => new CameraReader(window.sezaam));
+  useEffect(() => () => cameraReader.cancel(), [cameraReader]);
   const activeStream = useRef("");
   const [detail, setDetail] = useState<CameraDetail>();
   const [search, setSearch] = useState("");
@@ -133,6 +137,10 @@ export function App() {
   const [stream, setStream] = useState("");
   const [profile, setProfile] = useState("");
   const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(false);
+  useEffect(() => {
+    dirtyRef.current = dirty;
+  }, [dirty]);
   const [defaultTargets, setDefaultTargets] = useState<string[] | null>(null);
   const [expanded, setExpanded] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -266,7 +274,12 @@ export function App() {
             }
           : s,
       );
-      setError(reason);
+      setError(
+        reason +
+          (dirtyRef.current
+            ? " Les modifications locales non appliquées ont été abandonnées après la perte de l’identité réseau ; aucun réglage n’a été envoyé."
+            : ""),
+      );
     });
     return () => {
       offNetwork();
@@ -288,12 +301,8 @@ export function App() {
     onProfiles?: (profiles: any[]) => void,
   ) => {
     const generation = selectionGeneration.current;
-    const readGeneration = ++detailGeneration.current;
-    const requestId = `${generation}:${readGeneration}`;
     const current = () =>
-      selectedRef.current === id &&
-      selectionGeneration.current === generation &&
-      detailGeneration.current === readGeneration;
+      selectedRef.current === id && selectionGeneration.current === generation;
     const accept = (d: CameraDetail) => {
       if (!current()) return;
       setDetail(d);
@@ -303,20 +312,11 @@ export function App() {
         d.profiles.some((x) => tok(x) === p) ? p : tok(d.profiles[0]),
       );
     };
-    const unsubscribe = window.sezaam.onCameraDetail?.((update) => {
-      if (update.requestId === requestId && update.detail.camera.id === id)
-        accept(update.detail);
-    });
     setLoadingCamera(id);
     try {
-      const d = await window.sezaam.call(
-        fresh ? "readCamera" : "selectCamera",
-        { id, requestId },
-      );
-      accept(d);
+      const d = await cameraReader.read(id, fresh, current, accept);
       return d;
     } finally {
-      unsubscribe?.();
       if (current())
         setLoadingCamera((current) => (current === id ? "" : current));
     }
@@ -819,48 +819,51 @@ export function App() {
                 <SlidersHorizontal size={16} />
                 Profil Sezaam · toutes
               </Button>
-              <Button
-                className="add-camera"
-                disabled={
-                  !!busy || !state?.network.ready || !state?.cameras.length
-                }
-                onClick={async () => {
-                  if (
-                    dirty &&
-                    !(await confirm(
-                      "Abandonner les modifications non enregistrées avant l’adressage ?",
-                    ))
-                  )
-                    return;
-                  setDirty(false);
-                  await stop();
-                  setAddressing(true);
-                }}
-              >
-                <Network size={16} />
-                Attribuer les IP
-              </Button>
-              <Button
-                className="add-camera"
-                variant="tertiary"
-                disabled={
-                  !!busy || !state?.network.ready || !state?.cameras.length
-                }
-                onClick={async () => {
-                  if (
-                    dirty &&
-                    !(await confirm(
-                      "Abandonner les modifications non enregistrées avant de préparer le reset ?",
-                    ))
-                  )
-                    return;
-                  setDirty(false);
-                  await stop();
-                  setFactoryResetOpen(true);
-                }}
-              >
-                Réinitialiser les caméras…
-              </Button>
+              <details className="camera-maintenance">
+                <summary>Actions avancées</summary>
+                <Button
+                  className="add-camera"
+                  disabled={
+                    !!busy || !state?.network.ready || !state?.cameras.length
+                  }
+                  onClick={async () => {
+                    if (
+                      dirty &&
+                      !(await confirm(
+                        "Abandonner les modifications non enregistrées avant l’adressage ?",
+                      ))
+                    )
+                      return;
+                    setDirty(false);
+                    await stop();
+                    setAddressing(true);
+                  }}
+                >
+                  <Network size={16} />
+                  Attribuer les IP
+                </Button>
+                <Button
+                  className="add-camera"
+                  variant="tertiary"
+                  disabled={
+                    !!busy || !state?.network.ready || !state?.cameras.length
+                  }
+                  onClick={async () => {
+                    if (
+                      dirty &&
+                      !(await confirm(
+                        "Abandonner les modifications non enregistrées avant de préparer le reset ?",
+                      ))
+                    )
+                      return;
+                    setDirty(false);
+                    await stop();
+                    setFactoryResetOpen(true);
+                  }}
+                >
+                  Réinitialiser les caméras…
+                </Button>
+              </details>
               <Modal
                 open={add}
                 title="Ajouter une caméra par IP"
@@ -1087,6 +1090,19 @@ export function App() {
                   </Button>
                 </div>
               )}
+              {detail && (
+                <p className="detail-freshness" role="status">
+                  {detail.loading
+                    ? "Lecture en cours · blocs disponibles affichés"
+                    : detail.readState === "cached"
+                      ? "Informations en mémoire · utilisez Relire pour les actualiser"
+                      : detail.readState === "partial"
+                        ? "Lecture partielle · certains blocs sont conservés en mémoire"
+                        : "Informations lues sur la caméra"}
+                  {detail.readAt &&
+                    " · " + new Date(detail.readAt).toLocaleTimeString()}
+                </p>
+              )}
               <Settings
                 key={selected}
                 detail={detail}
@@ -1146,9 +1162,9 @@ export function App() {
                         ? "IPv4 statique"
                         : "Configuration système"}
                   </span>
-                  <span>MTU : {adapter?.mtu || "non disponible"}</span>
+                  <span>MTU : {value(adapter?.mtu)}</span>
                   <span>
-                    {adapter?.media || "Paramètres du Mac en lecture seule"}
+                    {adapter?.media || "Paramètres du poste en lecture seule"}
                   </span>
                 </div>
               </div>
@@ -1179,69 +1195,12 @@ export function App() {
             selected={selected}
           />
         ) : page === "preferences" ? (
-          <Panel className="preferences-page panel">
-            <h2>Paramètres de l’application</h2>
-            <h3>Lecture vidéo</h3>
-            <label className="preference-row">
-              <span>
-                <strong>Lecture automatique</strong>
-                <small>Lancer l’aperçu à l’ouverture d’une caméra.</small>
-              </span>
-              <input
-                type="checkbox"
-                checked={preferences.autoplay}
-                onChange={(e) =>
-                  setPreferences((p) => ({ ...p, autoplay: e.target.checked }))
-                }
-              />
-            </label>
-            <label className="preference-row">
-              <span>
-                <strong>Privilégier le direct</strong>
-                <small>Rattraper automatiquement le retard du lecteur.</small>
-              </span>
-              <input
-                type="checkbox"
-                checked={preferences.lowLatency}
-                onChange={(e) =>
-                  setPreferences((p) => ({
-                    ...p,
-                    lowLatency: e.target.checked,
-                  }))
-                }
-              />
-            </label>
-            <Field label="Flux d’aperçu par défaut">
-              <select
-                value={preferences.previewQuality}
-                onChange={(e) =>
-                  setPreferences((p) => ({
-                    ...p,
-                    previewQuality: e.target.value as "light" | "main",
-                  }))
-                }
-              >
-                <option value="light">Fluide — flux le plus léger</option>
-                <option value="main">Détaillé — flux principal</option>
-              </select>
-            </Field>
-            <p className="help-text">
-              Ce choix s’applique à la prochaine ouverture d’une caméra. Il ne
-              modifie pas son encodage.
-            </p>
-            <h3>Apparence</h3>
-            <Field label="Thème">
-              <select
-                value={theme}
-                onChange={(e) =>
-                  chooseTheme(e.target.value as "light" | "dark")
-                }
-              >
-                <option value="light">Clair</option>
-                <option value="dark">Sombre</option>
-              </select>
-            </Field>
-          </Panel>
+          <PreferencesPage
+            preferences={preferences}
+            setPreferences={setPreferences}
+            theme={theme}
+            chooseTheme={chooseTheme}
+          />
         ) : (
           <Diagnostic
             state={state}
@@ -1303,153 +1262,6 @@ export function App() {
           }}
         />
       )}
-    </div>
-  );
-}
-export function Diagnostic({
-  state,
-  selected,
-  onSelect,
-  report,
-  busy,
-  run,
-  onNotice,
-  onConnect,
-  onStop,
-}: {
-  state?: AppState;
-  selected: string;
-  onSelect: (id: string) => void;
-  report?: DiagnosticReport;
-  busy: boolean;
-  run: Run;
-  onNotice: (s: string) => void;
-  onConnect: () => void;
-  onStop: () => Promise<void>;
-}) {
-  const reports = state?.reports ?? [];
-  const accessible = reports.filter((r) =>
-    r.checks.some((c) => c.key === "network" && c.state === "passed"),
-  ).length;
-  const errors = reports.filter((r) =>
-    r.checks.some((c) => c.state === "failed"),
-  ).length;
-  const labels = {
-    passed: "Réussi",
-    failed: "Échec",
-    unsupported: "Non pris en charge",
-    untested: "Non testé",
-  };
-  return (
-    <div className="diagnostic-page">
-      <div className="metrics">
-        {[
-          [
-            "Caméras détectées",
-            String(state?.cameras.length ?? 0),
-            "Dans cette session",
-          ],
-          ["Accessibles", String(accessible), "Connexion TCP testée"],
-          ["Avec erreurs", String(errors), "Derniers tests par caméra"],
-          [
-            "Dernier diagnostic",
-            reports.length
-              ? new Date(reports.at(-1)!.at).toLocaleTimeString()
-              : "Non effectué",
-            reports.length
-              ? new Date(reports.at(-1)!.at).toLocaleDateString()
-              : "Aucun test automatique",
-          ],
-        ].map(([title, num, sub]) => (
-          <Panel className="panel metric" key={title}>
-            <span>{title}</span>
-            <strong>{num}</strong>
-            <small>{sub}</small>
-          </Panel>
-        ))}
-      </div>
-      <Panel className="panel diagnostic-tests">
-        <div className="section-title">
-          <div>
-            <h2>Diagnostic par caméra</h2>
-            <p>Tests à la demande, sans modifier les réglages de l’appareil.</p>
-          </div>
-          <Button
-            className="primary"
-            disabled={busy || !selected}
-            onClick={() =>
-              void run("Diagnostic de la caméra", async () => {
-                await onStop();
-                return window.sezaam.call("diagnose", { id: selected });
-              })
-            }
-          >
-            <Activity size={17} />
-            Lancer le diagnostic
-          </Button>
-        </div>
-        <div className="diagnostic-select">
-          <Field label="Caméra à tester">
-            <select
-              disabled={busy}
-              value={selected}
-              onChange={(e) => onSelect(e.target.value)}
-            >
-              <option value="">Sélectionner une caméra</option>
-              {state?.cameras.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name || c.model || "Caméra"} · {c.ip}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Button
-            className="secondary"
-            disabled={busy || !selected}
-            onClick={onConnect}
-          >
-            <CameraIcon size={16} />
-            Ouvrir la fiche caméra
-          </Button>
-        </div>
-        <DiagnosticResults report={report} />
-      </Panel>
-      <Panel className="panel logs">
-        <div className="section-title">
-          <div>
-            <h2>Journal des événements</h2>
-            <p>500 derniers événements · secrets masqués</p>
-          </div>
-          <div className="button-group">
-            <Button
-              className="secondary"
-              disabled={busy}
-              onClick={() =>
-                void run("Copie du diagnostic", async () => {
-                  await window.sezaam.call("copyLogs", undefined);
-                  onNotice("Diagnostic copié.");
-                })
-              }
-            >
-              <Copy size={15} />
-              Copier
-            </Button>
-            <Button
-              className="secondary"
-              disabled={busy}
-              onClick={() =>
-                void run("Export du diagnostic", async () => {
-                  onNotice(await window.sezaam.call("exportLogs", undefined));
-                })
-              }
-            >
-              <Download size={15} />
-              Exporter
-            </Button>
-          </div>
-        </div>
-        <EventLog entries={state?.logs ?? []} />
-      </Panel>
     </div>
   );
 }

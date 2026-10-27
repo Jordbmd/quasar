@@ -1959,7 +1959,7 @@ button:active:not(:disabled) {
 }
 @media (max-width: 800px) {
   .workspace-cameras .camera-workspace {
-    grid-template-rows: minmax(300px, 40%) minmax(0, 1fr);
+    grid-template-rows: minmax(320px, 40%) minmax(0, 1fr);
   }
 }
 
@@ -2177,54 +2177,178 @@ button:active:not(:disabled) {
   width: min(1200px, calc(100vw - 48px));
   max-width: 1200px;
 }
-.quasar-dialog[open]:has(.defaults-review) { display: flex; flex-direction: column; overflow: hidden; }
-.quasar-dialog:has(.defaults-review) > header, .quasar-dialog:has(.defaults-review) > footer { flex-shrink: 0; }
-.quasar-dialog:has(.defaults-review) > .dialog-content { overflow-y: auto; min-height: 0; }
+.quasar-dialog[open]:has(.defaults-review) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.quasar-dialog:has(.defaults-review) > header,
+.quasar-dialog:has(.defaults-review) > footer {
+  flex-shrink: 0;
+}
+.quasar-dialog:has(.defaults-review) > .dialog-content {
+  overflow-y: auto;
+  min-height: 0;
+}
 .defaults-review > p {
   line-height: 1.6;
 }
-.review-scope { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
-.review-camera-accordions { display: grid; gap: 10px; }
-.review-camera-accordion { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
-.review-camera-accordion > summary { padding: 16px; cursor: pointer; display: flex; align-items: center; gap: 16px; list-style: none; }
-.review-camera-accordion > summary::-webkit-details-marker, .review-result-group > summary::-webkit-details-marker { display: none; }
-.review-camera-accordion > summary::before, .review-result-group > summary::before { content: "›"; font-size: 20px; flex-shrink: 0; }
-.review-camera-accordion[open] > summary::before, .review-result-group[open] > summary::before { transform: rotate(90deg); }
-.review-camera-accordion[open] > summary { background: var(--selected); border-bottom: 1px solid var(--border); }
-.review-camera-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; min-width: 220px; font-size: 14px; font-weight: 600; }
-.review-camera-title small { flex-basis: 100%; font-size: 11px; font-weight: 400; color: var(--muted); }
-.review-camera-counts { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
-.review-count { padding: 5px 8px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 6px; font-size: 11px; }
-.review-count.errors, .review-result-group.errors > summary { color: var(--danger); }
-.review-count.manual, .review-result-group.manual > summary { color: var(--warning); }
-.review-count.unsupported, .review-result-group.unsupported > summary { color: var(--unsupported); }
-.review-count.ok, .review-result-group.ok > summary { color: var(--success); }
-.review-camera-body { padding: 16px; display: grid; gap: 10px; }
-.review-camera-body > button { justify-self: start; font-size: 12px; }
-.review-result-group { border: 1px solid var(--line); border-radius: 6px; }
-.review-result-group > summary { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; font-size: 13px; font-weight: 600; list-style: none; }
-.review-result-group > summary > span { margin-left: auto; font-variant-numeric: tabular-nums; }
-.review-result-group > dl { margin: 0; padding: 0 14px; }
-.review-values { display: flex; flex-wrap: wrap; gap: 10px 20px; }
-.review-values > span { font-weight: 600; min-width: 75px; }
-.review-values small { display: block; color: var(--muted); font-size: 10px; font-weight: 400; margin-bottom: 4px; }
-.review-control-details { font-size: 11px; margin-top: 8px; color: var(--muted); }
-.review-control-details summary { cursor: pointer; }
-@media (max-width: 760px) {
-  .review-camera-accordion > summary { flex-wrap: wrap; gap: 10px; }
-  .review-camera-title { min-width: 0; }
-  .review-camera-counts { margin-left: 24px; width: 100%; }
-  .review-result-group .defaults-result-row { grid-template-columns: 1fr; gap: 10px; }
+.review-scope {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 18px;
 }
-.defaults-progress {
+.review-camera-accordions {
   display: grid;
   gap: 10px;
-  font-size: 13px;
-  margin-bottom: 16px;
 }
-.defaults-progress progress {
-  width: 100%;
-  accent-color: var(--accent-bright);
+.review-camera-accordion {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.review-camera-accordion > summary {
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+}
+.review-camera-accordion > summary::-webkit-details-marker,
+.review-result-group > summary::-webkit-details-marker {
+  display: none;
+}
+.review-camera-accordion > summary::before,
+.review-result-group > summary::before {
+  content: "›";
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.review-camera-accordion[open] > summary::before,
+.review-result-group[open] > summary::before {
+  transform: rotate(90deg);
+}
+.review-camera-accordion[open] > summary {
+  background: var(--selected);
+  border-bottom: 1px solid var(--border);
+}
+.review-camera-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 220px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.review-camera-title small {
+  flex-basis: 100%;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.review-camera-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+.review-count {
+  padding: 5px 8px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+}
+.review-count.errors,
+.review-result-group.errors > summary {
+  color: var(--danger);
+}
+.review-count.manual,
+.review-result-group.manual > summary {
+  color: var(--warning);
+}
+.review-count.unsupported,
+.review-result-group.unsupported > summary {
+  color: var(--unsupported);
+}
+.review-count.ok,
+.review-result-group.ok > summary {
+  color: var(--success);
+}
+.review-camera-body {
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+.review-camera-body > button {
+  justify-self: start;
+  font-size: 12px;
+}
+.review-result-group {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.review-result-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  list-style: none;
+}
+.review-result-group > summary > span {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.review-result-group > dl {
+  margin: 0;
+  padding: 0 14px;
+}
+.review-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+.review-values > span {
+  font-weight: 600;
+  min-width: 75px;
+}
+.review-values small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+.review-control-details {
+  font-size: 11px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.review-control-details summary {
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .review-camera-accordion > summary {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .review-camera-title {
+    min-width: 0;
+  }
+  .review-camera-counts {
+    margin-left: 24px;
+    width: 100%;
+  }
+  .review-result-group .defaults-result-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 .defaults-totals {
   display: flex;
@@ -2430,11 +2554,177 @@ button:active:not(:disabled) {
   line-height: 1.7;
 }
 
-.quasar-dialog:has(.addressing-review) { width: min(1100px, calc(100vw - 48px)); }
-.addressing-review { display: grid; gap: 16px; }
-.addressing-table { overflow: auto; max-height: 45vh; }
-.addressing-table table { width: 100%; border-collapse: collapse; }
-.addressing-table th, .addressing-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
-.addressing-table td small { display: block; max-width: 220px; overflow-wrap: anywhere; }
-.addressing-isolation { display: grid; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
-.addressing-isolation code { overflow-wrap: anywhere; }
+.quasar-dialog:has(.addressing-review) {
+  width: min(1100px, calc(100vw - 48px));
+}
+.addressing-review {
+  display: grid;
+  gap: 16px;
+}
+.addressing-table {
+  overflow: auto;
+  max-height: 45vh;
+}
+.addressing-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.addressing-table th,
+.addressing-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.addressing-table td small {
+  display: block;
+  max-width: 220px;
+  overflow-wrap: anywhere;
+}
+.addressing-isolation {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.addressing-isolation code {
+  overflow-wrap: anywhere;
+}
+
+/* Advanced fleet operations stay accessible without competing with live video. */
+.camera-maintenance {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.camera-maintenance summary {
+  cursor: pointer;
+  padding: 9px 8px;
+  color: var(--muted);
+  font-weight: 600;
+  border-radius: 8px;
+}
+.camera-maintenance summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.camera-maintenance[open] {
+  max-height: 180px;
+  overflow: auto;
+}
+.camera-maintenance button {
+  width: 100%;
+  margin-top: 6px;
+}
+.detail-freshness {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+  padding: 0 4px;
+}
+.camera-row-info strong,
+.camera-row-info small {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .app-shell:not(.sidebar-collapsed) .brand > span:not(.quasar-brand) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* At high zoom, reserve usable list space instead of stacking every control. */
+@media (max-width: 800px) {
+  .camera-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(96px, 1fr) auto auto;
+    gap: 6px;
+    overflow: auto;
+  }
+  .camera-list > .section-title,
+  .camera-list > .list-scroll,
+  .camera-list > .camera-maintenance {
+    grid-column: 1 / -1;
+  }
+  .camera-list > .search-box,
+  .camera-list > .camera-sort,
+  .camera-list > .add-camera {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+  }
+  .camera-list > .list-scroll {
+    height: auto;
+    min-height: 96px;
+  }
+  .camera-maintenance summary {
+    padding-block: 5px;
+  }
+}
+
+/* Batch feedback stays in the dialog top layer, outside scrolling results. */
+.quasar-dialog[open]:has(.dialog-status) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.quasar-dialog:has(.dialog-status) > header,
+.quasar-dialog:has(.dialog-status) > footer,
+.dialog-status {
+  flex-shrink: 0;
+}
+.quasar-dialog:has(.dialog-status) > .dialog-content {
+  overflow-y: auto;
+  min-height: 0;
+}
+.dialog-status {
+  padding: 12px 24px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--line);
+}
+.dialog-status:empty {
+  display: none;
+}
+.dialog-status .banner {
+  margin: 0;
+}
+.batch-progress {
+  display: grid;
+  gap: 8px;
+}
+.batch-progress-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.batch-progress-heading > svg {
+  color: var(--accent-bright);
+}
+.batch-elapsed {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--font-xs);
+  color: var(--muted);
+}
+.batch-progress progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--accent);
+}
+.batch-progress small {
+  color: var(--muted);
+}
+.batch-summary {
+  display: block;
+  margin-top: 6px;
+}

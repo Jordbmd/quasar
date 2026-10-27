@@ -2,7 +2,7 @@ import type { FieldTrace } from "./profile-journal";
 import type { Camera } from "./types";
 import { vendorFieldIds } from "./vendor-profile";
 export type DefaultValue = string | number | boolean;
-export type DefaultField = {
+type DefaultField = {
   id: string;
   group: string;
   label: string;

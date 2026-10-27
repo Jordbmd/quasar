@@ -36,7 +36,9 @@ it("préserve les choix locaux et refuse de remplacer un profil local illisible"
     expect(await new DefaultsStore(file, profile).read()).toEqual(saved);
     expect(profile.fields.fps.value).toBe(25);
     await writeFile(file, "invalid json");
-    await expect(new DefaultsStore(file, profile).read()).rejects.toThrow("illisible");
+    await expect(new DefaultsStore(file, profile).read()).rejects.toThrow(
+      "illisible",
+    );
     expect(await readFile(file, "utf8")).toBe("invalid json");
   } finally {
     await rm(dir, { recursive: true, force: true });

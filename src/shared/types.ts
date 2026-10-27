@@ -1,5 +1,5 @@
 import type { WebOSD } from "./web-osd";
-import type { AddressPlan } from "./addressing";
+import type { AddressPlan, AddressProgress } from "./addressing";
 import type { FactoryResetPlan } from "./factory-reset";
 import type {
   ProfileRun,
@@ -13,7 +13,6 @@ import type {
   DefaultsProgress,
 } from "./defaults";
 import type { OSDValues } from "./osd-options";
-export type IPv4 = { address: string; mask: string };
 export type Adapter = {
   id: string;
   service: string;
@@ -31,6 +30,7 @@ export type Adapter = {
   raw: string;
   mtu?: number;
   media?: string;
+  issue?: string;
 };
 export type NetworkState = {
   adapter?: Adapter;
@@ -61,6 +61,8 @@ export type Camera = {
   connectionError?: string;
 };
 export type CameraDetail = {
+  readState?: "cached" | "partial" | "live";
+  readAt?: string;
   camera: Camera;
   network: Feature;
   gateway: Feature;
@@ -230,6 +232,7 @@ declare global {
       call: Call;
       onNetworkChanged: (fn: (network: NetworkState) => void) => () => void;
       onInvalidated: (fn: (reason: string) => void) => () => void;
+      onAddressProgress?: (fn: (update: AddressProgress) => void) => () => void;
       onDefaultsProgress?: (
         fn: (update: DefaultsProgress) => void,
       ) => () => void;

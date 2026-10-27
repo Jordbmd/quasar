@@ -8,7 +8,7 @@ import {
   Modal,
   useConfirmation,
 } from "./design-system/components";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Network,
   SlidersHorizontal,
@@ -23,57 +23,7 @@ import { arr, tok, Field, Capability, type Run } from "./ui";
 import { OSDFields, initialOSD } from "./OSDFields";
 import type { OSDValues, OSDOptions } from "../shared/osd-options";
 import { osdPositionLabels, osdTextLabels } from "../shared/osd-options";
-import { videoCapabilities } from "../shared/video-options";
-const maskFromPrefix = (p: number) =>
-  Number.isInteger(p) && p >= 1 && p <= 30
-    ? [24, 16, 8, 0]
-        .map((n) => ((0xffffffff << (32 - p)) >>> n) & 255)
-        .join(".")
-    : "";
-function networkValues(d?: CameraDetail) {
-  const n = arr(d?.network.data).find(
-    (n) =>
-      arr(n.IPv4?.config?.manual).some((x) => x.address === d?.camera.ip) ||
-      n.IPv4?.config?.fromDHCP?.address === d?.camera.ip,
-  );
-  const ip =
-    arr(n?.IPv4?.config?.manual).find((x) => x.address === d?.camera.ip) ??
-    n?.IPv4?.config?.fromDHCP;
-  return {
-    address: d?.camera.ip ?? "",
-    mask: maskFromPrefix(ip?.prefixLength),
-    dhcp: !!n?.IPv4?.config?.DHCP,
-    gateway: String(arr(d?.gateway.data?.IPv4Address)[0] ?? ""),
-    dns: arr(
-      d?.dns.data?.fromDHCP ? d?.dns.data?.DNSFromDHCP : d?.dns.data?.DNSManual,
-    )
-      .map((x) => x.IPv4Address)
-      .filter(Boolean)
-      .join(", "),
-  };
-}
-function videoValues(e: any) {
-  const c = e?.config;
-  return {
-    codec: c?.encoding ?? "",
-    resolution: c?.resolution
-      ? `${c.resolution.width}x${c.resolution.height}`
-      : "",
-    fps: String(c?.rateControl?.frameRateLimit ?? ""),
-    bitrate: String(c?.rateControl?.bitrateLimit ?? ""),
-    quality: String(c?.quality ?? ""),
-    constantBitrate: String(c?.rateControl?.$?.ConstantBitRate ?? false),
-    govLength: String(c?.[c?.encoding]?.govLength ?? c?.$?.GovLength ?? ""),
-  };
-}
-function options(e: any, codec: string) {
-  const caps = videoCapabilities(e, codec);
-  return {
-    ...caps,
-    rateMode:
-      caps.constantBitrate && !(e?.config?.rateControl?.averageBitRate > 0),
-  };
-}
+import { networkValues, videoValues, options } from "./camera-form-values";
 export function Settings({
   detail,
   unavailable = "Sélectionnez une caméra pour afficher ses paramètres.",
@@ -103,17 +53,27 @@ export function Settings({
   const [webOSD, setWebOSD] = useState<WebOSD | undefined>(
     detail?.osd.data?.web,
   );
+  const previousWebOSD = useRef(detail?.osd.data?.web);
   const webDirty =
-    JSON.stringify(webOSD) !== JSON.stringify(detail?.osd.data?.web);
+    JSON.stringify(webOSD) !== JSON.stringify(detail?.osd.data?.web) &&
+    JSON.stringify(webOSD) !== JSON.stringify(previousWebOSD.current);
   const [restoreOSD, setRestoreOSD] = useState(false);
   const [results, setResults] = useState<
     { parameter: string; result: WriteResult }[]
   >([]);
   const baseNet = networkValues(detail);
   const baseVideo = videoValues(entry);
+  const previousNetwork = useRef(baseNet);
+  const previousVideo = useRef(baseVideo);
   const osds = arr(detail?.osd.data?.settings);
-  const netDirty = JSON.stringify(net) !== JSON.stringify(baseNet);
-  const videoDirty = JSON.stringify(video) !== JSON.stringify(baseVideo);
+  // A fresh read arrives before the effects hydrate untouched drafts. During
+  // that render, values matching the previous baseline are not user edits.
+  const netDirty =
+    JSON.stringify(net) !== JSON.stringify(baseNet) &&
+    JSON.stringify(net) !== JSON.stringify(previousNetwork.current);
+  const videoDirty =
+    JSON.stringify(video) !== JSON.stringify(baseVideo) &&
+    JSON.stringify(video) !== JSON.stringify(previousVideo.current);
   const osdOptions = arr(detail?.osd.data?.options);
   const canCreate = osdOptions.filter(
     (o) =>
@@ -165,19 +125,32 @@ export function Settings({
     detail?.osdRestoreAvailable,
   ]);
   useEffect(() => {
-    setNet(networkValues(detail));
+    const next = networkValues(detail);
+    const previous = previousNetwork.current;
+    setNet((current) =>
+      JSON.stringify(current) === JSON.stringify(previous) ? next : current,
+    );
+    previousNetwork.current = next;
   }, [networkSignature]);
   useEffect(() => {
-    const first = arr(detail?.video.data)[0];
-    setEncoder(first?.profile ?? "");
-    setVideo(videoValues(first));
+    const selected =
+      entries.find((item) => item.profile === encoder) ?? entries[0];
+    const next = videoValues(selected);
+    if (JSON.stringify(video) === JSON.stringify(previousVideo.current)) {
+      setEncoder(selected?.profile ?? "");
+      setVideo(next);
+    }
+    previousVideo.current = next;
   }, [videoSignature]);
   useEffect(() => {
-    setWebOSD(detail?.osd.data?.web);
-    setDisabledOSDs([]);
-    setOSDEdits({});
-    setNewOSD(undefined);
-    setRestoreOSD(false);
+    const hasLocalEdits =
+      JSON.stringify(webOSD) !== JSON.stringify(previousWebOSD.current) ||
+      disabledOSDs.length > 0 ||
+      Object.keys(osdEdits).length > 0 ||
+      !!newOSD ||
+      restoreOSD;
+    if (!hasLocalEdits) setWebOSD(detail?.osd.data?.web);
+    previousWebOSD.current = detail?.osd.data?.web;
   }, [osdSignature]);
   useEffect(() => onDirty(dirty), [dirty]);
   const o = options(entry, video.codec);
@@ -194,6 +167,7 @@ export function Settings({
       const step = async (
         parameter: string,
         work: () => Promise<WriteResult>,
+        onVerified?: () => void,
       ) => {
         let result: WriteResult;
         try {
@@ -208,6 +182,7 @@ export function Settings({
         }
         outcome.push({ parameter, result });
         setResults([...outcome]);
+        if (result.verified) onVerified?.();
         return result.verified;
       };
       await onStop();
@@ -243,42 +218,59 @@ export function Settings({
         return;
       for (const item of textChanges)
         if (
-          !(await step(`Texte OSD ${item.token}`, () =>
-            window.sezaam.call("setOSD", {
-              id,
-              token: item.token,
-              ...Object.fromEntries(
-                Object.entries(osdEdits[item.token]).filter(
-                  ([, value]) => value !== undefined,
+          !(await step(
+            `Texte OSD ${item.token}`,
+            () =>
+              window.sezaam.call("setOSD", {
+                id,
+                token: item.token,
+                ...Object.fromEntries(
+                  Object.entries(osdEdits[item.token]).filter(
+                    ([, value]) => value !== undefined,
+                  ),
+                ),
+              }),
+            () =>
+              setOSDEdits((edits) =>
+                Object.fromEntries(
+                  Object.entries(edits).filter(([key]) => key !== item.token),
                 ),
               ),
-            }),
           ))
         )
           return;
       if (
         disabledOSDs.length &&
-        !(await step("Désactivation OSD", () =>
-          window.sezaam.call("disableOSD", { id, tokens: disabledOSDs }),
+        !(await step(
+          "Désactivation OSD",
+          () => window.sezaam.call("disableOSD", { id, tokens: disabledOSDs }),
+          () => setDisabledOSDs([]),
         ))
       )
         return;
       if (
         restoreOSD &&
-        !(await step("Activation OSD", () =>
-          window.sezaam.call("restoreOSD", { id }),
+        !(await step(
+          "Activation OSD",
+          () => window.sezaam.call("restoreOSD", { id }),
+          () => setRestoreOSD(false),
         ))
       )
         return;
       if (
         newOSD &&
-        !(await step("Nouvelle incrustation OSD", () =>
-          window.sezaam.call("createOSD", {
-            id,
-            ...Object.fromEntries(
-              Object.entries(newOSD).filter(([, value]) => value !== undefined),
-            ),
-          } as Api["createOSD"]["input"]),
+        !(await step(
+          "Nouvelle incrustation OSD",
+          () =>
+            window.sezaam.call("createOSD", {
+              id,
+              ...Object.fromEntries(
+                Object.entries(newOSD).filter(
+                  ([, value]) => value !== undefined,
+                ),
+              ),
+            } as Api["createOSD"]["input"]),
+          () => setNewOSD(undefined),
         ))
       )
         return;
@@ -440,11 +432,11 @@ export function Settings({
                 disabled={videoDirty}
                 onChange={(e) => {
                   setEncoder(e.target.value);
-                  setVideo(
-                    videoValues(
-                      entries.find((x) => x.profile === e.target.value),
-                    ),
+                  const next = videoValues(
+                    entries.find((x) => x.profile === e.target.value),
                   );
+                  previousVideo.current = next;
+                  setVideo(next);
                 }}
               >
                 <option value="">Choisir un flux</option>
@@ -867,6 +859,8 @@ export function Settings({
           ) : detail ? (
             detail.loading ? (
               "Lecture des paramètres complémentaires…"
+            ) : detail?.readState === "cached" ? (
+              "Informations en mémoire · aucune modification locale"
             ) : (
               "Paramètres lus sur la caméra"
             )

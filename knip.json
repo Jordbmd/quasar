@@ -1,0 +1,21 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/main/main.ts",
+    "src/main/preload.ts",
+    "src/renderer/entry.tsx",
+    "src/renderer/public/theme-init.js",
+    "scripts/*.{mjs,cjs}",
+    "tests/**/*.{test.ts,test.mjs}",
+    "stories/**/*.stories.tsx",
+    ".storybook/*.{ts,tsx}",
+    "*.config.{ts,cjs,mjs}",
+    ".dependency-cruiser.cjs"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,js}",
+    "scripts/*.{mjs,cjs}",
+    "tests/**/*.{ts,mjs}",
+    "stories/**/*.{ts,tsx}"
+  ]
+}

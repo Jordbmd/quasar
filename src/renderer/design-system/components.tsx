@@ -181,12 +181,16 @@ export function Modal({
   children,
   onClose,
   footer,
+  status,
+  busy = false,
 }: {
   open: boolean;
   title: string;
   children: React.ReactNode;
   onClose: () => void;
   footer?: React.ReactNode;
+  status?: React.ReactNode;
+  busy?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null),
     id = useId();
@@ -207,10 +211,20 @@ export function Modal({
       aria-labelledby={id}
       onKeyDown={(e) => {
         if (e.key !== "Tab") return;
-        const items = [...e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]')].filter(el=>el.getClientRects().length);
-        const first=items[0],last=items.at(-1);
-        if(e.shiftKey && document.activeElement===first){e.preventDefault();last?.focus();}
-        else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first?.focus();}
+        const items = [
+          ...e.currentTarget.querySelectorAll<HTMLElement>(
+            'button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
+          ),
+        ].filter((el) => el.getClientRects().length);
+        const first = items[0],
+          last = items.at(-1);
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
       }}
       onCancel={(e) => {
         e.preventDefault();
@@ -222,11 +236,13 @@ export function Modal({
         <Button
           className="icon-button"
           aria-label="Fermer la fenêtre"
+          disabled={busy}
           onClick={onClose}
         >
           <X size={18} />
         </Button>
       </header>
+      {status && <div className="dialog-status">{status}</div>}
       <div className="dialog-content">{children}</div>
       {footer && <footer>{footer}</footer>}
     </dialog>

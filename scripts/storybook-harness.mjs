@@ -34,7 +34,10 @@ export async function start() {
   });
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const url = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch({ channel: "chrome", headless: true });
+  const browser = await chromium.launch({
+    channel: process.env.PLAYWRIGHT_CHANNEL || "chrome",
+    headless: true,
+  });
   const context = await browser.newContext({
     viewport: { width: 1448, height: 1086 },
     locale: "fr-FR",

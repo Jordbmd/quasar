@@ -7,6 +7,24 @@ const require = createRequire(import.meta.url),
   errors = [],
   results = [];
 h.page.on("pageerror", (e) => errors.push(e.message));
+async function systemTheme(theme) {
+  // emulateMedia acknowledges the browser setting before matchMedia dispatches
+  // its change event. Observe that event before requesting another transition.
+  await h.page.evaluate((theme) => {
+    const media = matchMedia("(prefers-color-scheme: dark)");
+    window.systemThemeObserved = media.matches === (theme === "dark");
+    if (!window.systemThemeObserved)
+      media.addEventListener(
+        "change",
+        () => {
+          window.systemThemeObserved = true;
+        },
+        { once: true },
+      );
+  }, theme);
+  await h.page.emulateMedia({ colorScheme: theme });
+  await h.page.waitForFunction(() => window.systemThemeObserved);
+}
 try {
   const index = JSON.parse(
     await readFile("storybook-static/index.json", "utf8"),
@@ -50,32 +68,63 @@ try {
   await h.page.keyboard.press("Escape");
   assert.equal(await open.evaluate((e) => e === document.activeElement), true);
   await visit(h, "pages--cameras");
-  await h.page.emulateMedia({ colorScheme: "dark" });
+  await systemTheme("dark");
   await h.page.evaluate(() => localStorage.removeItem("sezaam-theme"));
-  await h.page.emulateMedia({ colorScheme: "light" });
-  await h.page.waitForFunction(()=>document.documentElement.dataset.theme==="light");
-  assert.equal(await h.page.locator("html").getAttribute("data-theme"), "light");
-  await h.page.emulateMedia({ colorScheme: "dark" });
-  await h.page.waitForFunction(()=>document.documentElement.dataset.theme==="dark");
+  await systemTheme("light");
+  await h.page.waitForFunction(
+    () => document.documentElement.dataset.theme === "light",
+  );
+  assert.equal(
+    await h.page.locator("html").getAttribute("data-theme"),
+    "light",
+  );
+  await systemTheme("dark");
+  await h.page.waitForFunction(
+    () => document.documentElement.dataset.theme === "dark",
+  );
   assert.equal(await h.page.locator("html").getAttribute("data-theme"), "dark");
   await h.page.getByRole("button", { name: "Activer le thème clair" }).click();
-  await h.page.emulateMedia({ colorScheme: "light" });
-  await h.page.emulateMedia({ colorScheme: "dark" });
-  await h.page.waitForFunction(()=>document.documentElement.dataset.theme==="light");
-  assert.equal(await h.page.locator("html").getAttribute("data-theme"), "light");
+  await systemTheme("light");
+  await systemTheme("dark");
+  await h.page.waitForFunction(
+    () => document.documentElement.dataset.theme === "light",
+  );
+  assert.equal(
+    await h.page.locator("html").getAttribute("data-theme"),
+    "light",
+  );
   await visit(h, "pages--selected-camera");
-  await h.page.getByRole("button",{name:"Agrandir l’aperçu"}).click();
-  await h.page.getByRole("dialog",{name:"Aperçu vidéo agrandi"}).waitFor();
-  for(let i=0;i<5;i++){await h.page.keyboard.press("Tab");assert.equal(await h.page.evaluate(()=>!!document.activeElement.closest('.preview.expanded')),true);}
+  await h.page.getByRole("button", { name: "Agrandir l’aperçu" }).click();
+  await h.page.getByRole("dialog", { name: "Aperçu vidéo agrandi" }).waitFor();
+  for (let i = 0; i < 5; i++) {
+    await h.page.keyboard.press("Tab");
+    assert.equal(
+      await h.page.evaluate(
+        () => !!document.activeElement.closest(".preview.expanded"),
+      ),
+      true,
+    );
+  }
   await h.page.keyboard.press("Escape");
-  await h.page.getByLabel("FPS (images/s)",{exact:true}).fill("20");
-  await h.page.getByRole("button",{name:/Diagnostic Tests/}).click();
-  await h.page.getByRole("dialog",{name:"Modifications non enregistrées"}).waitFor();
-  await h.page.getByRole("button",{name:"Continuer la modification"}).click();
-  assert.equal(await h.page.getByLabel("FPS (images/s)",{exact:true}).inputValue(),"20");
-  await h.page.getByRole("button",{name:/Diagnostic Tests/}).click();
-  await h.page.getByRole("button",{name:"Abandonner les modifications"}).click();
-  await h.page.getByRole("heading",{name:"Diagnostic des caméras",exact:true}).waitFor();
+  await h.page.getByLabel("FPS (images/s)", { exact: true }).fill("20");
+  await h.page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+  await h.page
+    .getByRole("dialog", { name: "Modifications non enregistrées" })
+    .waitFor();
+  await h.page
+    .getByRole("button", { name: "Continuer la modification" })
+    .click();
+  assert.equal(
+    await h.page.getByLabel("FPS (images/s)", { exact: true }).inputValue(),
+    "20",
+  );
+  await h.page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+  await h.page
+    .getByRole("button", { name: "Abandonner les modifications" })
+    .click();
+  await h.page
+    .getByRole("heading", { name: "Diagnostic des caméras", exact: true })
+    .waitFor();
   await mkdir("test-results", { recursive: true });
   await writeFile(
     "test-results/storybook.json",

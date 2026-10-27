@@ -13,19 +13,27 @@ import {
 } from "electron";
 import path from "node:path";
 import { writeFile, mkdir } from "node:fs/promises";
-import { MacNetwork, UnsupportedNetwork } from "./platform";
+import { systemNetwork } from "./platform";
+import { IpcController } from "./ipc-controller";
+import { appPaths, migrateLegacy } from "./storage";
+import { channels } from "../shared/ipc";
 import { OSDStore } from "./osd";
 import { NetworkGuard } from "./network";
 import { Diagnostics } from "./diagnostics";
 import { VideoRelay } from "./video";
-import { CameraService, schemas } from "./service";
-import type { Api } from "../shared/types";
+import { CameraService } from "./service";
 const root = path.resolve(__dirname, "../..");
-app.setName("Quasar");
-app.setPath(
-  "userData",
-  process.env.SEZAAM_TEST_USER_DATA || path.join(root, ".runtime/electron"),
+// The legacy macOS launcher loads main from the source tree; keep its resources.
+const standalone = app.isPackaged && path.resolve(app.getAppPath()) === root;
+const paths = appPaths(
+  root,
+  standalone ? process.resourcesPath : root,
+  app.getPath("appData"),
+  process.env.SEZAAM_TEST_USER_DATA,
 );
+app.setName("Quasar");
+app.setPath("userData", paths.electron);
+app.setAppLogsPath(paths.logs);
 app.commandLine.appendSwitch("disable-background-networking");
 app.commandLine.appendSwitch("disable-component-update");
 app.commandLine.appendSwitch("disable-domain-reliability");
@@ -33,7 +41,6 @@ let win: BrowserWindow;
 let service: CameraService;
 let timer: NodeJS.Timeout;
 let quitting = false;
-let busy = false;
 let watching = false;
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -45,16 +52,23 @@ if (!app.requestSingleInstanceLock()) {
   app
     .whenReady()
     .then(async () => {
-      await mkdir(path.join(root, ".runtime"), {
+      await mkdir(paths.data, {
         recursive: true,
         mode: 0o700,
       });
+      // Tests never read or migrate the real user's data. Standalone installs
+      // accept an explicit legacy folder, because the original checkout may be elsewhere.
+      if (!process.env.SEZAAM_TEST_USER_DATA)
+        await migrateLegacy(
+          process.env.QUASAR_LEGACY_RUNTIME || paths.legacy,
+          paths.data,
+        );
       app.setAboutPanelOptions({
         applicationName: "Quasar",
         applicationVersion: app.getVersion(),
         credits:
           "Configuration locale et diagnostic de caméras IP.\nSora / Inter / JetBrains Mono — SIL OFL 1.1",
-        iconPath: path.join(root, "build/icons/icon-128.png"),
+        iconPath: path.join(paths.resources, "build/icons/icon-128.png"),
       });
       Menu.setApplicationMenu(
         Menu.buildFromTemplate([
@@ -101,12 +115,27 @@ if (!app.requestSingleInstanceLock()) {
       );
       const logs = new Diagnostics();
       const guard = new NetworkGuard(
-        process.platform === "darwin"
-          ? new MacNetwork()
-          : new UnsupportedNetwork(),
+        process.env.QUASAR_TEST_NO_NETWORK === "1" &&
+          process.env.SEZAAM_TEST_USER_DATA
+          ? {
+              list: async () => [],
+              route: async () => {
+                throw Error("Réseau désactivé pour ce test.");
+              },
+              neighbors: async () => [],
+              probe: async () => {
+                throw Error("Réseau désactivé pour ce test.");
+              },
+            }
+          : systemNetwork(),
         logs,
       );
-      const video = new VideoRelay(root, guard, logs);
+      const video = new VideoRelay(
+        paths.resources,
+        guard,
+        logs,
+        paths.temporary,
+      );
       const confirm = async (detail: string) => {
         const r = await dialog.showMessageBox(win, {
           type: "warning",
@@ -151,9 +180,12 @@ if (!app.requestSingleInstanceLock()) {
           );
           return r.filePath;
         },
-        new OSDStore(path.join(root, ".runtime/osd")),
-        new DefaultsStore(path.join(root, ".runtime/camera-defaults.json"), sezaamProfile),
-        new ProfileJournal(path.join(root, ".runtime/profile-journal")),
+        new OSDStore(path.join(paths.data, "osd")),
+        new DefaultsStore(
+          path.join(paths.data, "camera-defaults.json"),
+          sezaamProfile,
+        ),
+        new ProfileJournal(path.join(paths.data, "profile-journal")),
       );
       service.exportProfileRun = async (report) => {
         const result = await dialog.showSaveDialog(win, {
@@ -175,7 +207,7 @@ if (!app.requestSingleInstanceLock()) {
         title: "Quasar",
         backgroundColor: "#0A0F28",
         show: false,
-        icon: path.join(root, "build/icons/icon-512.png"),
+        icon: path.join(paths.resources, "build/icons/icon-512.png"),
         webPreferences: {
           preload: path.join(__dirname, "preload.cjs"),
           nodeIntegration: false,
@@ -185,21 +217,21 @@ if (!app.requestSingleInstanceLock()) {
           devTools: true,
         },
       });
-      service.onDefaultsProgress = (update) => {
+      service.onAddressProgress = (update) => {
         if (!win.isDestroyed())
-          win.webContents.send("sezaam:defaults-progress", update);
+          win.webContents.send(channels.addressing, update);
+      };
+      service.onDefaultsProgress = (update) => {
+        if (!win.isDestroyed()) win.webContents.send(channels.defaults, update);
       };
       service.onFactoryResetProgress = (update) => {
-        if (!win.isDestroyed())
-          win.webContents.send("sezaam:factory-reset-progress", update);
+        if (!win.isDestroyed()) win.webContents.send(channels.reset, update);
       };
       service.onPreviewLighting = (update) => {
-        if (!win.isDestroyed())
-          win.webContents.send("sezaam:preview-lighting", update);
+        if (!win.isDestroyed()) win.webContents.send(channels.lighting, update);
       };
       service.onCameraDetail = (update) => {
-        if (!win.isDestroyed())
-          win.webContents.send("sezaam:camera-detail", update);
+        if (!win.isDestroyed()) win.webContents.send(channels.detail, update);
       };
       const dev = process.env.SEZAAM_DEV_URL;
       const index = path.join(root, "dist/renderer/index.html");
@@ -228,82 +260,33 @@ if (!app.requestSingleInstanceLock()) {
       win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
       win.webContents.on("will-navigate", (e) => e.preventDefault());
       win.webContents.on("will-attach-webview", (e) => e.preventDefault());
+      const ipc = new IpcController(service, logs, () =>
+        clipboard.writeText(
+          JSON.stringify(
+            { reports: service.reports, events: logs.entries },
+            null,
+            2,
+          ),
+        ),
+      );
       ipcMain.handle(
-        "sezaam:call",
-        async (event, method: unknown, input: unknown) => {
+        channels.call,
+        (event, method: unknown, input: unknown) => {
           if (
             event.sender !== win.webContents ||
             event.senderFrame !== win.webContents.mainFrame
           )
-            return { ok: false, error: "Appel non autorisé." };
-          if (typeof method !== "string" || !Object.hasOwn(schemas, method))
-            return { ok: false, error: "Action inconnue." };
-          if (method === "copyLogs") {
-            schemas.copyLogs.parse(input);
-            clipboard.writeText(
-              JSON.stringify(
-                { reports: service.reports, events: logs.entries },
-                null,
-                2,
-              ),
-            );
-            return { ok: true };
-          }
-          if (method === "stopVideo") {
-            await service.stopVideo();
-            return { ok: true };
-          }
-          if (method === "cancelCameraRead") {
-            await service.cancelCameraRead();
-            return { ok: true };
-          }
-          if (busy)
             return {
               ok: false,
-              error: "Une opération est en cours. Patientez avant la suivante.",
+              code: "INVALID_REQUEST",
+              error: "Appel non autorisé.",
             };
-          // Browsing stays available while a camera is slow. Mutations and
-          // session changes still take an exclusive lock and cancel detail reads.
-          const background = [
-            "state",
-            "getDefaults",
-            "listDefaultsRuns",
-            "getDefaultsRun",
-            "exportDefaultsRun",
-            "selectCamera",
-            "readCamera",
-            "previewProfiles",
-            "startVideo",
-            "openWeb",
-            "exportLogs",
-          ].includes(method);
-          if (!background) busy = true;
-          try {
-            if (!background) {
-              await service.stopVideo();
-              await service.cancelCameraRead();
-              await service.finishPreviewLighting();
-            }
-            return {
-              ok: true,
-              value: await service.dispatch(method as keyof Api, input as any),
-            };
-          } catch (e) {
-            const message = logs.safe(e);
-            if (
-              message !== "Lecture remplacée." &&
-              message !== "Aperçu interrompu."
-            )
-              logs.add("erreur", method, message);
-            return { ok: false, error: message };
-          } finally {
-            if (!background) busy = false;
-          }
+          return ipc.call(method, input);
         },
       );
       guard.onSuspend(() => {
         if (!win.isDestroyed())
-          win.webContents.send("sezaam:invalidated", guard.state.reason);
+          win.webContents.send(channels.invalidated, guard.state.reason);
       });
       timer = setInterval(async () => {
         if (watching) return;
@@ -317,7 +300,7 @@ if (!app.requestSingleInstanceLock()) {
           guard.suspend(logs.safe(e));
         } finally {
           if (!win.isDestroyed())
-            win.webContents.send("sezaam:network", guard.state);
+            win.webContents.send(channels.network, guard.state);
           watching = false;
         }
       }, 5000);
@@ -340,6 +323,14 @@ if (!app.requestSingleInstanceLock()) {
     e.preventDefault();
     quitting = true;
     clearInterval(timer);
-    Promise.resolve(service?.shutdown()).finally(() => app.quit());
+    void Promise.resolve(service?.shutdown())
+      .catch((error: unknown) => {
+        // Shutdown failure must not leave the desktop process running.
+        console.error(
+          "Arrêt incomplet :",
+          error instanceof Error ? error.message : "erreur inconnue",
+        );
+      })
+      .finally(() => app.quit());
   });
 }
