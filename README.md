@@ -2,6 +2,20 @@
 
 Application locale Electron de configuration et de diagnostic de caméras IP ONVIF : **Caméras**, **Diagnostic**, **Réseau**, **Profil Sezaam** et **Paramètres**.
 
+## Installer l’application
+
+Les fichiers de distribution embarquent Quasar, Electron, le profil Sezaam et le relais vidéo. **Node.js et le code source ne sont pas nécessaires pour les utiliser.**
+
+**[Télécharger la version 0.2.0](https://github.com/Jordbmd/quasar/releases/tag/v0.2.0)** — le dépôt est privé ; un accès GitHub autorisé est nécessaire.
+
+| Système | Fichier | Installation |
+| --- | --- | --- |
+| macOS Apple Silicon | [Télécharger le DMG](https://github.com/Jordbmd/quasar/releases/download/v0.2.0/Quasar-0.2.0-macOS-arm64.dmg) | Ouvrir puis glisser Quasar dans Applications |
+| Windows 64 bits | [Télécharger l’EXE](https://github.com/Jordbmd/quasar/releases/download/v0.2.0/Quasar-0.2.0-Windows-x64-Setup.exe) | Ouvrir l’assistant d’installation ; application disponible dans le menu Démarrer |
+| Linux 64 bits (x86_64) | [Télécharger l’AppImage](https://github.com/Jordbmd/quasar/releases/download/v0.2.0/Quasar-0.2.0-Linux-x86_64.AppImage) | Autoriser l’exécution dans les propriétés du fichier, puis double-cliquer |
+
+Le DMG est signé localement sans notarisation Apple ; l’installateur Windows n’a pas de certificat de distribution. Le système peut demander une autorisation à l’ouverture. Linux nécessite un bureau graphique, le support AppImage/FUSE, les espaces de noms utilisateur pour le bac à sable Electron et `iproute2` pour le réseau. Voir [les instructions de distribution](docs/DISTRIBUTION.md).
+
 ## Installer depuis le dépôt
 
 Prérequis de développement : **Node.js 24**. Les cibles sont macOS arm64, Linux x64 et Windows x64. La [matrice des plateformes](docs/PLATEFORMES.md) détaille les validations logicielles locales et GitHub ainsi que les limites matérielles restantes. Les commandes `launcher:*` ci-dessous concernent le lanceur de développement macOS ; utiliser `npm run package:dir` sur Linux ou Windows.
@@ -29,9 +43,14 @@ npm run build-storybook
 npm run test:stories
 npm run test:visual
 npm run package:dir
+npm run package:mac
+npm run package:win
+npm run package:linux
 ```
 
 Le paquet autonome est généré dans `release/`, séparément du lanceur existant. Il embarque Electron, le code compilé, les ressources et le relais vidéo vérifié ; il ne dépend plus du dossier source. La commande ne publie rien. Le paquet macOS est signé localement, pas notarié ; les autres plateformes exigent leur validation native. Consulter [l’architecture](docs/ARCHITECTURE.md), [les compatibilités firmware](docs/COMPATIBILITE-FIRMWARE.md), [les outils](docs/OUTILLAGE.md) et [le bilan de consolidation](docs/CONSOLIDATION-V1.md).
+
+Les commandes `package:mac`, `package:win` et `package:linux` préparent les installateurs dans `release/installers/macOS`, `Windows` et `Linux`. `npm run package:all` les génère successivement depuis macOS avec Docker pour Linux. Elles sélectionnent le bon relais sans remplacer le binaire de développement dans `bin/`. Aucune commande de compilation ne publie sur GitHub et aucun workflow CI/CD n’est réactivé.
 
 ## Ouvrir sans Terminal — lanceur macOS existant
 

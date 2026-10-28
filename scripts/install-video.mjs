@@ -19,8 +19,9 @@ const binary = asset.name.endsWith(".zip")
     ]
   : buffer;
 if (!binary?.length) throw Error("Exécutable absent de l’archive officielle.");
-await mkdir("bin", { recursive: true });
-const file = path.resolve("bin", asset.executable),
+const directory = path.resolve(process.env.QUASAR_VIDEO_DIR || "bin");
+await mkdir(directory, { recursive: true });
+const file = path.join(directory, asset.executable),
   temporary = file + "." + randomUUID();
 try {
   await writeFile(temporary, binary, { flag: "wx", mode: 0o755 });
@@ -32,7 +33,7 @@ try {
   });
 }
 await writeFile(
-  "bin/go2rtc-version.json",
+  path.join(directory, "go2rtc-version.json"),
   JSON.stringify(
     {
       version,

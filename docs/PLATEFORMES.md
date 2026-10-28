@@ -51,6 +51,8 @@ Les tests utilisent un dossier temporaire dédié via SEZAAM_TEST_USER_DATA et n
 
 ## Packaging
 
+Depuis le 28 octobre 2026, les commandes `package:mac`, `package:win`, `package:linux` et `package:all` préparent aussi des installateurs DMG, NSIS et AppImage. Leur mode de génération, leurs architectures et leurs limites de signature sont décrits dans [Distribution](DISTRIBUTION.md). Les résultats de la matrice ci-dessus concernent les paquets autonomes validés le 27 octobre, avant l’ajout de ces installateurs.
+
 `npm ci`, `npm run setup:video`, puis `npm run package:dir`, sur l’OS cible avec Node 24. Les commandes npm communes n’utilisent pas d’affectation d’environnement propre au shell POSIX. Les scripts `launcher:*` restent volontairement propres au lanceur macOS de développement.
 
 Un seul packager, electron-builder 26 : sorties dans `release/`, dépendances de développement exclues, aucune publication. Le contrôle après assemblage vérifie le relais, ses métadonnées OS/architecture et le superviseur. La sélection go2rtc v1.9.14 est épinglée ; les empreintes SHA-256 attendues viennent des métadonnées de la release officielle, pas du fichier juste téléchargé. Les archives sont vérifiées avant extraction du seul exécutable attendu.
