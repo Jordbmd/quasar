@@ -41,8 +41,9 @@ type Action = {
     | "setDayMode";
   input: any;
   fields: string[];
+  snapshot?: string;
 };
-type Prepared = DefaultsCameraPlan & { actions: Action[]; fingerprint: string };
+type Prepared = DefaultsCameraPlan & { actions: Action[] };
 export class DefaultsStore {
   private memory: DefaultsProfile;
   constructor(
@@ -536,17 +537,33 @@ export function prepareDefaults(
           : action.method;
       r.code = undefined;
     }
+  for (const action of actions) {
+    const relevant =
+      action.method === "setVendorDefaults"
+        ? (detail.vendor?.data as VendorSnapshot | undefined)?.groups[
+            action.input.group as VendorGroup
+          ]
+        : action.method === "setImage"
+          ? detail.image
+          : action.method === "setVideo"
+            ? array(detail.video.data).find(
+                (entry) => token(entry.config) === action.input.token,
+              )
+            : action.method === "disableOSD" || action.method === "restoreOSD"
+              ? { osd: detail.osd, restore: detail.osdRestoreAvailable }
+              : action.method === "setDayMode"
+                ? {
+                    daylight: detail.daylight,
+                    capture: (detail.vendor?.data as VendorSnapshot | undefined)
+                      ?.groups.capture,
+                  }
+                : undefined;
+    action.snapshot = JSON.stringify(relevant);
+  }
   return {
     camera: { ...detail.camera },
     rows,
     actions,
-    fingerprint: JSON.stringify({
-      video: detail.video.data,
-      image: detail.image.data,
-      osd: detail.osd.data,
-      restore: detail.osdRestoreAvailable,
-      vendor: detail.vendor?.data,
-    }),
   };
 }
 type Hooks = {
@@ -555,6 +572,10 @@ type Hooks = {
   read: (id: string) => Promise<CameraDetail>;
   check: (camera: Camera) => Promise<void>;
   write: (action: Action) => Promise<WriteResult>;
+  continueAfterFailure?: (
+    camera: Camera,
+    response: WriteResult,
+  ) => Promise<boolean>;
   progress: (p: DefaultsProgress) => void;
   safe: (e: unknown) => string;
 };
@@ -704,7 +725,6 @@ export class DefaultsManager {
             })),
           error: this.hooks.safe(e),
           actions: [],
-          fingerprint: "",
         });
       }
       if (epoch !== this.hooks.epoch())
@@ -789,14 +809,42 @@ export class DefaultsManager {
           plan.profile,
           await this.hooks.read(p.camera.id),
         );
-        if (
-          fresh.fingerprint !== p.fingerprint ||
-          JSON.stringify(fresh.actions) !== JSON.stringify(p.actions)
-        )
-          throw Error(
-            "Les paramètres ou capacités ont changé depuis la vérification. Aucune nouvelle écriture sur cette caméra.",
-          );
+        if (!identityMatches(p.camera, fresh.camera))
+          throw Error("L’identité de la caméra a changé.");
+        for (const row of result.rows.filter((item) => item.state === "same")) {
+          const current = fresh.rows.find((item) => item.id === row.id);
+          if (current && current.state !== "same") {
+            row.state = "skipped";
+            row.code = "STALE_PLAN";
+            row.message =
+              "Ce réglage, initialement conforme, a changé. Relancez l’analyse pour préparer sa modification.";
+          }
+        }
         for (const action of p.actions) {
+          const matching = fresh.actions.find(
+            (candidate) =>
+              candidate.method === action.method &&
+              JSON.stringify(candidate.fields) ===
+                JSON.stringify(action.fields),
+          );
+          if (
+            !matching ||
+            JSON.stringify(matching) !== JSON.stringify(action)
+          ) {
+            for (const id of action.fields) {
+              const row = result.rows.find((item) => item.id === id)!;
+              const current = fresh.rows.find((item) => item.id === id);
+              if (current?.state === "same") Object.assign(row, current);
+              else {
+                row.state = "skipped";
+                row.code = "STALE_PLAN";
+                row.message =
+                  "Ce groupe de réglages a changé depuis l’analyse. Groupe non appliqué ; les autres groupes continuent.";
+              }
+            }
+            await checkpoint();
+            continue;
+          }
           if (plan.epoch !== this.hooks.epoch())
             throw Error("Réseau modifié : application interrompue.");
           this.hooks.progress({
@@ -880,10 +928,28 @@ export class DefaultsManager {
             }
           }
           await checkpoint();
-          if (!response.verified)
-            throw Error(
-              "Résultat non confirmé : les étapes suivantes de cette caméra ont été arrêtées.",
-            );
+          if (!response.verified) {
+            const issues = response.issues ?? [];
+            const readableMismatch =
+              response.acknowledged &&
+              issues.length > 0 &&
+              issues.every((issue) => issue.code === "READBACK_MISMATCH");
+            const rejectedWithoutWrite =
+              !response.sent &&
+              issues.length > 0 &&
+              issues.every((issue) =>
+                ["ACTION_UNSUPPORTED", "VALUE_REJECTED"].includes(issue.code),
+              );
+            const canContinue =
+              (readableMismatch || rejectedWithoutWrite) &&
+              (!this.hooks.continueAfterFailure ||
+                (await this.hooks.continueAfterFailure(p.camera, response)));
+            if (!canContinue)
+              throw Error(
+                "Communication ou résultat incertain : les étapes restantes de cette caméra n’ont pas été envoyées.",
+              );
+            await this.hooks.check(p.camera);
+          }
         }
       } catch (e) {
         result.error = this.hooks.safe(e);

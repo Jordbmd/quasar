@@ -149,12 +149,17 @@ export type Api = {
     output: CameraDetail;
   };
   readCamera: {
-    input: { id: string; requestId?: string };
+    input: { id: string; requestId?: string; scope?: "network" };
     output: CameraDetail;
   };
   cancelCameraRead: { input: undefined; output: void };
   changeIP: {
-    input: { id: string; address: string; mask: string; isolated: boolean };
+    input: {
+      id: string;
+      address: string;
+      mask: string;
+      isolated: boolean;
+    };
     output: WriteResult;
   };
   setVideo: {

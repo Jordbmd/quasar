@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { livePlayback } from "../src/shared/live-playback";
 import { videoError } from "../src/shared/video-errors";
 import {
   compareCameraIPs,
   preferredProfile,
+  readPreferences,
 } from "../src/renderer/preferences";
 describe("Lecture et navigation", () => {
   it("distingue un délai RTSP d’un refus d’authentification sans exposer l’URI", () => {
@@ -28,7 +29,7 @@ describe("Lecture et navigation", () => {
       rate: 1,
     });
   });
-  it("trie les IP numériquement et choisit le profil léger sans modifier l’encodeur", () => {
+  it("trie les IP numériquement et choisit le flux principal sans modifier l’encodeur", () => {
     expect(
       ["192.168.1.100", "192.168.1.9", "192.168.1.15"].sort(compareCameraIPs),
     ).toEqual(["192.168.1.9", "192.168.1.15", "192.168.1.100"]);
@@ -44,8 +45,60 @@ describe("Lecture et navigation", () => {
         videoEncoderConfiguration: { resolution: { width: 640, height: 360 } },
       },
     ];
-    expect(preferredProfile(profiles, "light").token).toBe("sub");
-    expect(preferredProfile(profiles, "main").token).toBe("main");
+    expect(preferredProfile(profiles).token).toBe("main");
     expect(profiles[0].token).toBe("main");
   });
+});
+
+it("choisit MainStream même lorsqu’il n’est pas le premier profil", () => {
+  const profiles = [
+    {
+      token: "sub",
+      name: "SubStream",
+      videoEncoderConfiguration: { resolution: { width: 3840, height: 2160 } },
+    },
+    {
+      token: "p2",
+      name: "MainStream",
+      videoEncoderConfiguration: { resolution: { width: 1920, height: 1080 } },
+    },
+  ];
+  expect(preferredProfile(profiles)).toBe(profiles[1]);
+  expect(profiles[0].token).toBe("sub");
+});
+
+it("utilise la plus grande résolution si aucun flux principal n’est nommé", () => {
+  const profiles = [
+    { token: "a" },
+    {
+      token: "b",
+      videoEncoderConfiguration: { resolution: { width: 640, height: 360 } },
+    },
+    {
+      token: "c",
+      videoEncoderConfiguration: { resolution: { width: 1920, height: 1080 } },
+    },
+  ];
+  expect(preferredProfile(profiles)).toBe(profiles[2]);
+  expect(preferredProfile([])).toBeUndefined();
+});
+
+it("remplace l’ancien défaut léger sans changer les autres préférences", () => {
+  vi.stubGlobal("localStorage", {
+    getItem: () =>
+      JSON.stringify({
+        previewQuality: "light",
+        autoplay: false,
+        lowLatency: false,
+      }),
+  });
+  try {
+    expect(readPreferences()).toEqual({
+      previewQuality: "main",
+      autoplay: false,
+      lowLatency: false,
+    });
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

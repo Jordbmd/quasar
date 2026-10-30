@@ -83,6 +83,11 @@ export function Addressing({
           classées par IP actuelle puis par identité. Vérifiez l’ordre avant
           d’appliquer.
         </p>
+        <p>
+          Les conflits sont vérifiés pendant cette préparation. Quand le
+          protocole constructeur permet de cibler chaque caméra par son
+          identifiant, l’attribution les résout directement sans débranchement.
+        </p>
         <Field label="Premier casier">
           <input
             type="number"
@@ -141,17 +146,18 @@ export function Addressing({
                       <td>{row.to}</td>
                       <td>
                         {row.message}
-                        {cameras.find((c) => c.id === row.id)?.ambiguous && (
-                          <Button
-                            disabled={busy}
-                            onClick={() => {
-                              setIsolating(row.id);
-                              setIsolated(false);
-                            }}
-                          >
-                            Résoudre le conflit
-                          </Button>
-                        )}
+                        {row.state === "blocked" &&
+                          cameras.find((c) => c.id === row.id)?.ambiguous && (
+                            <Button
+                              disabled={busy}
+                              onClick={() => {
+                                setIsolating(row.id);
+                                setIsolated(false);
+                              }}
+                            >
+                              Résolution par isolation
+                            </Button>
+                          )}
                       </td>
                     </tr>
                   ))}
@@ -193,13 +199,14 @@ export function Addressing({
         )}
         {cameras.some((c) => c.ambiguous) && !plan && (
           <Alert kind="warning">
-            Des caméras partagent la même IP. Vérifiez la plage pour accéder au
-            parcours de résolution.
+            Des caméras partagent la même IP. « Vérifier les adresses »
+            recherche automatiquement une méthode de résolution sans
+            débranchement.
           </Alert>
         )}
         {selected && (
           <section className="addressing-isolation">
-            <h3>Résoudre le conflit à {selected.ip}</h3>
+            <h3>Autre méthode : isoler la caméra à {selected.ip}</h3>
             <p>
               Gardez uniquement la caméra choisie branchée au switch. Identité
               attendue : <code>{selected.mac || selected.endpoint}</code>. La

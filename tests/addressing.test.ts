@@ -101,6 +101,22 @@ it("arrête le lot après un résultat incertain et ne touche pas les caméras s
   expect(result.rows.map((r: any) => r.state)).toEqual(["failed", "skipped"]);
   expect(service.changeIP).toHaveBeenCalledOnce();
 });
+it("le même lot résout un conflit par numéro constructeur sans invoquer l’écriture ONVIF ambiguë", async () => {
+  const { service, plan } = fixture();
+  service.cameras[0].ambiguous = true;
+  service.addressPlan.lanDevices = {
+    [service.cameras[0].id]: { serial: "fixture" },
+  };
+  service.changeLanAddress = vi.fn(async () => ({
+    verified: true,
+    message: "Identité et adresse relues",
+  }));
+  const result = await service.applyAddresses(plan.id);
+  expect(result.rows[0].state).toBe("verified");
+  expect(service.changeLanAddress).toHaveBeenCalledOnce();
+  expect(service.changeIP).toHaveBeenCalledOnce();
+  expect(service.changeIP.mock.calls[0][0].id).toBe(service.cameras[1].id);
+});
 it("refuse une confirmation annulée, un plan périmé et un réseau changé", async () => {
   const a = fixture();
   a.service.confirm.mockResolvedValue(false);

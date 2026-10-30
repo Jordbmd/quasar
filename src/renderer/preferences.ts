@@ -1,12 +1,12 @@
 export type Preferences = {
   autoplay: boolean;
   lowLatency: boolean;
-  previewQuality: "light" | "main";
+  previewQuality: "main";
 };
 const defaultPreferences: Preferences = {
   autoplay: true,
   lowLatency: true,
-  previewQuality: "light",
+  previewQuality: "main",
 };
 export function readPreferences(): Preferences {
   try {
@@ -17,23 +17,31 @@ export function readPreferences(): Preferences {
       autoplay: typeof value.autoplay === "boolean" ? value.autoplay : true,
       lowLatency:
         typeof value.lowLatency === "boolean" ? value.lowLatency : true,
-      previewQuality: value.previewQuality === "main" ? "main" : "light",
+      // Retain the legacy key, but always default to the main stream.
+      previewQuality: "main",
     };
   } catch {
     return defaultPreferences;
   }
 }
-export function preferredProfile(
-  profiles: any[],
-  quality: Preferences["previewQuality"],
-) {
+export function preferredProfile(profiles: any[]) {
   const usable = profiles.filter((p) => p.$?.token || p.token);
-  if (quality === "main") return usable[0];
+  const main = usable.find((p) =>
+    [p.name, p.$?.token, p.token].some(
+      (value) =>
+        typeof value === "string" &&
+        /^(main[\s_-]*stream|main|principal|flux[\s_-]*principal)$/i.test(
+          value.trim(),
+        ),
+    ),
+  );
+  if (main) return main;
+  // Unnamed profiles: prefer the highest known resolution, never mutate them.
   const area = (p: any) => {
     const r = p.videoEncoderConfiguration?.resolution;
-    return r?.width > 0 && r?.height > 0 ? r.width * r.height : Infinity;
+    return r?.width > 0 && r?.height > 0 ? r.width * r.height : 0;
   };
-  return [...usable].sort((a, b) => area(a) - area(b))[0];
+  return [...usable].sort((a, b) => area(b) - area(a))[0];
 }
 export function compareCameraIPs(a: string, b: string) {
   const number = (ip: string) =>

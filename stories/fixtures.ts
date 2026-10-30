@@ -186,7 +186,7 @@ export function installMock() {
     JSON.stringify({
       autoplay: false,
       lowLatency: true,
-      previewQuality: "light",
+      previewQuality: "main",
     }),
   );
   const current = structuredClone(state);

@@ -32,14 +32,16 @@ export function Settings({
   run,
   onRefresh,
   onStop,
+  onNetworkResult,
 }: {
   detail?: CameraDetail;
   unavailable?: string;
   busy: boolean;
   onDirty: (dirty: boolean) => void;
   run: Run;
-  onRefresh: () => Promise<CameraDetail>;
+  onRefresh: (scope?: "network") => Promise<CameraDetail>;
   onStop: () => Promise<void>;
+  onNetworkResult?: (result: WriteResult) => void;
 }) {
   const [net, setNet] = useState(() => networkValues(detail));
   const [locker, setLocker] = useState("");
@@ -182,6 +184,12 @@ export function Settings({
         }
         outcome.push({ parameter, result });
         setResults([...outcome]);
+        if (parameter === "Réseau" && (result.sent || result.verified)) {
+          // Sent is no longer an unsaved draft, even when reconnection fails.
+          reset();
+          onDirty(false);
+          onNetworkResult?.(result);
+        }
         if (result.verified) onVerified?.();
         return result.verified;
       };
@@ -276,16 +284,11 @@ export function Settings({
         return;
       if (netDirty) {
         const input: Api["setCameraNetwork"]["input"] = { id, isolated: false };
-        if (
-          net.dhcp !== baseNet.dhcp ||
-          net.address !== baseNet.address ||
-          net.mask !== baseNet.mask
-        ) {
-          input.dhcp = net.dhcp;
-          if (!net.dhcp) {
+        if (net.dhcp !== baseNet.dhcp) input.dhcp = net.dhcp;
+        if (!net.dhcp) {
+          if (net.address.trim() !== baseNet.address)
             input.address = net.address.trim();
-            input.mask = net.mask.trim();
-          }
+          if (net.mask.trim() !== baseNet.mask) input.mask = net.mask.trim();
         }
         if (net.gateway !== baseNet.gateway) input.gateway = net.gateway.trim();
         if (net.dns !== baseNet.dns)
@@ -297,7 +300,15 @@ export function Settings({
         )
           return;
       }
-      await onRefresh();
+      const networkOnly =
+        netDirty &&
+        !videoDirty &&
+        !webDirty &&
+        !disabledOSDs.length &&
+        !textChanges.length &&
+        !newOSD &&
+        !restoreOSD;
+      await onRefresh(networkOnly ? "network" : undefined);
     });
   if (!detail)
     return (

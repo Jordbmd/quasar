@@ -7,6 +7,7 @@ export function addressRows(
   start: number,
   occupied: Set<string>,
   own: string[],
+  serialTargets: Set<string> = new Set(),
 ): AddressRow[] {
   if (
     !cameras.length ||
@@ -27,24 +28,34 @@ export function addressRows(
     let message =
       "Adresse disponible selon la détection. Nouvelle vérification avant écriture.";
     let state: AddressRow["state"] = c.ip === to ? "unchanged" : "ready";
-    if (c.ambiguous || cameras.filter((x) => x.ip === c.ip).length > 1) {
+    const conflict =
+      c.ambiguous || cameras.filter((x) => x.ip === c.ip).length > 1;
+    const serial = serialTargets.has(c.id);
+    if (conflict && !serial) {
       state = "blocked";
       message =
-        "IP partagée : utilisez Résoudre le conflit et branchez une seule des caméras concernées.";
+        "IP partagée : aucun ciblage constructeur unique confirmé. La résolution automatique est indisponible pour cette caméra.";
     } else if (
-      (!c.mac && !c.serial) ||
-      c.connectionError ||
-      !c.status.startsWith("Connectée")
+      !serial &&
+      ((!c.mac && !c.serial) ||
+        c.connectionError ||
+        !c.status.startsWith("Connectée"))
     ) {
       state = "blocked";
       message = "Connexion et identité à vérifier avant l’adressage.";
     } else if (
       own.includes(to) ||
-      (to !== c.ip && (occupied.has(to) || cameras.some((x) => x.ip === to)))
+      (serial && to === c.ip) ||
+      cameras.some((x) => x.id !== c.id && x.ip === to) ||
+      (to !== c.ip && occupied.has(to))
     ) {
       state = "blocked";
       message =
         "Adresse cible déjà utilisée. Choisissez un autre premier casier.";
+    } else if (serial) {
+      state = "ready";
+      message =
+        "Conflit résoluble par identifiant constructeur. Aucun débranchement nécessaire.";
     } else if (state === "unchanged") message = "Adresse déjà conforme.";
     return {
       id: c.id,
@@ -55,6 +66,7 @@ export function addressRows(
       locker,
       state,
       message,
+      ...(serial ? { resolution: "serial" as const } : {}),
     };
   });
 }

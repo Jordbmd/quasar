@@ -257,6 +257,9 @@ try {
       });
       window.__sezaamTest = {
         calls,
+        setAddressConflict: (value) => {
+          cameras[1].ambiguous = value;
+        },
         detailFixture: () => makeDetail(cameras[0]),
         emitBatch: (kind, update) => {
           for (const fn of kind === "address"
@@ -356,8 +359,13 @@ try {
                 to: `192.168.1.${v.start + i + 10}`,
                 locker: v.start + i,
                 state: i === 0 ? "blocked" : "ready",
+                ...(c.ambiguous ? { resolution: "serial" } : {}),
                 message:
-                  i === 0 ? "SIMULATION — IP partagée" : "SIMULATION — prête",
+                  i === 0
+                    ? "SIMULATION — IP partagée"
+                    : c.ambiguous
+                      ? "SIMULATION — conflit résoluble sans débranchement"
+                      : "SIMULATION — prête",
               })),
             };
           if (method === "applyAddresses")
@@ -1245,6 +1253,40 @@ try {
     .getByRole("button", { name: "Fermer la fenêtre", exact: true })
     .click();
   await search.fill("Caméra 004");
+  await page.evaluate(() => window.__sezaamTest.setAddressConflict(true));
+  await page
+    .getByRole("button", { name: "Relancer la détection", exact: true })
+    .click();
+  await page.locator(".operation").waitFor({ state: "hidden" });
+  await page
+    .getByRole("button", { name: "Résoudre les conflits", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Vérifier les adresses", exact: true })
+    .click();
+  const serialRow = page
+    .locator(".addressing-table tbody tr")
+    .filter({ hasText: "SIMULATION — conflit résoluble sans débranchement" });
+  await serialRow.waitFor();
+  assert.equal(
+    await serialRow.getByRole("button").count(),
+    0,
+    "Pas d’étape d’isolation pour un conflit ciblable",
+  );
+  await page
+    .getByRole("button", {
+      name: "Attribuer les IP à 2 caméra(s)",
+      exact: true,
+    })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "Fermer la fenêtre", exact: true })
+    .click();
+  await page.evaluate(() => window.__sezaamTest.setAddressConflict(false));
+  await page
+    .getByRole("button", { name: "Relancer la détection", exact: true })
+    .click();
+  await page.locator(".operation").waitFor({ state: "hidden" });
   await page.locator(".camera-row").click();
   await page.locator(".operation").waitFor({ state: "hidden" });
   await page.getByRole("button", { name: "Arrêter", exact: true }).waitFor();

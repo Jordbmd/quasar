@@ -184,7 +184,9 @@ export function FactoryResetDialog({
                   aux paramètres d’usine. Attendez le redémarrage, puis
                   redétectez les caméras et reconnectez-vous avec leurs
                   identifiants actuels. Si plusieurs partagent la même IP
-                  d’usine, branchez-les une par une pour les réadresser.
+                  d’usine, utilisez « Attribuer les IP » pour vérifier la
+                  résolution par identifiant constructeur sans débranchement.
+                  Une caméra incompatible nécessite encore une isolation.
                 </Alert>
                 <Button
                   disabled={busy}

@@ -7,6 +7,7 @@ export type AddressRow = {
   locker: number;
   state: "ready" | "unchanged" | "blocked" | "verified" | "failed" | "skipped";
   message: string;
+  resolution?: "serial";
 };
 export type AddressPlan = { id: string; createdAt: string; rows: AddressRow[] };
 

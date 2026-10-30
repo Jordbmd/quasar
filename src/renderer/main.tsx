@@ -299,6 +299,7 @@ export function App() {
     id: string,
     fresh = false,
     onProfiles?: (profiles: any[]) => void,
+    scope?: "network",
   ) => {
     const generation = selectionGeneration.current;
     const current = () =>
@@ -309,12 +310,14 @@ export function App() {
       setPreviewProfiles(d.profiles);
       onProfiles?.(d.profiles);
       setProfile((p) =>
-        d.profiles.some((x) => tok(x) === p) ? p : tok(d.profiles[0]),
+        d.profiles.some((x) => tok(x) === p)
+          ? p
+          : tok(preferredProfile(d.profiles)),
       );
     };
     setLoadingCamera(id);
     try {
-      const d = await cameraReader.read(id, fresh, current, accept);
+      const d = await cameraReader.read(id, fresh, current, accept, scope);
       return d;
     } finally {
       if (current())
@@ -380,9 +383,7 @@ export function App() {
         if (!current() || profilesChosen || !profiles.length) return;
         profilesChosen = true;
         setPreviewProfiles(profiles);
-        const chosen = tok(
-          preferredProfile(profiles, preferences.previewQuality),
-        );
+        const chosen = tok(preferredProfile(profiles));
         setProfile(chosen);
         if (preferences.autoplay && chosen && page === "cameras")
           void startPreview(c.id, chosen);
@@ -422,8 +423,8 @@ export function App() {
       return;
     await select(c);
   };
-  const read = async () => {
-    return loadCamera(selectedRef.current, true);
+  const read = async (scope?: "network") => {
+    return loadCamera(selectedRef.current, true, undefined, scope);
   };
   const reloadCamera = async () => {
     const generation = selectionGeneration.current;
@@ -519,6 +520,18 @@ export function App() {
             : "Session prête. Lancez la détection ou ajoutez une caméra.",
         );
     });
+  const openAddressing = async () => {
+    if (
+      dirty &&
+      !(await confirm(
+        "Abandonner les modifications non enregistrées avant l’adressage ?",
+      ))
+    )
+      return;
+    setDirty(false);
+    await stop();
+    setAddressing(true);
+  };
   return (
     <div className={`app-shell${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <header className="titlebar">
@@ -819,6 +832,16 @@ export function App() {
                 <SlidersHorizontal size={16} />
                 Profil Sezaam · toutes
               </Button>
+              {state?.cameras.some((c) => c.ambiguous) && (
+                <Button
+                  className="add-camera"
+                  disabled={!!busy || !state.network.ready}
+                  onClick={openAddressing}
+                >
+                  <Network size={16} />
+                  Résoudre les conflits
+                </Button>
+              )}
               <details className="camera-maintenance">
                 <summary>Actions avancées</summary>
                 <Button
@@ -826,18 +849,7 @@ export function App() {
                   disabled={
                     !!busy || !state?.network.ready || !state?.cameras.length
                   }
-                  onClick={async () => {
-                    if (
-                      dirty &&
-                      !(await confirm(
-                        "Abandonner les modifications non enregistrées avant l’adressage ?",
-                      ))
-                    )
-                      return;
-                    setDirty(false);
-                    await stop();
-                    setAddressing(true);
-                  }}
+                  onClick={openAddressing}
                 >
                   <Network size={16} />
                   Attribuer les IP
@@ -1110,6 +1122,23 @@ export function App() {
                 busy={!!busy}
                 onDirty={setDirty}
                 run={run}
+                onNetworkResult={(result) => {
+                  if (result.verified) {
+                    setNotice(result.message);
+                  } else {
+                    selectionGeneration.current++;
+                    cameraReader.cancel();
+                    selectedRef.current = "";
+                    setSelected("");
+                    setDetail(undefined);
+                    setLoadingCamera("");
+                    setDirty(false);
+                    setError(
+                      result.message +
+                        " Relancez la détection ou utilisez Résoudre les conflits.",
+                    );
+                  }
+                }}
                 onRefresh={read}
                 onStop={stop}
               />

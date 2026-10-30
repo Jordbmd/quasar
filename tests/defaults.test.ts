@@ -312,7 +312,7 @@ describe("Application vérifiée en lot", () => {
     ).toBe("manual");
     await expect(h.manager.apply(p.id)).rejects.toThrow("expirée");
   });
-  it("arrête les groupes suivants de la caméra en échec et continue la suivante", async () => {
+  it("continue les groupes indépendants après une relecture différente confirmée", async () => {
     const h = harness(),
       p = await h.manager.preview(["one", "two"]);
     h.write.mockResolvedValueOnce({
@@ -320,16 +320,23 @@ describe("Application vérifiée en lot", () => {
       acknowledged: true,
       verified: false,
       message: "Relecture différente",
+      issues: [
+        {
+          stage: "readback",
+          code: "READBACK_MISMATCH",
+          message: "Valeur différente",
+        },
+      ],
     });
     const result = await h.manager.apply(p.id);
     expect(
       h.write.mock.calls.filter(([a]: any) => a.input.id === "one"),
-    ).toHaveLength(1);
+    ).not.toHaveLength(1);
     expect(
       result.cameras[0].rows.find((r) => r.id === "brightness")?.state,
     ).toBe("failed");
     expect(result.cameras[0].rows.find((r) => r.id === "fps")?.state).toBe(
-      "skipped",
+      "verified",
     );
     expect(result.cameras[1].rows.find((r) => r.id === "fps")?.state).toBe(
       "verified",
@@ -345,13 +352,21 @@ describe("Application vérifiée en lot", () => {
     h.changeNetwork();
     await expect(h.manager.apply(p2.id)).rejects.toThrow("changé");
   });
-  it("ne modifie pas une caméra dont la configuration a changé après la vérification", async () => {
+  it("ne bloque que le groupe vidéo quand sa configuration change après l’analyse", async () => {
     const h = harness(),
       p = await h.manager.preview(["one"]);
     h.data.get("one")!.video.data[0].config.rateControl.frameRateLimit = 12;
     const r = await h.manager.apply(p.id);
-    expect(h.write).not.toHaveBeenCalled();
-    expect(r.cameras[0].error).toContain("changé");
+    expect(h.write).toHaveBeenCalled();
+    expect(h.write.mock.calls.some(([a]: any) => a.method === "setVideo")).toBe(
+      false,
+    );
+    expect(r.cameras[0].rows.find((r) => r.id === "fps")?.state).toBe(
+      "skipped",
+    );
+    expect(r.cameras[0].rows.find((r) => r.id === "brightness")?.state).toBe(
+      "verified",
+    );
   });
   it("un changement de réseau pendant le lot empêche toute écriture suivante", async () => {
     const h = harness(),
@@ -607,7 +622,7 @@ describe("Audit et journal du profil", () => {
       observed: 0,
       code: "READBACK_MISMATCH",
     });
-    expect(rows.find((r) => r.id === "fps")?.state).toBe("skipped");
+    expect(rows.find((r) => r.id === "fps")?.state).toBe("verified");
     expect(r.cameras[1].rows.find((r) => r.id === "fps")?.state).toBe(
       "verified",
     );
@@ -901,4 +916,58 @@ it("conserve la cause précise d’un échec au lieu de la remplacer par un mess
   expect(result.cameras[0].rows.find((r) => r.id === "contrast")?.message).toBe(
     "Le contraste est resté à 0 malgré la commande acceptée.",
   );
+});
+
+it("un timeout d’écriture arrête la caméra sans renvoyer la commande", async () => {
+  const h = harness(),
+    plan = await h.manager.preview(["one"]);
+  h.write.mockResolvedValueOnce({
+    sent: true,
+    acknowledged: false,
+    verified: false,
+    message: "Timeout",
+    issues: [{ stage: "send", code: "TIMEOUT", message: "Timeout" }],
+  });
+  const result = await h.manager.apply(plan.id);
+  expect(h.write).toHaveBeenCalledTimes(1);
+  expect(result.cameras[0].rows.find((row) => row.id === "fps")?.state).toBe(
+    "skipped",
+  );
+});
+
+it("un groupe devenu conforme est conservé sans empêcher les autres groupes", async () => {
+  const h = harness(),
+    plan = await h.manager.preview(["one"]);
+  const profile = await h.store.read();
+  const image = h.data.get("one")!.image.data;
+  for (const id of ["brightness", "colorSaturation", "contrast", "sharpness"])
+    image.settings[id] = profile.fields[id].value;
+  const result = await h.manager.apply(plan.id);
+  expect(
+    h.write.mock.calls.some(([action]: any) => action.method === "setImage"),
+  ).toBe(false);
+  expect(
+    result.cameras[0].rows.find((row) => row.id === "brightness")?.state,
+  ).toBe("same");
+  expect(result.cameras[0].rows.find((row) => row.id === "fps")?.state).toBe(
+    "verified",
+  );
+});
+
+it("la reprise d’un groupe indépendant revérifie l’identité avant de lever l’incertitude", async () => {
+  const service: any = Object.create(CameraService.prototype);
+  const camera = detail().camera;
+  const identity = vi.fn(async () => ({ ...camera }));
+  Object.assign(service, {
+    guard: { epoch: 1, assert: async () => {}, ensureEpoch: () => {} },
+    camera: () => camera,
+    connection: async () => ({ identity }),
+    uncertain: new Set([camera.id]),
+  });
+  expect(await service.continueProfileAfterFailure(camera)).toBe(true);
+  expect(service.uncertain.has(camera.id)).toBe(false);
+  service.uncertain.add(camera.id);
+  identity.mockResolvedValue({ ...camera, serial: "OTHER" });
+  expect(await service.continueProfileAfterFailure(camera)).toBe(false);
+  expect(service.uncertain.has(camera.id)).toBe(true);
 });

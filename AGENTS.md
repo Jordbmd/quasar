@@ -17,7 +17,7 @@ Application Electron locale de configuration de caméras Ethernet. Lire README.m
 
 - Ethernet seulement, pas de Wi-Fi de secours, d’assistant réseau obligatoire, de modification automatique du poste ou d’exécution administrateur.
 - Une route non vérifiable ne devient jamais une route valide. Un changement réseau invalide les opérations et connexions.
-- Identité et adresse vérifiées avant toute écriture. Conflits IP : isolation physique, jamais d’écriture supposée ciblée par MAC.
+- Identité et adresse vérifiées avant toute écriture. Conflits IP : protocole constructeur à numéro de série uniquement après double découverte concordante (voir docs/ADRESSAGE-CONFLITS.md), sinon isolation physique. Jamais d’écriture HTTP supposée ciblée par MAC ou de modification ARP du poste.
 - Lecture annulée, refus d’authentification, commande envoyée, résultat incertain et relecture conforme sont distincts.
 - Aucune répétition automatique des écritures. Conserver les extensions XML et documenter les adaptations ONVIF 0.8.3.
 - Profil Sezaam fourni dans `config/sezaam-profile.json`. Le profil utilisateur est prioritaire, aucun profil n’est appliqué au démarrage.

@@ -29,7 +29,7 @@ flowchart LR
 | --- | --- | --- |
 | Contrat et exclusivité IPC | shared/types, ipc-schemas, ipc ; main/ipc-controller | ipc-controller, core |
 | Ethernet poste | platform, platforms/*, network | platforms, core |
-| Découverte / identité / conflits | discovery, addressing, service | discovery-socket, addressing-conflicts, addressing |
+| Découverte / identité / conflits | discovery, addressing, lan-addressing, service | discovery-socket, addressing-conflicts, addressing, lan-addressing |
 | Sessions / lectures / reprises | service, onvif, cancellation | session, onvif-retry, camera-reader |
 | Compatibilité et writes XML | onvif, encoding, osd | integration, encoding, osd |
 | API constructeur | vendor-profile, vendor-transport, daylight, web-osd | vendor-profile, vendor-transport, portable-transport, daylight-osd |

@@ -19,6 +19,7 @@ export class CameraReader {
     fresh: boolean,
     isSelected: () => boolean,
     accept: (detail: CameraDetail) => void,
+    scope?: "network",
   ) {
     this.cancel();
     const revision = this.revision,
@@ -34,7 +35,7 @@ export class CameraReader {
     try {
       const detail = await this.bridge.call(
         fresh ? "readCamera" : "selectCamera",
-        { id, requestId },
+        { id, requestId, ...(fresh && scope ? { scope } : {}) },
       );
       publish(detail);
       return detail;

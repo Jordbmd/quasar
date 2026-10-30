@@ -100,11 +100,20 @@ export const schemas = {
     .object({ id, requestId: z.string().max(100).optional() })
     .strict(),
   readCamera: z
-    .object({ id, requestId: z.string().max(100).optional() })
+    .object({
+      id,
+      requestId: z.string().max(100).optional(),
+      scope: z.literal("network").optional(),
+    })
     .strict(),
   cancelCameraRead: z.undefined(),
   changeIP: z
-    .object({ id, address: ip, mask: ip, isolated: z.boolean() })
+    .object({
+      id,
+      address: ip,
+      mask: ip,
+      isolated: z.boolean(),
+    })
     .strict(),
   setVideo: z
     .object({

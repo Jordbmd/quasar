@@ -14,6 +14,7 @@ Ces adaptations sont conservées sur ONVIF **0.8.3** et go2rtc **1.9.14**. Elles
 | Transport Node Linux/Windows | Même POST sans charset, source, annulation, taille et délai bornés ; aucune redirection/reprise dans le transport | portable-transport ; matériel à valider |
 | Correction d’horloge DST bornée | Deuxième configuration seulement après réponse positive et erreur précise d’une heure relue. Jamais après timeout. Décalage fixe impose resynchronisation saisonnière | defaults, sync-clock (opération extraite sans changement de protocole) |
 | Mode jour / LED | Accusé web insuffisant : résultat vérifié par les lectures disponibles. LED préparées avec l’aperçu ; un échec reste visible | daylight-osd, vendor-profile |
+| Adressage des IP partagées par numéro constructeur | UDP Anjvision identifié dans le SDK officiel ; double découverte, numéro/MAC uniques, relecture LAN/ONVIF/Ethernet. Isolation conservée pour les protocoles non reconnus | lan-addressing, addressing ; [validation matérielle et limites](ADRESSAGE-CONFLITS.md) |
 | Proxy RTSP et garde des réponses | Source Ethernet liée, redirections refusées, libération TEARDOWN avant session suivante | integration, playback |
 
 Les réponses externes encore imparfaitement typées sont principalement dans onvif, vendor-profile, osd et video-options. Les rendre `unknown` sans normalisation complète déplacerait le problème en assertions : cette dette reste identifiée. Le dispatch IPC est désormais discriminé et les adaptateurs OS acceptent des valeurs inconnues qu’ils valident avant exposition.

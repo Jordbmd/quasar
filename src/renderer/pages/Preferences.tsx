@@ -45,23 +45,11 @@ export function PreferencesPage({
           }
         />
       </label>
-      <Field label="Flux d’aperçu par défaut">
-        <select
-          value={preferences.previewQuality}
-          onChange={(e) =>
-            setPreferences((p) => ({
-              ...p,
-              previewQuality: e.target.value as "light" | "main",
-            }))
-          }
-        >
-          <option value="light">Fluide — flux le plus léger</option>
-          <option value="main">Détaillé — flux principal</option>
-        </select>
-      </Field>
       <p className="help-text">
-        Ce choix s’applique à la prochaine ouverture d’une caméra. Il ne modifie
-        pas son encodage.
+        Le flux principal (MainStream) est sélectionné à l’ouverture de chaque
+        caméra. Vous pouvez choisir un autre flux dans le lecteur. Si aucun flux
+        principal n’est identifié, le profil de plus haute résolution disponible
+        est utilisé. Ce choix ne modifie pas l’encodage de la caméra.
       </p>
       <h3>Apparence</h3>
       <Field label="Thème">

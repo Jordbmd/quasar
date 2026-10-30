@@ -28,7 +28,7 @@ async function fixture() {
     ambiguous: false,
   };
   service.cameras = [c];
-  service.conflict = vi.fn(async () => {});
+  service.conflict = vi.fn(async () => false);
   return {
     service,
     c,
