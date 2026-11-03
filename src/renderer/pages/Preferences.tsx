@@ -1,12 +1,22 @@
+import { AutoLoginSettings } from "../AutoLoginSettings";
+import type { AutoLoginStatus, AutoLoginInput } from "../../shared/auto-login";
 import React from "react";
 import { Panel, Field } from "../design-system/components";
 import type { Preferences } from "../preferences";
 export function PreferencesPage({
+  autoLogin,
+  busy = false,
+  onSaveAutoLogin,
+  onLoginDirty,
   preferences,
   setPreferences,
   theme,
   chooseTheme,
 }: {
+  onLoginDirty?: () => void;
+  autoLogin?: AutoLoginStatus;
+  busy?: boolean;
+  onSaveAutoLogin?: (value: AutoLoginInput) => Promise<boolean>;
   preferences: Preferences;
   setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
   theme: string;
@@ -15,6 +25,14 @@ export function PreferencesPage({
   return (
     <Panel className="preferences-page panel">
       <h2>Paramètres de l’application</h2>
+      {onSaveAutoLogin && (
+        <AutoLoginSettings
+          onDirty={onLoginDirty}
+          status={autoLogin}
+          busy={busy}
+          onSave={onSaveAutoLogin}
+        />
+      )}
       <h3>Lecture vidéo</h3>
       <label className="preference-row">
         <span>

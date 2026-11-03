@@ -7,9 +7,11 @@ import type { DefaultsPlan, DefaultsProgress } from "../shared/defaults";
 export function BatchProgress({
   title,
   progress,
+  unit = "caméras",
 }: {
   title: string;
   progress?: DefaultsProgress;
+  unit?: "caméras" | "étapes";
 }) {
   const [started] = useState(Date.now);
   const [seconds, setSeconds] = useState(0);
@@ -42,7 +44,7 @@ export function BatchProgress({
         value={total ? Math.min(progress!.completed, total) : undefined}
       />
       <small>
-        {total ? `${progress!.completed} / ${total} caméras traitées. ` : ""}
+        {total ? `${progress!.completed} / ${total} ${unit} traitées. ` : ""}
         Gardez Quasar ouvert jusqu’au bilan. Une caméra peut prendre plusieurs
         minutes.
       </small>
@@ -56,16 +58,16 @@ export function AddressOutcome({ plan }: { plan: AddressPlan }) {
   const attention =
     count("failed") + count("skipped") + count("blocked") + count("ready");
   return (
-    <Alert kind={attention ? "warning" : "success"}>
+    <Alert kind={attention || plan.warning ? "warning" : "success"}>
       <strong>
         Attribution des IP terminée{attention ? " — points à vérifier" : ""}.
       </strong>
       <span className="batch-summary">
-        {count("verified")} adresses modifiées et vérifiées ·{" "}
-        {count("unchanged")} déjà conformes · {count("failed")} échecs ou
-        résultats non confirmés ·{" "}
+        {count("verified")} adresses finales vérifiées · {count("unchanged")}{" "}
+        déjà conformes · {count("failed")} échecs ou résultats non confirmés ·{" "}
         {count("blocked") + count("skipped") + count("ready")} non exécutées.
       </span>
+      {plan.warning && <span>{plan.warning}</span>}
     </Alert>
   );
 }

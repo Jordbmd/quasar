@@ -1,6 +1,6 @@
 # Quasar
 
-Application locale Electron de configuration et de diagnostic de caméras IP ONVIF : **Caméras**, **Diagnostic**, **Réseau**, **Profil Sezaam** et **Paramètres**.
+Application locale Electron de configuration et de diagnostic de caméras IP ONVIF : **Caméras**, **Mes Box**, **Diagnostic** (tests et réseau) et **Paramètres** (application et profil Sezaam).
 
 ## Installer l’application
 
@@ -76,7 +76,7 @@ Les données durables sont désormais placées sous le dossier système de l’u
 
 Les chevauchements de sous-réseaux sont informatifs. Ils ne bloquent plus globalement l’application. La découverte et les sockets caméra utilisent l’adresse source Ethernet. Sur macOS, le contrôle de route consulte le chemin associé à cette interface (`route get -ifscope`), même si la route générale privilégie le Wi-Fi. Une route absente ou passant par une autre interface reste refusée. Aucun réglage réseau du Mac n’est modifié.
 
-La connexion commune utilise le même compte ONVIF sur chaque caméra, avec au plus trois connexions initiales simultanées. Une caméra qui refuse ce compte affiche sa propre erreur ; les autres restent utilisables. **Réessayer les connexions** retente les caméras indisponibles sans répéter automatiquement les mots de passe refusés à chaque recherche. La fenêtre ouverte depuis la session en bas à gauche permet de remplacer le compte pour toute la session ; **Déconnecter** ferme les connexions et la vidéo. Les identifiants restent en mémoire, sans stockage sur disque. Après un redémarrage de Quasar, ouvrir une nouvelle session. Un débranchement ferme les connexions ; après reconnexion du hub, relancer la détection pour réutiliser la session en cours.
+La connexion commune utilise le même compte ONVIF sur chaque caméra, avec au plus trois connexions initiales simultanées. Une caméra qui refuse ce compte affiche sa propre erreur ; les autres restent utilisables. **Réessayer les connexions** retente les caméras indisponibles sans répéter automatiquement les mots de passe refusés à chaque recherche. La fenêtre ouverte depuis la session en bas à gauche permet de remplacer le compte pour toute la session ; **Déconnecter** ferme les connexions et la vidéo. Les identifiants saisis dans la connexion manuelle restent en mémoire. Dans **Paramètres → Application → Connexion aux caméras**, activer **Connexion automatique**, vérifier le compte (valeurs initiales `admin` / `123456`), puis **Enregistrer la connexion**. Au prochain démarrage, Quasar attend l’Ethernet puis ouvre la session commune une seule fois ; un refus ne provoque aucune boucle. Une déconnexion volontaire vaut pour le lancement courant. Désactiver l’option supprime les identifiants mémorisés. Un débranchement ferme les connexions ; après reconnexion du hub, relancer la détection pour réutiliser la session en cours.
 
 Les paramètres sont chargés lors de la sélection puis conservés pendant la session. **Relire les informations** actualise les données depuis la caméra. L’interface distingue une lecture en cours, un accès refusé et des capacités non prises en charge.
 
@@ -219,3 +219,17 @@ Dans la fiche caméra, modifier l’adresse puis cliquer **Appliquer**. Si la de
 ### Application du profil par groupes indépendants
 
 Une modification détectée après l’analyse ne bloque que le groupe concerné (image, encodage, OSD ou groupe web constructeur). Les autres groupes préparés continuent. Un réglage devenu conforme n’est pas renvoyé ; un réglage initialement conforme devenu différent doit être réanalysé. Après une commande acceptée et une relecture disponible mais différente, l’échec reste au journal et Quasar revérifie l’identité avant de poursuivre les autres groupes, sans répéter la commande. Les champs regroupés dans une même commande restent solidaires. Un timeout d’écriture, une identité incertaine, une perte réseau ou un journal indisponible arrête toujours les écritures restantes de la caméra.
+
+## Mode Box
+
+La page Caméras propose **Classique** (mode de démarrage) et **Box**. Le mode Box importe le même fichier de casiers que le backoffice : XLSX/XLS/ODS, feuille `Back office`, ou CSV ; colonnes `Casier`, `N°`, `Colonne`, `Zone`, `Ports`, `IP`. Le plan reprend la disposition de Logistics, avec un détail par casier et les états de ses caméras. L’IHM 0 n’a jamais de caméra.
+
+Vérifier les associations caméra–casier, puis utiliser **Attribuer les IP · toute la Box** pour calculer chaque adresse à partir du vrai numéro + 10 (casier 7 → `192.168.1.17`). Le profil Sezaam peut s’appliquer à toute la Box ou à une caméra. L’import et les associations restent sur cet ordinateur. Voir [le parcours, les formats et les limites du mode Box](docs/MODE-BOX.md).
+
+Le fichier de production complet enrichit la fiche avec l’ID, l’adresse, les options (encastrement, fermeture arrière…), les références de fabrication et le câblage Southco. Réimporter la même Box met à jour ses données en conservant les associations des casiers présents ; importer une autre Box ajoute une fiche à la bibliothèque. **Créer sans fichier** et **Modifier la Box** donnent accès au formulaire des informations, casiers et ports pour les anciennes installations.
+
+**Mes Box** permet de préparer plusieurs interventions, rechercher une fiche par nom/ID/adresse et passer d’un site à l’autre. Chaque Box garde ses associations ; réimporter une Box connue met à jour sa fiche même lorsqu’une autre est active. La fiche de l’ancienne version est reprise automatiquement sans effacer sa sauvegarde.
+
+### Connexion automatique et stockage protégé
+
+Option désactivée par défaut. Le fichier `camera-login.enc` contient uniquement les identifiants chiffrés via [Electron safeStorage](https://www.electronjs.org/docs/latest/api/safe-storage), avec protection du système (Trousseau macOS, protection Windows, coffre Linux). Aucun repli en clair si le coffre est indisponible ; les backends Linux `basic_text` et `unknown` sont refusés. Les paramètres affichent uniquement l’état et le nom du compte ; un mot de passe enregistré n’est pas renvoyé à l’interface. Laisser le champ intact conserve le secret, saisir une nouvelle valeur le remplace. Aucun réglage de caméra ni profil n’est appliqué par cette option. Les contrôles Ethernet, route et identité de la connexion existante restent en vigueur.

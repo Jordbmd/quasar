@@ -208,9 +208,10 @@ export async function sendLanChange(
   target: string,
   signal: AbortSignal,
   createSocket: () => dgram.Socket = () => dgram.createSocket("udp4"),
+  targetMask = "255.255.255.0",
 ) {
   const destination = lanBroadcast(address, mask);
-  const payload = Buffer.from(lanChange(device, target, "255.255.255.0"));
+  const payload = Buffer.from(lanChange(device, target, targetMask));
   return new Promise<void>((resolve, reject) => {
     const socket = createSocket();
     let done = false;

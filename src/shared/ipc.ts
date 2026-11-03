@@ -33,6 +33,9 @@ export type Reply<T = unknown> =
 
 /** Snapshots remain readable during an exclusive operation; camera I/O does not. */
 export const operationMode = {
+  getAutoLogin: "snapshot",
+  saveAutoLogin: "exclusive",
+  connectSavedSession: "exclusive",
   state: "snapshot",
   getDefaults: "snapshot",
   listDefaultsRuns: "snapshot",
@@ -68,6 +71,7 @@ export const operationMode = {
   previewDefaults: "exclusive",
   applyDefaults: "exclusive",
   previewAddresses: "exclusive",
+  previewIPConflicts: "exclusive",
   applyAddresses: "exclusive",
   resolveIPConflict: "exclusive",
   previewFactoryReset: "exclusive",

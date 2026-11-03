@@ -48,3 +48,11 @@ L’opération d’horloge est isolée de l’aiguillage des commandes, avec les
 Les pages Diagnostic et Paramètres, les transformations du formulaire et la réception des lectures ont des modules distincts. Le formulaire garde ses brouillons ; une arrivée de capacités ne les écrase pas. Navigation/changement de caméra demande confirmation si nécessaire. Une rupture réseau rend la cible invalide et abandonne explicitement les modifications non envoyées ; elles ne sont jamais appliquées à une nouvelle identité.
 
 Le graphe est contrôlé localement par dependency-cruiser. Pas de bus d’événements global, de conteneur d’injection, de nouveau store React ni de bibliothèque de formulaires.
+
+## Bibliothèque de Box
+
+`box-storage.ts` valide et conserve la bibliothèque locale, reprend l’ancienne fiche sans l’effacer, et centralise les ajouts, mises à jour par identité et associations propres à chaque fiche. `BoxLibrary` fournit la recherche et la préparation hors connexion ; `BoxView` affiche la fiche active. `BoxImport` lit les fichiers dans un worker et `BoxEditor` gère les brouillons locaux. Les changements de contexte invalident sélection/lectures/vidéo avant d’ouvrir une autre Box ; aucun import ou changement de fiche n’envoie de réglage au matériel. Les transports et contrôles IPC restent communs aux deux modes. Les tests `box-library`, `box`, `test:box` et le smoke Electron couvrent migration, isolation des associations, réimport, navigation et persistance.
+
+## Connexion automatique
+
+`main/auto-login.ts` gère le fichier chiffré atomique `camera-login.enc`, avec un chiffreur injecté. La composition Electron utilise les API asynchrones safeStorage et refuse le repli Linux basic_text. Les contrats `getAutoLogin`, `saveAutoLogin`, `connectSavedSession` sont validés et leur politique IPC est explicite. Le service réutilise `connectSession` et ses contrôles réseau ; le renderer tente une seule connexion après disponibilité Ethernet, ne réessaie pas un refus, respecte une déconnexion volontaire. La désactivation efface la mémorisation sans déconnecter une session déjà ouverte. Tests isolés : stockage et suppression, secret non exposé, coffre indisponible/fichier corrompu, réseau refusé, activation et redémarrage, refus sans boucle.

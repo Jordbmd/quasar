@@ -1,3 +1,4 @@
+import { AutoLoginStore } from "./auto-login";
 import { ProfileJournal } from "./profile-journal";
 import { DefaultsStore } from "./defaults";
 import sezaamProfile from "../../config/sezaam-profile.json";
@@ -9,6 +10,7 @@ import {
   shell,
   session,
   clipboard,
+  safeStorage,
   Menu,
 } from "electron";
 import path from "node:path";
@@ -186,6 +188,22 @@ if (!app.requestSingleInstanceLock()) {
           sezaamProfile,
         ),
         new ProfileJournal(path.join(paths.data, "profile-journal")),
+        new AutoLoginStore(path.join(paths.data, "camera-login.enc"), {
+          available: async () => {
+            if (process.env.SEZAAM_TEST_USER_DATA) return false;
+            const available = await safeStorage.isAsyncEncryptionAvailable();
+            return (
+              available &&
+              (process.platform !== "linux" ||
+                !["basic_text", "unknown"].includes(
+                  safeStorage.getSelectedStorageBackend(),
+                ))
+            );
+          },
+          encrypt: (value) => safeStorage.encryptStringAsync(value),
+          decrypt: async (value) =>
+            (await safeStorage.decryptStringAsync(value)).result,
+        }),
       );
       service.exportProfileRun = async (report) => {
         const result = await dialog.showSaveDialog(win, {
@@ -257,7 +275,12 @@ if (!app.requestSingleInstanceLock()) {
           "L’interface s’est arrêtée. Relancez l’application pour vous reconnecter.",
         ),
       );
-      win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+      win.webContents.setWindowOpenHandler(({ url }) => {
+        // Only Box detail links may leave the local application.
+        if (/^https:\/\/bo\.sezaam\.fr\/box\/[0-9]+\/detail$/.test(url))
+          void shell.openExternal(url).catch(() => {});
+        return { action: "deny" };
+      });
       win.webContents.on("will-navigate", (e) => e.preventDefault());
       win.webContents.on("will-attach-webview", (e) => e.preventDefault());
       const ipc = new IpcController(service, logs, () =>

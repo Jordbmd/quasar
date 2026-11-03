@@ -304,3 +304,187 @@ it("une relecture incorrecte reste incertaine et ne répète pas l’écriture",
   expect(f.service.uncertain.has(f.c.id)).toBe(true);
   expect(lanFingerprint(f.before)).not.toBe(lanFingerprint(f.after));
 });
+
+it("attend seulement en lecture la libération d’une ancienne IP, puis n’envoie qu’une fois", async () => {
+  vi.useFakeTimers();
+  const f = serviceFixture();
+  f.scan
+    .mockReset()
+    .mockResolvedValueOnce([f.before])
+    .mockResolvedValueOnce([f.before])
+    .mockResolvedValue([f.after]);
+  f.guard.system.neighbors
+    .mockReset()
+    .mockResolvedValueOnce([{ ip: f.after.ip, mac: "02:00:00:00:00:ff" }])
+    .mockResolvedValueOnce([])
+    .mockResolvedValue([{ ip: f.after.ip, mac: f.before.mac }]);
+  vi.mocked(discovery.discoverOnInterface)
+    .mockReset()
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce([])
+    .mockResolvedValue([{ ...f.c, ip: f.after.ip }]);
+  const work = f.service.changeLanAddress(
+    f.c.id,
+    f.before,
+    f.after.ip,
+    0,
+    1,
+    true,
+  );
+  await vi.runAllTimersAsync();
+  expect((await work).verified).toBe(true);
+  expect(f.send).toHaveBeenCalledOnce();
+});
+it("n’efface pas les voisins Ethernet et n’écrit pas si l’ancienne adresse reste occupée", async () => {
+  vi.useFakeTimers();
+  const f = serviceFixture();
+  f.scan.mockReset().mockResolvedValue([f.before]);
+  f.guard.system.neighbors
+    .mockReset()
+    .mockResolvedValue([{ ip: f.after.ip, mac: "02:00:00:00:00:ff" }]);
+  vi.mocked(discovery.discoverOnInterface).mockReset().mockResolvedValue([]);
+  const work = expect(
+    f.service.changeLanAddress(f.c.id, f.before, f.after.ip, 0, 1, true),
+  ).rejects.toThrow("aucune commande envoyée");
+  await vi.runAllTimersAsync();
+  await work;
+  expect(f.send).not.toHaveBeenCalled();
+  expect(f.scan).toHaveBeenCalledTimes(4);
+});
+it("confirme la caméra restée à son IP par relecture complète sans écriture", async () => {
+  const f = serviceFixture();
+  f.c.ip = f.after.ip;
+  f.scan.mockReset().mockResolvedValue([f.after]);
+  f.guard.system.neighbors
+    .mockReset()
+    .mockResolvedValue([{ ip: f.after.ip, mac: f.after.mac }]);
+  vi.mocked(discovery.discoverOnInterface)
+    .mockReset()
+    .mockResolvedValue([{ ...f.c }]);
+  await f.service.verifyLanAddress(f.c.id, f.after, 0, 1);
+  expect(f.c.ambiguous).toBe(false);
+  expect(f.send).not.toHaveBeenCalled();
+});
+it("prépare les étapes après double découverte et remplace une IP temporaire qui répond aux sondes", async () => {
+  const f = serviceFixture();
+  const a = {
+    ...f.before,
+    ip: "192.168.1.11",
+    lan: { ...f.before.lan, IPAddress: "192.168.1.11" },
+  };
+  const b = {
+    ...a,
+    serial: "EF00000000000002",
+    mac: "02:00:00:00:00:02",
+    ip: "192.168.1.12",
+    lan: {
+      ...a.lan,
+      IPAddress: "192.168.1.12",
+      MacAddress: "02:00:00:00:00:02",
+    },
+  };
+  f.service.cameras = [
+    {
+      ...f.c,
+      id: "a",
+      ip: a.ip,
+      mac: a.mac,
+      ambiguous: false,
+      status: "Connectée",
+    },
+    {
+      ...f.c,
+      id: "b",
+      ip: b.ip,
+      mac: b.mac,
+      endpoint: "urn:camera-b",
+      ambiguous: false,
+      status: "Connectée",
+    },
+  ];
+  f.service.credentials = { username: "fixture", password: "fixture" };
+  f.service.discovery = vi.fn(async () => {});
+  f.scan.mockReset().mockResolvedValue([a, b]);
+  let probed = false;
+  f.guard.system.probe.mockImplementation(async (ip?: string) => {
+    if (ip === "192.168.1.254") probed = true;
+  });
+  f.guard.system.neighbors
+    .mockReset()
+    .mockImplementation(async () =>
+      probed ? [{ ip: "192.168.1.254", mac: "02:00:00:00:00:ff" }] : [],
+    );
+  const result = await f.service.previewAddresses(1, [
+    { id: "a", locker: 2 },
+    { id: "b", locker: 1 },
+  ]);
+  expect(result.steps[0]).toMatchObject({
+    kind: "temporary",
+    to: "192.168.1.253",
+  });
+  expect(f.scan).toHaveBeenCalledTimes(2);
+  expect(f.send).not.toHaveBeenCalled();
+  expect(f.service.addressPlan.plan).toEqual(result);
+});
+it("prépare la résolution seule automatiquement, évite les IP découvertes et ne transmet aucune écriture", async () => {
+  const f = serviceFixture();
+  f.service.cameras[0].mac = f.before.mac;
+  const other = {
+    ...f.before,
+    serial: "EF00000000000002",
+    mac: "02:00:00:00:00:02",
+    lan: { ...f.before.lan, MacAddress: "02:00:00:00:00:02" },
+  };
+  f.service.cameras.push({
+    ...f.c,
+    id: "b",
+    mac: other.mac,
+    endpoint: "urn:camera-b",
+  });
+  f.service.credentials = { username: "fixture", password: "fixture" };
+  f.service.discovery = vi.fn(async () => {});
+  f.scan.mockReset().mockResolvedValue([f.before, other]);
+  f.guard.system.neighbors
+    .mockReset()
+    .mockResolvedValue([{ ip: "192.168.1.254", mac: "02:00:00:00:00:ff" }]);
+  const result = await f.service.previewIPConflicts();
+  expect(result.kind).toBe("conflicts");
+  expect(result.rows.every((r: any) => r.locker === undefined)).toBe(true);
+  expect(result.steps).toEqual([
+    { id: "b", from: f.before.ip, to: "192.168.1.253", kind: "final" },
+    { id: f.c.id, from: f.before.ip, to: f.before.ip, kind: "verify" },
+  ]);
+  expect(f.scan).toHaveBeenCalledTimes(2);
+  expect(f.send).not.toHaveBeenCalled();
+});
+it("conserve le masque constructeur lors de la résolution, du datagramme à la relecture", async () => {
+  const f = serviceFixture();
+  f.before.lan.Netmask = f.after.lan.Netmask = "255.255.254.0";
+  const result = await f.service.changeLanAddress(
+    f.c.id,
+    f.before,
+    f.after.ip,
+    0,
+    1,
+    false,
+    f.before.lan.Netmask,
+  );
+  expect(result.verified).toBe(true);
+  expect(f.send.mock.calls[0][6]).toBe("255.255.254.0");
+});
+it("sépare le masque de broadcast du masque caméra dans l’envoi constructeur", async () => {
+  const f = socketFixture();
+  await sendLanChange(
+    "192.0.2.2",
+    "255.255.255.0",
+    device,
+    "192.0.2.13",
+    new AbortController().signal,
+    f.create,
+    "255.255.254.0",
+  );
+  expect(f.socket.send.mock.calls[0][0].toString()).toContain(
+    'Netmask="255.255.254.0"',
+  );
+  expect(f.socket.send.mock.calls[0][2]).toBe("192.0.2.255");
+});

@@ -22,7 +22,7 @@ Application Electron locale de configuration de caméras Ethernet. Lire README.m
 - Aucune répétition automatique des écritures. Conserver les extensions XML et documenter les adaptations ONVIF 0.8.3.
 - Profil Sezaam fourni dans `config/sezaam-profile.json`. Le profil utilisateur est prioritaire, aucun profil n’est appliqué au démarrage.
 - Reset usine séparé du profil, phrase EFFACER et confirmation native, plans consommés une fois.
-- Identifiants en mémoire seulement, jamais arguments/logs/fichiers temporaires. Relais et tests en loopback.
+- Identifiants manuels en mémoire seulement, jamais arguments/logs/fichiers temporaires en clair. À la demande de l’utilisateur, la connexion automatique est opt-in : identifiants chiffrés via safeStorage système dans camera-login.enc, jamais localStorage ni renvoyés au renderer ; aucun repli basic_text. Désactiver supprime le fichier. Relais et tests en loopback.
 - Conserver noms Quasar, bundle `fr.sezaam.camera-tool`, canaux `sezaam:*` et clés de préférences héritées.
 
 ## Validation sans matériel
