@@ -49,6 +49,11 @@ jobs:
       - run: npm run validate:software
       - run: npm run build-storybook && npm run test:stories && npm run build:web && npm run test:web
       - run: npm run build:portal && npm run test:portal
+      - name: Build, verify and retain the actual web portal image
+        if: runner.os == 'Linux'
+        run: |
+          docker build -f Dockerfile.portal --build-arg APP_COMMIT=${{ github.sha }} -t quasar-portal:${{ github.sha }} .
+          node scripts/export-portal-image.mjs ${{ github.sha }}
       - name: Isolated Electron runtime
         run: |
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi
@@ -103,4 +108,4 @@ jobs:
       - name: Require every native job to succeed
         shell: bash
         run: test "$NATIVE_RESULT" = success
-# No release, deploy, signing service or remote report upload. All jobs use public actions.
+# No release, deployment or signing service. Trusted reporting is isolated in reports.yml.

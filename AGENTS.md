@@ -35,7 +35,7 @@ Exécuter `npm run setup:video` avec Go 1.27.3 pour reconstruire le source upstr
 
 ## Préparation production
 
-Lire `docs/standards/production.md` (contrat commun 1.0.1) et `docs/PRODUCTION.md`. Quasar reste local et sans compte cloud obligatoire. Ne jamais envoyer identifiants, IP/MAC, noms, réglages, journaux ou images caméra à la plateforme. Les seuls rapports CI sont techniques, normalisés et produits comme artefacts.
+Lire `docs/standards/production.md` (contrat commun 1.0.1) et `docs/PRODUCTION.md`. Quasar reste local et sans compte cloud obligatoire. Ne jamais envoyer identifiants, IP/MAC, noms, réglages, journaux ou images caméra à la plateforme. Les rapports CI sont techniques, normalisés et conservés comme artefacts ; un workflow de confiance lit uniquement les métadonnées GitHub et peut les transmettre avec un secret serveur. Aucune donnée caméra et aucun checkout/exécution de PR dans ce job.
 
 `src/shared/translations.json` contient les textes FR/EN ; `t` ne reçoit que les textes rédigés par l’application. Conserver les interpolations et ne jamais traduire une identité ou une valeur OSD. Langue native dans `language.json`, préférence thème héritée `sezaam-theme` (`light|dark|system`). Tester changement et redémarrage réels dans le smoke Electron.
 

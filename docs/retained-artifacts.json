@@ -1,0 +1,1063 @@
+[
+  {
+    "platform": "win",
+    "artifactId": 13269191412,
+    "expiresAt": "2026-11-17T20:32:50Z",
+    "archiveSha256": "123b1a99f825f9b2382271e41bb38552a90d53f6078442a4279f0d4ecd89c16e",
+    "archiveBytes": 132738598,
+    "retainedCopy": ".local\\retained-b7a16cf\\win.zip",
+    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
+    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
+    "workflowRun": 41711850457,
+    "workingTreeDirty": false,
+    "files": [
+      {
+        "platform": "win32",
+        "arch": "x64",
+        "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+        "sha256": "1105bace60ad930b89368fe2bf6205ff3b4e2d365481d9f92a9aa952c596ee35",
+        "bytes": 120165671,
+        "nativePackaging": true,
+        "signing": {
+          "mode": "unsigned",
+          "installer": "NotSigned",
+          "tool": "Get-AuthenticodeSignature",
+          "checkedAt": "2026-11-03T20:31:56.221Z"
+        }
+      }
+    ],
+    "published": false,
+    "installationTested": false,
+    "cameraValidated": false,
+    "distributedAudit": {
+      "schemaVersion": 1,
+      "checkedAt": "2026-11-03T20:32:33.058Z",
+      "source": "https://api.osv.dev",
+      "goRuntime": "go1.27.3",
+      "binarySha256": "b271d1e37639e1cd91e830522ea9c211225fda24b70110647c577ba9da4a7def",
+      "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+      "results": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "electron"
+          },
+          "version": "44.9.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "stdlib"
+          },
+          "version": "1.27.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/AlexxIT/go2rtc"
+          },
+          "version": "1.9.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/eclipse/paho.mqtt.golang"
+          },
+          "version": "v1.5.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/expr-lang/expr"
+          },
+          "version": "v1.17.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/google/uuid"
+          },
+          "version": "v1.6.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/gorilla/websocket"
+          },
+          "version": "v1.5.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-colorable"
+          },
+          "version": "v0.1.16",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-isatty"
+          },
+          "version": "v0.0.24",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/miekg/dns"
+          },
+          "version": "v1.1.73",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/datachannel"
+          },
+          "version": "v1.6.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/dtls/v3"
+          },
+          "version": "v3.1.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/ice/v4"
+          },
+          "version": "v4.4.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/interceptor"
+          },
+          "version": "v0.1.51",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/logging"
+          },
+          "version": "v0.2.4",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/mdns/v2"
+          },
+          "version": "v2.2.2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/randutil"
+          },
+          "version": "v0.1.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtcp"
+          },
+          "version": "v1.2.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtp"
+          },
+          "version": "v1.10.6",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sctp"
+          },
+          "version": "v1.12.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sdp/v3"
+          },
+          "version": "v3.0.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/srtp/v3"
+          },
+          "version": "v3.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v3"
+          },
+          "version": "v3.1.7",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v4"
+          },
+          "version": "v4.0.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v4"
+          },
+          "version": "v4.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v5"
+          },
+          "version": "v5.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/turn/v5"
+          },
+          "version": "v5.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/webrtc/v4"
+          },
+          "version": "v4.2.25",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/rs/zerolog"
+          },
+          "version": "v1.35.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc16"
+          },
+          "version": "v0.0.0-20240131213347-83fcde1e29d1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc8"
+          },
+          "version": "v0.0.0-20220107193325-2243fe600f9f",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/tadglines/go-pkgs"
+          },
+          "version": "v0.0.0-20210623144937-b983b20f54f9",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/wlynxg/anet"
+          },
+          "version": "v0.0.5",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/crypto"
+          },
+          "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/net"
+          },
+          "version": "v0.62.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sync"
+          },
+          "version": "v0.24.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sys"
+          },
+          "version": "v0.49.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/time"
+          },
+          "version": "v0.16.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "gopkg.in/yaml.v3"
+          },
+          "version": "v3.0.1",
+          "advisories": []
+        }
+      ]
+    }
+  },
+  {
+    "platform": "mac",
+    "artifactId": 13268362117,
+    "expiresAt": "2026-11-17T20:30:10Z",
+    "archiveSha256": "c5bc84201565ae75de1fdacd4fafbef5762a5fc026f5196c2a31dfd9ff82077e",
+    "archiveBytes": 158686789,
+    "retainedCopy": ".local\\retained-b7a16cf\\mac.zip",
+    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
+    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
+    "workflowRun": 41711850457,
+    "workingTreeDirty": false,
+    "files": [
+      {
+        "platform": "darwin",
+        "arch": "arm64",
+        "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+        "sha256": "0ad4bcd2b19c4d5723e6d0d5a012598bca8c7f9fff16287be48b935804f1e1c0",
+        "bytes": 147622488,
+        "nativePackaging": true,
+        "signing": {
+          "mode": "ad-hoc-verified-not-notarized",
+          "application": "Valid",
+          "installer": "NotSigned",
+          "tool": "codesign --verify --deep --strict",
+          "checkedAt": "2026-11-03T20:29:41.415Z",
+          "notarization": "not-checked"
+        }
+      }
+    ],
+    "published": false,
+    "installationTested": false,
+    "cameraValidated": false,
+    "distributedAudit": {
+      "schemaVersion": 1,
+      "checkedAt": "2026-11-03T20:30:07.996Z",
+      "source": "https://api.osv.dev",
+      "goRuntime": "go1.27.3",
+      "binarySha256": "0c89eaa6628d99de07ddd51de9ec88c6a3936fde2c6024adda40d2cd7858dd25",
+      "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+      "results": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "electron"
+          },
+          "version": "44.9.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "stdlib"
+          },
+          "version": "1.27.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/AlexxIT/go2rtc"
+          },
+          "version": "1.9.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/eclipse/paho.mqtt.golang"
+          },
+          "version": "v1.5.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/expr-lang/expr"
+          },
+          "version": "v1.17.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/google/uuid"
+          },
+          "version": "v1.6.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/gorilla/websocket"
+          },
+          "version": "v1.5.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-colorable"
+          },
+          "version": "v0.1.16",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-isatty"
+          },
+          "version": "v0.0.24",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/miekg/dns"
+          },
+          "version": "v1.1.73",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/datachannel"
+          },
+          "version": "v1.6.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/dtls/v3"
+          },
+          "version": "v3.1.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/ice/v4"
+          },
+          "version": "v4.4.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/interceptor"
+          },
+          "version": "v0.1.51",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/logging"
+          },
+          "version": "v0.2.4",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/mdns/v2"
+          },
+          "version": "v2.2.2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/randutil"
+          },
+          "version": "v0.1.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtcp"
+          },
+          "version": "v1.2.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtp"
+          },
+          "version": "v1.10.6",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sctp"
+          },
+          "version": "v1.12.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sdp/v3"
+          },
+          "version": "v3.0.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/srtp/v3"
+          },
+          "version": "v3.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v3"
+          },
+          "version": "v3.1.7",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v4"
+          },
+          "version": "v4.0.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v4"
+          },
+          "version": "v4.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v5"
+          },
+          "version": "v5.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/turn/v5"
+          },
+          "version": "v5.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/webrtc/v4"
+          },
+          "version": "v4.2.25",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/rs/zerolog"
+          },
+          "version": "v1.35.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc16"
+          },
+          "version": "v0.0.0-20240131213347-83fcde1e29d1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc8"
+          },
+          "version": "v0.0.0-20220107193325-2243fe600f9f",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/tadglines/go-pkgs"
+          },
+          "version": "v0.0.0-20210623144937-b983b20f54f9",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/wlynxg/anet"
+          },
+          "version": "v0.0.5",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/crypto"
+          },
+          "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/net"
+          },
+          "version": "v0.62.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sync"
+          },
+          "version": "v0.24.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sys"
+          },
+          "version": "v0.49.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/time"
+          },
+          "version": "v0.16.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "gopkg.in/yaml.v3"
+          },
+          "version": "v3.0.1",
+          "advisories": []
+        }
+      ]
+    }
+  },
+  {
+    "platform": "linux",
+    "artifactId": 13268152409,
+    "expiresAt": "2026-11-17T20:29:39Z",
+    "archiveSha256": "fe8b1a36cbd188c4d84e0da0528265149d4405c7e3d056c4d3cb56c1e13e3cbe",
+    "archiveBytes": 154067202,
+    "retainedCopy": ".local\\retained-b7a16cf\\linux.zip",
+    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
+    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
+    "workflowRun": 41711850457,
+    "workingTreeDirty": false,
+    "files": [
+      {
+        "platform": "linux",
+        "arch": "x64",
+        "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+        "sha256": "9ba371c68715bade700390b800ddc21b182f775eb516677229822ab87dcb10b9",
+        "bytes": 143556354,
+        "nativePackaging": true,
+        "signing": {
+          "mode": "unsigned",
+          "installer": "No embedded signature",
+          "tool": "readelf --hex-dump=.sha256_sig",
+          "checkedAt": "2026-11-03T20:29:13.235Z"
+        }
+      }
+    ],
+    "published": false,
+    "installationTested": false,
+    "cameraValidated": false,
+    "distributedAudit": {
+      "schemaVersion": 1,
+      "checkedAt": "2026-11-03T20:29:36.588Z",
+      "source": "https://api.osv.dev",
+      "goRuntime": "go1.27.3",
+      "binarySha256": "2118c970ffc3da22a41d2262774f0fc57ac0dfd52843c3a5f374861bf8bdb46e",
+      "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+      "results": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "electron"
+          },
+          "version": "44.9.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "stdlib"
+          },
+          "version": "1.27.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/AlexxIT/go2rtc"
+          },
+          "version": "1.9.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/eclipse/paho.mqtt.golang"
+          },
+          "version": "v1.5.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/expr-lang/expr"
+          },
+          "version": "v1.17.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/google/uuid"
+          },
+          "version": "v1.6.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/gorilla/websocket"
+          },
+          "version": "v1.5.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-colorable"
+          },
+          "version": "v0.1.16",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/mattn/go-isatty"
+          },
+          "version": "v0.0.24",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/miekg/dns"
+          },
+          "version": "v1.1.73",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/datachannel"
+          },
+          "version": "v1.6.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/dtls/v3"
+          },
+          "version": "v3.1.15",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/ice/v4"
+          },
+          "version": "v4.4.8",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/interceptor"
+          },
+          "version": "v0.1.51",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/logging"
+          },
+          "version": "v0.2.4",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/mdns/v2"
+          },
+          "version": "v2.2.2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/randutil"
+          },
+          "version": "v0.1.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtcp"
+          },
+          "version": "v1.2.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/rtp"
+          },
+          "version": "v1.10.6",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sctp"
+          },
+          "version": "v1.12.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/sdp/v3"
+          },
+          "version": "v3.0.20",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/srtp/v3"
+          },
+          "version": "v3.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v3"
+          },
+          "version": "v3.1.7",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/stun/v4"
+          },
+          "version": "v4.0.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v4"
+          },
+          "version": "v4.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/transport/v5"
+          },
+          "version": "v5.1.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/turn/v5"
+          },
+          "version": "v5.1.3",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/pion/webrtc/v4"
+          },
+          "version": "v4.2.25",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/rs/zerolog"
+          },
+          "version": "v1.35.1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc16"
+          },
+          "version": "v0.0.0-20240131213347-83fcde1e29d1",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/sigurn/crc8"
+          },
+          "version": "v0.0.0-20220107193325-2243fe600f9f",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/tadglines/go-pkgs"
+          },
+          "version": "v0.0.0-20210623144937-b983b20f54f9",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "github.com/wlynxg/anet"
+          },
+          "version": "v0.0.5",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/crypto"
+          },
+          "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/net"
+          },
+          "version": "v0.62.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sync"
+          },
+          "version": "v0.24.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/sys"
+          },
+          "version": "v0.49.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "golang.org/x/time"
+          },
+          "version": "v0.16.0",
+          "advisories": []
+        },
+        {
+          "package": {
+            "ecosystem": "Go",
+            "name": "gopkg.in/yaml.v3"
+          },
+          "version": "v3.0.1",
+          "advisories": []
+        }
+      ]
+    }
+  }
+]
