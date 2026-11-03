@@ -1,5 +1,6 @@
 const path = require("node:path");
 const { createHash } = require("node:crypto");
+const { execFileSync } = require("node:child_process");
 const { access, readFile, writeFile, mkdir } = require("node:fs/promises");
 module.exports = async function afterPack(context) {
   const platform = context.electronPlatformName;
@@ -62,5 +63,35 @@ module.exports = async function afterPack(context) {
     const binary = await readFile(executable);
     assignAppUUID(binary, "fr.sezaam.camera-tool");
     await writeFile(executable, binary);
+    // PR builders deliberately skip certificate signing. Seal this local test
+    // package explicitly with the ad-hoc identity; no keychain identity or secret.
+    const application = path.join(context.appOutDir, "Quasar.app");
+    execFileSync(
+      "/usr/bin/codesign",
+      ["--force", "--deep", "--sign", "-", application],
+      { stdio: "pipe" },
+    );
+    const signedRelay = await readFile(
+      path.join(resourceRoot, "bin", "go2rtc"),
+    );
+    const signedHash = createHash("sha256").update(signedRelay).digest("hex");
+    if (signedHash !== meta.binarySha256) {
+      meta.buildBinarySha256 = meta.binarySha256;
+      meta.binarySha256 = signedHash;
+      await writeFile(
+        path.join(resourceRoot, "bin", "go2rtc-version.json"),
+        JSON.stringify(meta, null, 2) + "\n",
+      );
+      execFileSync(
+        "/usr/bin/codesign",
+        ["--force", "--sign", "-", application],
+        { stdio: "pipe" },
+      );
+    }
+    execFileSync(
+      "/usr/bin/codesign",
+      ["--verify", "--deep", "--strict", application],
+      { stdio: "pipe" },
+    );
   }
 };

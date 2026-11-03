@@ -58,6 +58,19 @@ export async function verifySigning(installer, buildFolder, platform) {
     const unsigned = /not signed at all/i.test(details.stderr ?? "");
     if (!unsigned && (verified.status !== 0 || details.status !== 0))
       throw Error("Application code signature verification failed.");
+    const diskImage = spawnSync("codesign", ["-d", "--verbose=4", installer], {
+      encoding: "utf8",
+      timeout: 30000,
+    });
+    const installerUnsigned = /not signed at all/i.test(diskImage.stderr ?? "");
+    if (
+      !installerUnsigned &&
+      (diskImage.status !== 0 ||
+        spawnSync("codesign", ["--verify", "--strict", installer], {
+          timeout: 30000,
+        }).status !== 0)
+    )
+      throw Error("Disk image signature verification failed.");
     return {
       mode: unsigned
         ? "unsigned"
@@ -65,6 +78,7 @@ export async function verifySigning(installer, buildFolder, platform) {
           ? "ad-hoc-verified-not-notarized"
           : "signed-verified-notarization-not-checked",
       application: unsigned ? "NotSigned" : "Valid",
+      installer: installerUnsigned ? "NotSigned" : "Valid",
       tool: "codesign --verify --deep --strict",
       checkedAt,
       notarization: "not-checked",
