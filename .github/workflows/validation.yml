@@ -80,4 +80,16 @@ jobs:
             assets-dist/
           if-no-files-found: error
           retention-days: 14
+  required-validation:
+    name: Required validation
+    if: always()
+    needs: native
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    env:
+      NATIVE_RESULT: ${{ needs.native.result }}
+    steps:
+      - name: Require every native job to succeed
+        shell: bash
+        run: test "$NATIVE_RESULT" = success
 # No release, deploy, signing service or remote report upload. All jobs use public actions.
