@@ -49,8 +49,8 @@ jobs:
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi
       - name: Native installer without publication
         run: npm run package:${{ matrix.target }}
-      - name: Standalone application
-        run: npm run package:dir
+      - name: Standalone application from the same compiled runtime
+        run: npm exec -- electron-builder --config electron-builder.config.cjs --dir --publish never
       - name: Isolated packaged runtime (not an installer acceptance test)
         run: |
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:packaged; else npm run test:packaged; fi
