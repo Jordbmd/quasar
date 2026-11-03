@@ -7,6 +7,8 @@ import {
   writeFile,
   rename,
   rm,
+  chmod,
+  readdir,
 } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -44,8 +46,18 @@ if (
 await mkdir(".local", { recursive: true });
 const work = await mkdtemp(path.join(root, ".local", "relay-build-"));
 const destination = path.resolve(process.env.QUASAR_VIDEO_DIR || "bin");
+async function writableDirectories(directory) {
+  // Go module cache directories are read-only on POSIX; cp preserves that mode.
+  // Change only the disposable copy, never the shared verified module cache.
+  await chmod(directory, 0o700);
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.isDirectory())
+      await writableDirectories(path.join(directory, entry.name));
+  }
+}
 try {
   await cp(moduleInfo.Dir, work, { recursive: true });
+  await writableDirectories(work);
   const hashes = {};
   for (const file of ["go.mod", "go.sum"]) {
     const bytes = await readFile(path.join(root, "config/go2rtc", file));
