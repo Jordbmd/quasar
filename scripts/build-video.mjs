@@ -18,6 +18,7 @@ const platform = process.env.QUASAR_TARGET_PLATFORM || process.platform;
 const arch = process.env.QUASAR_TARGET_ARCH || process.arch;
 const asset = videoAsset(platform, arch);
 const root = process.cwd();
+const sourceCommit = "7c05066c90ab6ad1fccb506d5f0408aa31ebe60f";
 const env = { ...process.env, GOTOOLCHAIN: "local", CGO_ENABLED: "0" };
 const toolchain = execFileSync(go, ["env", "GOVERSION"], {
   env,
@@ -27,14 +28,17 @@ if (toolchain !== "go1.27.3") throw Error("Build requires exactly Go 1.27.3");
 const moduleInfo = JSON.parse(
   execFileSync(
     go,
-    ["mod", "download", "-json", `github.com/AlexxIT/go2rtc@${version}`],
+    ["mod", "download", "-json", `github.com/AlexxIT/go2rtc@${sourceCommit}`],
     { env, encoding: "utf8", timeout: 120000 },
   ),
 );
 const expected = "h1:2WfyfWWVJCvcedlSQDpnyBZ1LlIOMvkWVc1BiiPNAJc=";
 if (
   moduleInfo.Sum !== expected ||
-  moduleInfo.Origin?.Hash !== "7c05066c90ab6ad1fccb506d5f0408aa31ebe60f"
+  moduleInfo.Path !== "github.com/AlexxIT/go2rtc" ||
+  moduleInfo.Version !== version ||
+  moduleInfo.Query !== sourceCommit ||
+  (moduleInfo.Origin?.Hash && moduleInfo.Origin.Hash !== sourceCommit)
 )
   throw Error("Upstream source provenance mismatch");
 await mkdir(".local", { recursive: true });
@@ -88,7 +92,7 @@ try {
         version,
         platform,
         arch,
-        sourceCommit: moduleInfo.Origin.Hash,
+        sourceCommit,
         sourceModuleChecksum: expected,
         toolchain,
         dependencyLocks: hashes,
