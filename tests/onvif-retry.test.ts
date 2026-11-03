@@ -18,6 +18,12 @@ function fixture() {
     log,
     "127.0.0.1",
   );
+  // detail() also probes the vendor OSD API before falling back to ONVIF.
+  // Keep that transport synthetic too; a closed localhost port is not a mock
+  // and its OS-dependent connection timeout can outlive an aborted read.
+  conn.vendorRequest = vi.fn(async () => {
+    throw Error("ActionNotSupported");
+  });
   return { conn, log };
 }
 it("récupère une lecture interrompue, avec trois tentatives maximum", async () => {
