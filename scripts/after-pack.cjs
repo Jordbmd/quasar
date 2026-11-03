@@ -1,5 +1,5 @@
 const path = require("node:path");
-const { access, readFile, writeFile } = require("node:fs/promises");
+const { access, readFile, writeFile, mkdir } = require("node:fs/promises");
 module.exports = async function afterPack(context) {
   const platform = context.electronPlatformName;
   const resourceRoot =
@@ -26,6 +26,17 @@ module.exports = async function afterPack(context) {
       "Le relais embarqué ne correspond pas à la plateforme/architecture cible. Relancer setup:video pour cette cible.",
     );
   if (platform === "darwin") {
+    for (const [locale, description] of Object.entries({
+      fr: "Quasar recherche et configure vos caméras IP via la connexion Ethernet de votre hub.",
+      en: "Quasar discovers and configures your IP cameras through your hub’s Ethernet connection.",
+    })) {
+      const folder = path.join(resourceRoot, `${locale}.lproj`);
+      await mkdir(folder, { recursive: true });
+      await writeFile(
+        path.join(folder, "InfoPlist.strings"),
+        `"NSLocalNetworkUsageDescription" = "${description}";\n`,
+      );
+    }
     const { assignAppUUID } = await import("./macho-identity.mjs");
     const executable = path.join(
       context.appOutDir,

@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import { ProfileInsights } from "./ProfileInsights";
 import { fieldSupport, supportLabels } from "../shared/default-support";
 import { BatchProgress, ProfileOutcome } from "./BatchFeedback";
@@ -80,7 +81,7 @@ export function DefaultsPage({
     );
   };
   const save = () =>
-    void run("Enregistrement du profil", async () => {
+    void run(t("Enregistrement du profil"), async () => {
       if (!profile) return;
       const p = await window.sezaam.call("saveDefaults", profile);
       setProfile(p);
@@ -89,7 +90,7 @@ export function DefaultsPage({
     });
   const shown = defaultFields.filter((f) =>
     search
-      ? `${f.label} ${f.group} ${f.id}`
+      ? `${t(f.label)} ${t(f.group)} ${f.id}`
           .toLowerCase()
           .includes(search.toLowerCase())
       : f.group === group,
@@ -98,36 +99,37 @@ export function DefaultsPage({
     <div className="defaults-page">
       <header className="defaults-heading">
         <div>
-          <span className="eyebrow">PROFIL SEZAAM</span>
-          <h2>Paramètres par défaut</h2>
+          <span className="eyebrow">{t("PROFIL SEZAAM")}</span>
+          <h2>{t("Paramètres par défaut")}</h2>
           <p>
-            Définissez le profil, puis vérifiez les réglages compatibles avant
-            de les appliquer.
+            {t(
+              "Définissez le profil, puis vérifiez les réglages compatibles avant de les appliquer.",
+            )}
           </p>
         </div>
         <Button className="primary" disabled={busy || !dirty} onClick={save}>
           <Save size={16} />
-          Enregistrer le profil
+          {t("Enregistrer le profil")}
         </Button>
       </header>
-      <nav className="profile-tabs" aria-label="Sections du profil">
+      <nav className="profile-tabs" aria-label={t("Sections du profil")}>
         <Button
           aria-pressed={view === "profile"}
           onClick={() => setView("profile")}
         >
-          Paramètres
+          {t("Paramètres")}
         </Button>
         <Button
           aria-pressed={view === "compatibility"}
           onClick={() => setView("compatibility")}
         >
-          Compatibilité
+          {t("Compatibilité")}
         </Button>
         <Button
           aria-pressed={view === "journal"}
           onClick={() => setView("journal")}
         >
-          Journal et erreurs
+          {t("Journal et erreurs")}
         </Button>
       </nav>
       {view !== "profile" && (
@@ -140,18 +142,18 @@ export function DefaultsPage({
           run={run}
         />
       )}
-      {error && <Alert kind="danger">{error}</Alert>}
+      {error && <Alert kind="danger">{t(error)}</Alert>}
       {savedNotice && view === "profile" && (
         <p role="status" className="defaults-saved">
-          <Check size={16} /> Profil enregistré sur ce Mac. Aucune caméra
-          modifiée.
+          <Check size={16} />{" "}
+          {t("Profil enregistré sur ce Mac. Aucune caméra modifiée.")}
         </p>
       )}
       {profile && view === "profile" && (
         <>
           <Panel className="defaults-summary panel">
             <label>
-              Nom du profil
+              {t("Nom du profil")}
               <input
                 maxLength={100}
                 value={profile.name}
@@ -164,12 +166,12 @@ export function DefaultsPage({
             </label>
             <span>
               {Object.values(profile.fields).filter((f) => f.included).length}{" "}
-              réglages inclus
+              {t("réglages inclus")}
               <br />
               <small>
                 {dirty
-                  ? "Modifications à enregistrer"
-                  : "Version enregistrée · " + profile.revision}
+                  ? t("Modifications à enregistrer")
+                  : t("Version enregistrée · ") + profile.revision}
               </small>
             </span>
             <div className="defaults-actions">
@@ -177,36 +179,38 @@ export function DefaultsPage({
                 disabled={busy || dirty || !selected}
                 onClick={() => onApply([selected])}
               >
-                Appliquer à la caméra sélectionnée
+                {t("Appliquer à la caméra sélectionnée")}
               </Button>
               <Button
                 disabled={busy || dirty || !cameras.length}
                 onClick={() => onApply(cameras.map((c) => c.id))}
               >
-                Appliquer à toutes ({cameras.length})
+                {t("Appliquer à toutes (")}
+                {cameras.length})
               </Button>
             </div>
           </Panel>
           <div className="defaults-explainer">
             <SlidersHorizontal size={19} />
             <p>
-              <strong>Un profil commun, une vérification par caméra.</strong>{" "}
-              Les champs « Écriture intégrée » sont appliqués si leurs capacités
-              sont confirmées. L’onglet Compatibilité distingue les fonctions
-              intégrées, les standards à intégrer et les commandes constructeur.
-              Le reset usine reste une étape séparée.
+              <strong>
+                {t("Un profil commun, une vérification par caméra.")}
+              </strong>{" "}
+              {t(
+                "Les champs « Écriture intégrée » sont appliqués si leurs capacités sont confirmées. L’onglet Compatibilité distingue les fonctions intégrées, les standards à intégrer et les commandes constructeur. Le reset usine reste une étape séparée.",
+              )}
             </p>
           </div>
           <div className="defaults-editor">
             <aside
               className="defaults-categories"
-              aria-label="Catégories des paramètres"
+              aria-label={t("Catégories des paramètres")}
             >
               <label className="defaults-search">
                 <Search size={16} />
                 <input
-                  aria-label="Rechercher un réglage"
-                  placeholder="Rechercher un réglage…"
+                  aria-label={t("Rechercher un réglage")}
+                  placeholder={t("Rechercher un réglage…")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -221,7 +225,7 @@ export function DefaultsPage({
                     setSearch("");
                   }}
                 >
-                  {g}
+                  {t(g)}
                   <span>
                     {defaultFields.filter((f) => f.group === g).length}
                   </span>
@@ -231,12 +235,14 @@ export function DefaultsPage({
             <Panel className="defaults-fields panel">
               <div className="defaults-section-heading">
                 <div>
-                  <h3>{search ? "Résultats de recherche" : group}</h3>
-                  <p>Cochez les réglages à inclure dans le profil.</p>
+                  <h3>{search ? t("Résultats de recherche") : group}</h3>
+                  <p>{t("Cochez les réglages à inclure dans le profil.")}</p>
                 </div>
                 <Button
                   disabled={busy}
-                  title="Rétablir les valeurs Sezaam pour les champs affichés ; enregistrement nécessaire"
+                  title={t(
+                    "Rétablir les valeurs Sezaam pour les champs affichés ; enregistrement nécessaire",
+                  )}
                   onClick={() => {
                     const reference = initialDefaults();
                     setProfile({
@@ -252,10 +258,10 @@ export function DefaultsPage({
                   }}
                 >
                   <RefreshCw size={15} />
-                  Valeurs Sezaam
+                  {t("Valeurs Sezaam")}
                 </Button>
               </div>
-              {!shown.length && <p>Aucun réglage trouvé.</p>}
+              {!shown.length && <p>{t("Aucun réglage trouvé.")}</p>}
               {shown.map((f) => (
                 <div
                   className={
@@ -266,7 +272,7 @@ export function DefaultsPage({
                 >
                   <input
                     type="checkbox"
-                    aria-label={`Inclure ${f.label}`}
+                    aria-label={t("Inclure {0}", f.label)}
                     checked={profile.fields[f.id].included}
                     disabled={busy}
                     onChange={(e) =>
@@ -274,7 +280,7 @@ export function DefaultsPage({
                     }
                   />
                   <div className="default-field-copy">
-                    <label htmlFor={"default-" + f.id}>{f.label}</label>
+                    <label htmlFor={"default-" + f.id}>{t(f.label)}</label>
                     <small
                       className={
                         f.automatic
@@ -282,9 +288,9 @@ export function DefaultsPage({
                           : "default-support"
                       }
                     >
-                      {supportLabels[fieldSupport(f.id).kind]}
+                      {t(supportLabels[fieldSupport(f.id).kind])}
                     </small>
-                    {f.note && <p>{f.note}</p>}
+                    {f.note && <p>{t(f.note)}</p>}
                   </div>
                   <div className="default-value">
                     {typeof f.value === "boolean" ? (
@@ -296,8 +302,8 @@ export function DefaultsPage({
                           change(f.id, { value: e.target.value === "true" })
                         }
                       >
-                        <option value="true">Activé</option>
-                        <option value="false">Désactivé</option>
+                        <option value="true">{t("Activé")}</option>
+                        <option value="false">{t("Désactivé")}</option>
                       </select>
                     ) : f.options ? (
                       <select
@@ -369,7 +375,7 @@ export function DefaultsApply({
     setReport(false);
     setError("");
     setProgress(undefined);
-    void run("Vérification du profil et des caméras", async () => {
+    void run(t("Vérification du profil et des caméras"), async () => {
       setPhase("preview");
       try {
         setPlan(await window.sezaam.call("previewDefaults", { ids: targets }));
@@ -383,7 +389,7 @@ export function DefaultsApply({
   const rows = plan?.cameras.flatMap((c) => c.rows) ?? [];
   const ready = rows.filter((r) => r.state === "ready").length;
   const apply = async () => {
-    await run("Application du profil Sezaam", async () => {
+    await run(t("Application du profil Sezaam"), async () => {
       setPhase("apply");
       setProgress(undefined);
       setError("");
@@ -413,20 +419,20 @@ export function DefaultsApply({
               key={phase}
               title={
                 phase === "apply"
-                  ? "Application du profil en cours"
-                  : "Vérification des caméras en cours"
+                  ? t("Application du profil en cours")
+                  : t("Vérification des caméras en cours")
               }
               progress={progress}
             />
           )}
           {report && plan && <ProfileOutcome plan={plan} />}
-          {error && <Alert kind="danger">{error}</Alert>}
+          {error && <Alert kind="danger">{t(error)}</Alert>}
         </>
       }
       title={
         report
-          ? "Bilan d’application du profil"
-          : "Appliquer les paramètres par défaut"
+          ? t("Bilan d’application du profil")
+          : t("Appliquer les paramètres par défaut")
       }
       onClose={() => {
         if (!busy) onClose();
@@ -434,7 +440,7 @@ export function DefaultsApply({
       footer={
         <>
           <Button disabled={busy} onClick={onClose}>
-            {report ? "Fermer" : "Annuler"}
+            {report ? t("Fermer") : t("Annuler")}
           </Button>
           {!report && (
             <Button
@@ -443,7 +449,7 @@ export function DefaultsApply({
               disabled={busy || !ready || !!error}
               onClick={() => void apply()}
             >
-              Appliquer les réglages compatibles
+              {t("Appliquer les réglages compatibles")}
             </Button>
           )}
         </>
@@ -455,15 +461,16 @@ export function DefaultsApply({
         )}
         {report && (
           <p>
-            Rapport enregistré dans Profil Sezaam → Journal et erreurs, sauf
-            avertissement de sauvegarde ci-dessus.
+            {t(
+              "Rapport enregistré dans Profil Sezaam → Journal et erreurs, sauf avertissement de sauvegarde ci-dessus.",
+            )}
           </p>
         )}
         {plan && (
           <>
             <p>
-              <strong>{plan.name}</strong> · version {plan.revision} ·{" "}
-              {plan.cameras.length} caméra(s)
+              <strong>{plan.name}</strong> {t("· version")} {plan.revision} ·{" "}
+              {plan.cameras.length} {t("caméra(s)")}
             </p>
             <DefaultsResults
               key={`${plan.id}-${report}`}

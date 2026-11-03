@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useEffect, useState, useRef } from "react";
 import { livePlayback } from "../shared/live-playback";
 import { videoError } from "../shared/video-errors";
@@ -60,7 +61,9 @@ export function VideoPlayer({
         queuedBytes -= chunk.byteLength;
         source.appendBuffer(chunk);
       } catch {
-        setError("Tampon vidéo indisponible. Arrêtez puis relancez l’aperçu.");
+        setError(
+          t("Tampon vidéo indisponible. Arrêtez puis relancez l’aperçu."),
+        );
         ws.close();
       }
     };
@@ -77,7 +80,9 @@ export function VideoPlayer({
         flush();
       } catch {
         setError(
-          "Codec non lisible dans Electron. Choisissez un profil compatible ; aucun encodage n’a été modifié.",
+          t(
+            "Codec non lisible dans Electron. Choisissez un profil compatible ; aucun encodage n’a été modifié.",
+          ),
         );
         ws.close();
       }
@@ -100,7 +105,7 @@ export function VideoPlayer({
         queue.push(e.data);
         queuedBytes += e.data.byteLength;
         if (queuedBytes > 8 * 1024 * 1024 || queue.length > 200) {
-          setError("Lecture trop lente. Relancez l’aperçu.");
+          setError(t("Lecture trop lente. Relancez l’aperçu."));
           ws.close();
           return;
         }
@@ -108,15 +113,15 @@ export function VideoPlayer({
       }
     };
     ws.onerror = () => {
-      if (!closed) setError("Connexion au relais vidéo interrompue.");
+      if (!closed) setError(t("Connexion au relais vidéo interrompue."));
     };
     ws.onclose = () => {
-      if (!closed) setError("Flux arrêté ou connexion interrompue.");
+      if (!closed) setError(t("Flux arrêté ou connexion interrompue."));
     };
     const liveTimer = setInterval(followLive, 250);
     const timeout = setTimeout(() => {
       if (video.readyState < 2)
-        setError("Aucune image reçue. Vérifiez le flux RTSP et son codec.");
+        setError(t("Aucune image reçue. Vérifiez le flux RTSP et son codec."));
     }, 15000);
     return () => {
       closed = true;
@@ -136,7 +141,7 @@ export function VideoPlayer({
   return (
     <div className="video-surface">
       <video
-        aria-label="Flux vidéo réel de la caméra"
+        aria-label={t("Flux vidéo réel de la caméra")}
         ref={ref}
         autoPlay
         muted
@@ -144,7 +149,9 @@ export function VideoPlayer({
         disablePictureInPicture
         onError={() =>
           setError(
-            "Ce flux ne peut pas être décodé. Essayez un autre profil vidéo.",
+            t(
+              "Ce flux ne peut pas être décodé. Essayez un autre profil vidéo.",
+            ),
           )
         }
         onPlaying={() => {
@@ -156,7 +163,7 @@ export function VideoPlayer({
         {playing && <span className="video-live-dot" />}
         {playing ? "DIRECT" : "CONNEXION…"}
       </div>
-      {error && <div className="video-error">{error}</div>}
+      {error && <div className="video-error">{t(error)}</div>}
     </div>
   );
 }

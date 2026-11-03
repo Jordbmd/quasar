@@ -1,3 +1,4 @@
+import { t, getLanguage } from "../../shared/i18n";
 import { displayValue } from "../format";
 import React from "react";
 import { Camera as CameraIcon, Activity, MonitorPlay } from "lucide-react";
@@ -22,7 +23,7 @@ export function CameraCard({
       onClick={onSelect}
     >
       <span className="camera-row-info">
-        <strong>{c.name || c.model || "Caméra ONVIF"}</strong>
+        <strong>{c.name || c.model || t("Caméra ONVIF")}</strong>
         <code>{c.ip}</code>
         {c.model && c.model !== c.name && <small>{c.model}</small>}
         <Badge
@@ -35,12 +36,12 @@ export function CameraCard({
           }
         >
           {c.ambiguous
-            ? "Conflit d’identité"
+            ? t("Conflit d’identité")
             : c.status.startsWith("Connectée")
-              ? "Connectée"
+              ? t("Connectée")
               : c.status.startsWith("Erreur")
-                ? "Erreur de connexion"
-                : "À connecter"}
+                ? t("Erreur de connexion")
+                : t("À connecter")}
         </Badge>
       </span>
     </Button>
@@ -55,19 +56,22 @@ export function CameraFacts({
 }) {
   return (
     <div className="camera-facts">
-      <h3>Informations de la caméra</h3>
+      <h3>{t("Informations de la caméra")}</h3>
       <dl>
         {[
-          ["Modèle", camera?.model],
-          ["Numéro de série", camera?.serial],
-          ["Adresse MAC", camera?.mac],
-          ["Version du firmware", camera?.firmware],
-          ["Adresse IP", camera?.ip],
-          ["Port ONVIF", camera?.port],
-          ["État de connexion", camera?.status],
+          [t("Modèle"), camera?.model],
+          [t("Numéro de série"), camera?.serial],
+          [t("Adresse MAC"), camera?.mac],
+          [t("Version du firmware"), camera?.firmware],
+          [t("Adresse IP"), camera?.ip],
+          [t("Port ONVIF"), camera?.port],
+          [
+            t("État de connexion"),
+            camera?.status ? t(camera.status) : undefined,
+          ],
         ].map(([label, v]) => (
           <div key={String(label)}>
-            <dt>{label}</dt>
+            <dt>{t(String(label))}</dt>
             <dd>{displayValue(v)}</dd>
           </div>
         ))}
@@ -87,11 +91,13 @@ export function VideoPlaceholder({
     <EmptyState
       className="preview-placeholder"
       icon={MonitorPlay}
-      title={selected ? "Aperçu vidéo" : "Le flux de la caméra apparaîtra ici"}
+      title={
+        selected ? t("Aperçu vidéo") : t("Le flux de la caméra apparaîtra ici")
+      }
     >
       {connected
-        ? "Lancez le flux du profil sélectionné."
-        : "Aucun flux chargé"}
+        ? t("Lancez le flux du profil sélectionné.")
+        : t("Aucun flux chargé")}
     </EmptyState>
   );
 }
@@ -107,7 +113,7 @@ export function DiagnosticResults({ report }: { report?: DiagnosticReport }) {
       {report.checks.map((c) => (
         <article key={c.key} className="diagnostic-check">
           <div>
-            <strong>{c.label}</strong>
+            <strong>{t(c.label)}</strong>
             <Badge
               kind={
                 c.state === "passed"
@@ -117,10 +123,10 @@ export function DiagnosticResults({ report }: { report?: DiagnosticReport }) {
                     : c.state
               }
             >
-              {labels[c.state]}
+              {t(labels[c.state])}
             </Badge>
           </div>
-          <p>{c.detail}</p>
+          <p>{t(c.detail)}</p>
         </article>
       ))}
     </div>
@@ -128,10 +134,11 @@ export function DiagnosticResults({ report }: { report?: DiagnosticReport }) {
     <EmptyState
       className="empty-diagnostic"
       icon={Activity}
-      title="Aucun diagnostic effectué"
+      title={t("Aucun diagnostic effectué")}
     >
-      Sélectionnez une caméra puis lancez les tests. Les mesures apparaîtront
-      ici.
+      {t(
+        "Sélectionnez une caméra puis lancez les tests. Les mesures apparaîtront ici.",
+      )}
     </EmptyState>
   );
 }
@@ -139,23 +146,29 @@ export function EventLog({ entries }: { entries: LogEntry[] }) {
   return (
     <div className="log-table">
       <table>
-        <caption className="sr-only">Journal des événements locaux</caption>
+        <caption className="sr-only">
+          {t("Journal des événements locaux")}
+        </caption>
         <thead>
           <tr>
-            {["Heure", "Caméra", "Niveau", "Événement", "Description"].map(
-              (h) => (
-                <th scope="col" key={h}>
-                  {h}
-                </th>
-              ),
-            )}
+            {[
+              t("Heure"),
+              t("Caméra"),
+              t("Niveau"),
+              t("Événement"),
+              "Description",
+            ].map((h) => (
+              <th scope="col" key={h}>
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {[...entries].reverse().map((l, i) => (
             <tr key={`${l.at}-${i}`}>
               <td>
-                <code>{new Date(l.at).toLocaleTimeString()}</code>
+                <code>{new Date(l.at).toLocaleTimeString(getLanguage())}</code>
               </td>
               <td>
                 <code>{l.camera || "—"}</code>
@@ -171,19 +184,19 @@ export function EventLog({ entries }: { entries: LogEntry[] }) {
                   }
                 >
                   {l.level === "erreur"
-                    ? "Erreur"
+                    ? t("Erreur")
                     : l.level === "attention"
-                      ? "Avertissement"
-                      : "Information"}
+                      ? t("Avertissement")
+                      : t("Information")}
                 </Badge>
               </td>
-              <td>{l.event}</td>
-              <td>{l.detail}</td>
+              <td>{t(l.event)}</td>
+              <td>{t(l.detail)}</td>
             </tr>
           ))}
           {!entries.length && (
             <tr>
-              <td colSpan={5}>Aucun événement dans cette session.</td>
+              <td colSpan={5}>{t("Aucun événement dans cette session.")}</td>
             </tr>
           )}
         </tbody>

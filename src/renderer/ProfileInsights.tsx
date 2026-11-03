@@ -1,12 +1,10 @@
+import { displayDefaultValue as defaultValueLabel } from "./format";
+import { t, getLanguage } from "../shared/i18n";
 import React, { useEffect, useState } from "react";
 import { RefreshCw, Download, ShieldCheck } from "lucide-react";
 import { Button, Panel, Alert, Modal } from "./design-system/components";
 import { auditFields, supportLabels } from "../shared/default-support";
-import {
-  defaultGroups,
-  defaultValueLabel,
-  type DefaultsProgress,
-} from "../shared/defaults";
+import { defaultGroups, type DefaultsProgress } from "../shared/defaults";
 import {
   issueLabels,
   rowStatus,
@@ -23,29 +21,29 @@ function RunDetails({ report }: { report: ProfileRun }) {
   return (
     <div className="profile-run-details">
       <p>
-        <strong>{report.name}</strong> · version {report.revision} ·{" "}
-        {new Date(report.startedAt).toLocaleString()}
+        <strong>{report.name}</strong> {t("· version")} {report.revision} ·{" "}
+        {new Date(report.startedAt).toLocaleString(getLanguage())}
         <br />
         {report.kind === "audit"
-          ? "Audit en lecture seule — aucune écriture"
-          : "Application du profil"}{" "}
+          ? t("Audit en lecture seule — aucune écriture")
+          : t("Application du profil")}{" "}
         ·{" "}
         {report.status === "interrupted"
-          ? "Interrompu — état réel à relire"
+          ? t("Interrompu — état réel à relire")
           : report.status === "running"
-            ? "En cours"
-            : "Terminé"}
+            ? t("En cours")
+            : t("Terminé")}
       </p>
       {report.journalWarning && (
-        <Alert kind="warning">{report.journalWarning}</Alert>
+        <Alert kind="warning">{t(report.journalWarning)}</Alert>
       )}
       <div className="profile-filters">
         <select
-          aria-label="Filtrer le journal par caméra"
+          aria-label={t("Filtrer le journal par caméra")}
           value={camera}
           onChange={(e) => setCamera(e.target.value)}
         >
-          <option value="all">Toutes les caméras</option>
+          <option value="all">{t("Toutes les caméras")}</option>
           {report.cameras.map((c) => (
             <option key={c.camera.id} value={c.camera.id}>
               {c.camera.ip}
@@ -53,21 +51,23 @@ function RunDetails({ report }: { report: ProfileRun }) {
           ))}
         </select>
         <select
-          aria-label="Filtrer le journal par résultat"
+          aria-label={t("Filtrer le journal par résultat")}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
-          <option value="all">Tous les résultats</option>
-          <option value="failed">Échecs et interruptions</option>
-          <option value="unread">Lecture / contrôle à reprendre</option>
-          <option value="blocked">Non pris en charge / non automatisés</option>
-          <option value="verified">Vérifiés et conformes</option>
+          <option value="all">{t("Tous les résultats")}</option>
+          <option value="failed">{t("Échecs et interruptions")}</option>
+          <option value="unread">{t("Lecture / contrôle à reprendre")}</option>
+          <option value="blocked">
+            {t("Non pris en charge / non automatisés")}
+          </option>
+          <option value="verified">{t("Vérifiés et conformes")}</option>
         </select>
         <input
-          aria-label="Rechercher dans le journal"
+          aria-label={t("Rechercher dans le journal")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Rechercher un champ…"
+          placeholder={t("Rechercher un champ…")}
         />
       </div>
       {report.cameras
@@ -84,64 +84,77 @@ function RunDetails({ report }: { report: ProfileRun }) {
                       ? ["unread"]
                       : ["verified", "same"]
                 ).includes(rowCategory(r))) &&
-              `${r.label} ${r.code || ""}`
+              `${t(r.label)} ${r.code || ""}`
                 .toLowerCase()
                 .includes(search.toLowerCase()),
           );
           return (
             <section key={c.camera.id} className="defaults-camera-result">
               <h3>
-                Caméra · <code>{c.camera.ip}</code>
+                {t("Caméra ·")} <code>{c.camera.ip}</code>
               </h3>
-              {c.error && <Alert kind="warning">{c.error}</Alert>}
-              {!rows.length && <p>Aucun champ pour ce filtre.</p>}
+              {c.error && <Alert kind="warning">{t(c.error)}</Alert>}
+              {!rows.length && <p>{t("Aucun champ pour ce filtre.")}</p>}
               <dl>
                 {rows.map((r) => (
                   <div className={"defaults-result-row " + r.state} key={r.id}>
                     <dt>
-                      {r.label}
-                      <small>{rowStatus(r)}</small>
+                      {t(r.label)}
+                      <small>{t(rowStatus(r))}</small>
                     </dt>
                     <dd>
-                      <strong>Demandé : {defaultValueLabel(r.value)}</strong>
-                      {r.before !== undefined && <p>Avant : {r.before}</p>}
-                      {r.observed !== undefined && (
-                        <p>Relu : {defaultValueLabel(r.observed)}</p>
+                      <strong>
+                        {t("Demandé :")} {defaultValueLabel(r.value)}
+                      </strong>
+                      {r.before !== undefined && (
+                        <p>
+                          {t("Avant :")} {r.before}
+                        </p>
                       )}
-                      <p>{r.message}</p>
+                      {r.observed !== undefined && (
+                        <p>
+                          {t("Relu :")} {defaultValueLabel(r.observed)}
+                        </p>
+                      )}
+                      <p>{t(r.message)}</p>
                       {r.code && (
                         <code className="profile-error-code">
-                          {r.code} · {issueLabels[r.code]}
+                          {r.code} · {t(issueLabels[r.code])}
                         </code>
                       )}
                       {r.startedAt && (
                         <p>
-                          {new Date(r.startedAt).toLocaleTimeString()} →{" "}
+                          {new Date(r.startedAt).toLocaleTimeString(
+                            getLanguage(),
+                          )}{" "}
+                          →{" "}
                           {r.finishedAt
-                            ? new Date(r.finishedAt).toLocaleTimeString()
-                            : "interruption / non terminé"}
+                            ? new Date(r.finishedAt).toLocaleTimeString(
+                                getLanguage(),
+                              )
+                            : t("interruption / non terminé")}
                         </p>
                       )}
                       {r.method && (
                         <p>
-                          Action : {r.method} · envoi{" "}
+                          {t("Action :")} {r.method} {t("· envoi")}{" "}
                           {r.sent === undefined
-                            ? "non confirmé"
+                            ? t("non confirmé")
                             : r.sent
-                              ? "effectué"
-                              : "non effectué"}{" "}
-                          · réponse{" "}
+                              ? t("effectué")
+                              : t("non effectué")}{" "}
+                          {t("· réponse")}{" "}
                           {r.acknowledged === undefined
-                            ? "non confirmée"
+                            ? t("non confirmée")
                             : r.acknowledged
-                              ? "reçue"
-                              : "non confirmée"}
+                              ? t("reçue")
+                              : t("non confirmée")}
                         </p>
                       )}
                       {r.issues?.map((i, index) => (
                         <p key={index}>
                           {i.stage === "send" ? "Envoi" : "Relecture"} :{" "}
-                          {i.message}
+                          {t(i.message)}
                         </p>
                       ))}
                     </dd>
@@ -195,7 +208,7 @@ export function ProfileInsights({
   }, [view]);
   useEffect(() => window.sezaam.onDefaultsProgress?.(setProgress), []);
   const inspect = (ids: string[]) =>
-    void run("Audit des champs du profil", async () => {
+    void run(t("Audit des champs du profil"), async () => {
       setError("");
       try {
         const report = await window.sezaam.call("auditDefaults", { ids });
@@ -222,16 +235,16 @@ export function ProfileInsights({
     (f) =>
       (kind === "all" || f.kind === kind) &&
       (group === "all" || f.group === group) &&
-      `${f.label} ${f.reason} ${f.method}`
+      `${t(f.label)} ${t(f.reason)} ${f.method}`
         .toLowerCase()
         .includes(search.toLowerCase()),
   );
   return (
     <div className="profile-insights">
-      {error && <Alert kind="danger">{error}</Alert>}
+      {error && <Alert kind="danger">{t(error)}</Alert>}
       {notice && (
         <Alert kind="info" onDismiss={() => setNotice("")}>
-          {notice}
+          {t(notice)}
         </Alert>
       )}
       {view === "compatibility" ? (
@@ -240,12 +253,13 @@ export function ProfileInsights({
             <div>
               <h3>
                 <ShieldCheck size={20} />
-                Compatibilité par fonction
+                {t("Compatibilité par fonction")}
               </h3>
               <p>
-                Les {fields.length} champs sont examinés, même ceux exclus du
-                profil. Aucun modèle n’est imposé. Une option annoncée en
-                lecture ne vaut pas validation d’écriture.
+                {t("Les")} {fields.length}{" "}
+                {t(
+                  "champs sont examinés, même ceux exclus du profil. Aucun modèle n’est imposé. Une option annoncée en lecture ne vaut pas validation d’écriture.",
+                )}
               </p>
             </div>
             <div className="defaults-actions">
@@ -253,22 +267,24 @@ export function ProfileInsights({
                 disabled={busy || dirty || !selected}
                 onClick={() => inspect([selected])}
               >
-                Vérifier cette caméra
+                {t("Vérifier cette caméra")}
               </Button>
               <Button
                 disabled={busy || dirty || !cameras.length}
                 onClick={() => inspect(cameras.map((c) => c.id))}
               >
-                Vérifier toutes les caméras ({cameras.length})
+                {t("Vérifier toutes les caméras (")}
+                {cameras.length})
               </Button>
             </div>
             {dirty && (
-              <p>Enregistre le profil avant de vérifier ses valeurs.</p>
+              <p>{t("Enregistre le profil avant de vérifier ses valeurs.")}</p>
             )}
             {!cameras.length && (
               <p>
-                Connecte les caméras pour compléter cet audit documentaire par
-                une lecture de leurs capacités.
+                {t(
+                  "Connecte les caméras pour compléter cet audit documentaire par une lecture de leurs capacités.",
+                )}
               </p>
             )}
             {busy && progress && (
@@ -285,30 +301,30 @@ export function ProfileInsights({
                 aria-pressed={kind === key}
                 onClick={() => setKind(kind === key ? "all" : key)}
               >
-                {fields.filter((f) => f.kind === key).length} · {label}
+                {fields.filter((f) => f.kind === key).length} · {t(label)}
               </Button>
             ))}
           </div>
           <div className="profile-filters">
             <input
-              aria-label="Rechercher dans la compatibilité"
-              placeholder="Rechercher un réglage…"
+              aria-label={t("Rechercher dans la compatibilité")}
+              placeholder={t("Rechercher un réglage…")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <select
-              aria-label="Catégorie de compatibilité"
+              aria-label={t("Catégorie de compatibilité")}
               value={group}
               onChange={(e) => setGroup(e.target.value)}
             >
-              <option value="all">Toutes les catégories</option>
+              <option value="all">{t("Toutes les catégories")}</option>
               {defaultGroups.map((g) => (
-                <option key={g}>{g}</option>
+                <option key={g}>{t(g)}</option>
               ))}
             </select>
             {audit && (
               <select
-                aria-label="Caméra de l’audit"
+                aria-label={t("Caméra de l’audit")}
                 value={camera}
                 onChange={(e) => setCamera(e.target.value)}
               >
@@ -322,9 +338,10 @@ export function ProfileInsights({
           </div>
           {audit && (
             <p>
-              Dernière lecture : {new Date(audit.updatedAt).toLocaleString()} ·{" "}
+              {t("Dernière lecture :")}{" "}
+              {new Date(audit.updatedAt).toLocaleString(getLanguage())} ·{" "}
               <Button onClick={() => setOpened(audit)}>
-                Ouvrir le rapport
+                {t("Ouvrir le rapport")}
               </Button>
             </p>
           )}
@@ -333,51 +350,52 @@ export function ProfileInsights({
             {selectedRows.map((f) => (
               <article key={f.id}>
                 <div>
-                  <h4>{f.label}</h4>
-                  <small>{f.group}</small>
+                  <h4>{t(f.label)}</h4>
+                  <small>{t(f.group)}</small>
                   <span
                     className={
                       "default-support " +
                       (f.kind === "implemented" ? "automatic" : "")
                     }
                   >
-                    {supportLabels[f.kind]}
+                    {t(supportLabels[f.kind])}
                   </span>
                 </div>
                 <div>
-                  <strong>{f.method}</strong>
-                  <p>{f.reason}</p>
+                  <strong>{t(f.method)}</strong>
+                  <p>{t(f.reason)}</p>
                   {audit && (
                     <p className="profile-observation">{f.observation}</p>
                   )}
                 </div>
               </article>
             ))}
-            {!selectedRows.length && <p>Aucun champ pour ce filtre.</p>}
+            {!selectedRows.length && <p>{t("Aucun champ pour ce filtre.")}</p>}
           </Panel>
         </>
       ) : (
         <>
           <div className="defaults-heading">
             <div>
-              <h3>Journal des profils</h3>
+              <h3>{t("Journal des profils")}</h3>
               <p>
-                Audits et applications conservés sur ce Mac, y compris après
-                redémarrage. Les 50 derniers rapports sont conservés.
+                {t(
+                  "Audits et applications conservés sur ce Mac, y compris après redémarrage. Les 50 derniers rapports sont conservés.",
+                )}
               </p>
             </div>
             <Button disabled={busy} onClick={() => void load()}>
               <RefreshCw size={16} />
-              Actualiser le journal
+              {t("Actualiser le journal")}
             </Button>
           </div>
           {!history.length && !error && (
             <Panel className="panel profile-audit-intro">
-              <h3>Aucun rapport enregistré</h3>
+              <h3>{t("Aucun rapport enregistré")}</h3>
               <p>
-                Une vérification de compatibilité ou une application du profil
-                crée un rapport. Les erreurs d’écriture sont séparées des
-                fonctions non intégrées.
+                {t(
+                  "Une vérification de compatibilité ou une application du profil crée un rapport. Les erreurs d’écriture sont séparées des fonctions non intégrées.",
+                )}
               </p>
             </Panel>
           )}
@@ -391,27 +409,28 @@ export function ProfileInsights({
                 <span>
                   <strong>
                     {h.kind === "audit"
-                      ? "Audit de compatibilité"
+                      ? t("Audit de compatibilité")
                       : "Application"}{" "}
                     · {h.name}
                   </strong>
                   <small>
-                    {new Date(h.startedAt).toLocaleString()} · {h.cameras}{" "}
-                    caméra(s) · version {h.revision}
+                    {new Date(h.startedAt).toLocaleString(getLanguage())} ·{" "}
+                    {h.cameras} {t("caméra(s) · version")} {h.revision}
                   </small>
                 </span>
                 <span>
                   {h.status === "interrupted"
                     ? "Interrompu"
                     : h.status === "running"
-                      ? "En cours"
+                      ? t("En cours")
                       : h.failed
-                        ? `${h.failed} échec(s)`
-                        : "Terminé"}
+                        ? t("{0} échec(s)", h.failed)
+                        : t("Terminé")}
                   <small>
-                    {h.verified} vérifiés · {h.unread ?? 0} non vérifiés ·{" "}
-                    {h.blocked} non pris en charge · {h.manual ?? 0} non
-                    automatisés
+                    {h.verified} {t("vérifiés ·")} {h.unread ?? 0}{" "}
+                    {t("non vérifiés ·")} {h.blocked}{" "}
+                    {t("non pris en charge ·")} {h.manual ?? 0}{" "}
+                    {t("non automatisés")}
                   </small>
                 </span>
               </Button>
@@ -421,15 +440,15 @@ export function ProfileInsights({
       )}
       <Modal
         open={!!opened}
-        title="Journal du profil"
+        title={t("Journal du profil")}
         onClose={() => setOpened(undefined)}
         footer={
           <>
-            <Button onClick={() => setOpened(undefined)}>Fermer</Button>
+            <Button onClick={() => setOpened(undefined)}>{t("Fermer")}</Button>
             <Button
               disabled={busy || !opened}
               onClick={() =>
-                void run("Export du journal", async () => {
+                void run(t("Export du journal"), async () => {
                   const result = await window.sezaam.call("exportDefaultsRun", {
                     id: opened!.id,
                   });
@@ -438,7 +457,7 @@ export function ProfileInsights({
               }
             >
               <Download size={16} />
-              Exporter le rapport JSON
+              {t("Exporter le rapport JSON")}
             </Button>
           </>
         }

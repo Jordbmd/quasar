@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import {
@@ -9,6 +9,7 @@ import {
   readFile,
   readdir,
   rename,
+  stat,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -137,6 +138,21 @@ await run(npm, ["run", "build"]);
 await mkdir(output, { recursive: true });
 const work = await mkdtemp(path.join(output, ".packaging-"));
 const manifest = {
+  schemaVersion: 1,
+  project: "quasar",
+  workingTreeDirty: !!execFileSync("git", ["status", "--porcelain"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim(),
+  commit: execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim(),
+  generatedAt: new Date().toISOString(),
+  buildHost: { platform: process.platform, arch: process.arch },
+  published: false,
+  installationTested: false,
+  cameraValidated: false,
   version: JSON.parse(await readFile(path.join(root, "package.json"), "utf8"))
     .version,
   files: [],
@@ -201,6 +217,10 @@ try {
       arch: target.arch,
       file: `${target.folder}/${file}`,
       sha256,
+      bytes: (await stat(path.join(folder, file))).size,
+      nativePackaging:
+        process.platform === target.platform && process.arch === target.arch,
+      signing: name === "mac" ? "ad-hoc-not-notarized" : "unsigned",
     });
     await writeFile(
       path.join(folder, "SHA256SUMS.txt"),

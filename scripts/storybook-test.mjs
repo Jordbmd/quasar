@@ -126,6 +126,30 @@ try {
     .getByRole("heading", { name: "Diagnostic des caméras", exact: true })
     .waitFor();
   await mkdir("test-results", { recursive: true });
+  for (const theme of ["light", "dark"]) {
+    await visit(h, "pages--selected-camera", theme, "en");
+    await h.page
+      .getByRole("heading", { name: "Cameras", exact: true })
+      .waitFor();
+    assert.equal(await h.page.locator("html").getAttribute("lang"), "en");
+    await h.page.evaluate(axe);
+    const violations = await h.page.evaluate(async () =>
+      (await window.axe.run(document)).violations.map((v) => ({
+        id: v.id,
+        targets: v.nodes.map((n) => n.target),
+      })),
+    );
+    results.push({
+      id: "pages--selected-camera",
+      theme,
+      language: "en",
+      violations,
+    });
+    await h.page.screenshot({
+      path: `test-results/camera-en-${theme}.png`,
+      fullPage: true,
+    });
+  }
   await writeFile(
     "test-results/storybook.json",
     JSON.stringify({ results, errors, externalRequests: h.external }, null, 2),

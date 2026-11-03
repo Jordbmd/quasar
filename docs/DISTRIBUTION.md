@@ -42,7 +42,7 @@ Cette commande produit une variante distincte ; le dossier macOS ne conserve qu�
 
 Le relais cible est préparé dans un dossier temporaire séparé : le binaire de développement dans `bin/` est préservé. Le contexte Docker contient seulement les fichiers compilés, les icônes, les fichiers npm, la configuration de packaging et les scripts nécessaires. Aucun dossier `.runtime`, dépôt Git, secret, socket Docker ou donnée utilisateur n’est transmis au conteneur. Celui-ci ne reçoit aucun mode privilégié. Les étapes sont séquentielles et un installateur existant n’est remplacé qu’après la réussite de sa génération.
 
-`npm run package:dir` conserve la préparation d’un paquet autonome non installable pour les vérifications techniques. Les sorties `release/` sont ignorées par Git ; les binaires de distribution se partagent comme pièces jointes d’une version GitHub Releases, séparément du code source. La publication est une opération explicite distincte et GitHub Actions reste désactivé.
+`npm run package:dir` conserve la préparation d’un paquet autonome non installable pour les vérifications techniques. Les sorties `release/` sont ignorées par Git ; les binaires de distribution se partagent comme pièces jointes d’une version GitHub Releases, séparément du code source. La publication reste une opération explicite distincte. Le workflow natif préparé le 3 novembre 2026 conserve des artefacts temporaires, sans release ni déploiement ; la disponibilité du service GitHub Actions dépend encore des réglages du dépôt.
 
 ## Vérification avant distribution
 

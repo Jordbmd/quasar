@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "266ed1bc6c5b95a513e726acf4e312b7903b0569",
+  "source": "Independent git archive of the initial commit, built with the locked dependencies",
+  "capturedOn": "2026-11-03",
+  "platform": "win32",
+  "architecture": "x64",
+  "osRelease": "10.0.26200",
+  "node": "v24.22.1",
+  "playwright": "1.64.1",
+  "browser": {
+    "channel": "chrome",
+    "version": "156.0.8078.74"
+  },
+  "viewport": {
+    "width": 1448,
+    "height": 1086
+  },
+  "deviceScaleFactor": 1,
+  "locale": "fr-FR",
+  "timezoneId": "Europe/Paris",
+  "reducedMotion": "reduce",
+  "syntheticFixturesOnly": true,
+  "thresholdsUnchanged": {
+    "channelDelta": 20,
+    "maxChangedPixelRatio": 0.001
+  },
+  "fonts": [
+    {
+      "path": "src/renderer/assets/InterVariable.woff2",
+      "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3"
+    },
+    {
+      "path": "assets/fonts/Sora-Variable.ttf",
+      "sha256": "84ff7096ae3ec6c8be47d906d1a0ba4de7f2ce78c615275c77301964a316e16c"
+    },
+    {
+      "path": "assets/fonts/JetBrainsMono-Variable.ttf",
+      "sha256": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda"
+    }
+  ],
+  "captures": [
+    {
+      "file": "pages--cameras-dark.png",
+      "sha256": "c8536e0abf7f00b370d77bba3e6fc2dd60003dad3d81bbcf16a7f7432149b51a",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.03363183358261347
+    },
+    {
+      "file": "pages--selected-camera-dark.png",
+      "sha256": "6adcd95649b5341666fef339e7dc391e5eada5ca77acdc1c335c898b81520c32",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.04941470040597051
+    },
+    {
+      "file": "pages--diagnostic-results-dark.png",
+      "sha256": "d6011ce31be206c01da43e56361424d0d2b91ecf4d3706cfa92b80bb2cd5e6ac",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.03251833989601457
+    },
+    {
+      "file": "pages--add-camera-modal-dark.png",
+      "sha256": "e8b1720d5a81e46ced5314af82df7dd3d1395023019c8df5cae34c8a5894fd01",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.01042970300051891
+    },
+    {
+      "file": "components--feedback-dark.png",
+      "sha256": "89b6754547e53e6c53d66ee67d0d34f438184fd3b9f2c0cc338141898aeed30d",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.0031070988879053347
+    },
+    {
+      "file": "components--loading-state-dark.png",
+      "sha256": "47d924482503d8c0a694a9c23b8e036084eb22a46a9bf5af5688f71d2d5a71af",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.0004031724713327839
+    },
+    {
+      "file": "pages--cameras-light.png",
+      "sha256": "80f46aa67af8aab80a8de42b063fe7cf0155a9d47511ead60b2ef9a4d60ed0f2",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.033745027115574415
+    },
+    {
+      "file": "pages--selected-camera-light.png",
+      "sha256": "f15cb48aca336641f5fae42290e4980b281a52299e21c0ccb0cfa8a15a3ab014",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.04826941078314663
+    },
+    {
+      "file": "pages--diagnostic-results-light.png",
+      "sha256": "b30d6f891420ec645d4cfcd46b34ea3f42ac6b2f3da30a34f95a73c7ad74dbda",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.03164331573110304
+    },
+    {
+      "file": "pages--add-camera-modal-light.png",
+      "sha256": "a48eaf1640dc2428c48b5a0b4cb12d2ef0e7e560edef44dc68a8d2bba992065c",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.010203315934597031
+    },
+    {
+      "file": "components--feedback-light.png",
+      "sha256": "9baabbfdbcc051b39a455db5dfb7dd8b1877831601b7bce6c85b065cd5380c72",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.0031185454249463285
+    },
+    {
+      "file": "components--loading-state-light.png",
+      "sha256": "5e45c0295b2798cb49a9bd373850becd14b48bd0519da546fa16f6fe4af72756",
+      "byteIdenticalToBranch": true,
+      "historicalBaselineRatio": 0.0003497552984748125
+    }
+  ]
+}

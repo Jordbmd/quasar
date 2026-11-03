@@ -51,6 +51,21 @@ try {
     }));
     assert.equal(runtime.packaged, true);
     assert.match(runtime.appPath, /app\.asar$/);
+    const version = await app.evaluate(({ app }) => {
+      const fs = process.getBuiltinModule("fs");
+      return JSON.parse(
+        fs.readFileSync(`${app.getAppPath()}/dist/version.json`, "utf8"),
+      );
+    });
+    assert.deepEqual(
+      version,
+      JSON.parse(await readFile("dist/version.json", "utf8")),
+      "Le paquet contient le manifest exact de la construction testée",
+    );
+    await writeFile(
+      "test-results/packaged-version.json",
+      JSON.stringify(version, null, 2) + "\n",
+    );
     checks.push("Paquet autonome : app.asar et relais embarqué disponibles");
   }
   assert.equal(await page.evaluate(() => typeof window.require), "undefined");
@@ -179,6 +194,79 @@ try {
     "dark",
   );
   checks.push("Préférence thème persistée après fermeture et relancement");
+  await reopened.getByTitle("Paramètres", { exact: true }).click();
+  await reopened.getByLabel("Langue", { exact: true }).selectOption("en");
+  await reopened
+    .getByRole("heading", {
+      name: "Application settings",
+      exact: true,
+      level: 2,
+    })
+    .waitFor();
+  assert.equal(await reopened.locator("html").getAttribute("lang"), "en");
+  await reopened.getByLabel("Theme", { exact: true }).selectOption("system");
+  assert.equal(
+    await reopened.evaluate(() => localStorage.getItem("sezaam-theme")),
+    "system",
+  );
+  const menu = await app.evaluate(({ Menu }) =>
+    Menu.getApplicationMenu().items.map((item) => item.label),
+  );
+  assert.ok(menu.includes("Edit"));
+  assert.ok(menu.includes("View"));
+  const invalidLanguage = await reopened.evaluate(async () => {
+    try {
+      await window.sezaam.call("setLanguage", { language: "de" });
+      return "unexpected";
+    } catch (error) {
+      return error instanceof Error ? "rejected" : "unexpected";
+    }
+  });
+  assert.equal(invalidLanguage, "rejected");
+  assert.equal(
+    await reopened.evaluate(() => window.sezaam.call("getLanguage", undefined)),
+    "en",
+  );
+  await reopened.screenshot({
+    path: "test-results/preferences-en.png",
+    fullPage: true,
+  });
+  await app.close();
+  app = await electron.launch({
+    args: process.env.QUASAR_PACKAGED_EXECUTABLE ? [] : [path.resolve(".")],
+    executablePath: process.env.QUASAR_PACKAGED_EXECUTABLE || undefined,
+    env,
+    timeout: 30000,
+  });
+  const english = await app.firstWindow();
+  await english
+    .getByRole("heading", { name: "Cameras", exact: true })
+    .waitFor();
+  assert.equal(
+    await english.evaluate(() => window.sezaam.call("getLanguage", undefined)),
+    "en",
+  );
+  const preferences = await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences(),
+  );
+  assert.equal(preferences.sandbox, true);
+  assert.equal(preferences.contextIsolation, true);
+  assert.equal(preferences.nodeIntegration, false);
+  assert.equal(preferences.webSecurity, true);
+  const blocked = await english.evaluate(async () => {
+    try {
+      await fetch("https://example.invalid/quasar-network-check");
+      return false;
+    } catch {
+      return true;
+    }
+  });
+  assert.equal(blocked, true);
+  checks.push(
+    "FR/EN persistés : interface et menus natifs, IPC langue invalide refusée",
+    "Thème système explicite persisté",
+    "Sandbox/contextIsolation/webSecurity actifs ; Node absent ; HTTPS externe bloqué",
+  );
   assert.deepEqual(errors, []);
   await writeFile(
     process.env.QUASAR_PACKAGED_EXECUTABLE

@@ -1,0 +1,83 @@
+name: Quasar validation and native packages
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quasar-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    name: ${{ matrix.os }} / ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            target: win
+          - os: macos-14
+            target: mac
+          - os: ubuntu-22.04
+            target: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      PLAYWRIGHT_CHANNEL: chrome
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.22.1"
+          cache: npm
+      - run: npm ci --no-fund
+      - run: npm exec -- playwright install --with-deps chrome
+      - run: npm run setup:video
+      - run: npm run validate:software
+      - run: npm run build-storybook && npm run test:stories && npm run build:web && npm run test:web
+      - name: Isolated Electron runtime
+        run: |
+          if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi
+      - name: Native installer without publication
+        run: npm run package:${{ matrix.target }}
+      - name: Standalone application
+        run: npm run package:dir
+      - name: Isolated packaged runtime (not an installer acceptance test)
+        run: |
+          if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:packaged; else npm run test:packaged; fi
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Full audit artifact
+        if: always()
+        run: |
+          mkdir -p test-results
+          npm audit --json > test-results/npm-audit.json || test $? -eq 1
+      - name: Windows Chrome visual references
+        if: runner.os == 'Windows'
+        run: npm run test:visual
+      - name: Normalised CI report
+        if: always()
+        env:
+          QUASAR_CI_STATUS: ${{ job.status }}
+        run: node scripts/ci-report.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: quasar-${{ matrix.target }}-${{ github.sha }}
+          path: |
+            test-results/
+            release/installers/
+            site-dist/
+            assets-dist/
+          if-no-files-found: error
+          retention-days: 14
+# No release, deploy, signing service or remote report upload. All jobs use public actions.

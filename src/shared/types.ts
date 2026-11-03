@@ -115,6 +115,8 @@ export type CameraSession = {
   failures: { id: string; ip: string; message: string }[];
 };
 export type Api = {
+  getLanguage: { input: undefined; output: "fr" | "en" };
+  setLanguage: { input: { language: "fr" | "en" }; output: "fr" | "en" };
   previewFactoryReset: { input: { ids: string[] }; output: FactoryResetPlan };
   applyFactoryReset: {
     input: { planId: string; confirmation: string };

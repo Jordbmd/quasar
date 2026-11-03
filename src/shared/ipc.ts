@@ -33,6 +33,8 @@ export type Reply<T = unknown> =
 
 /** Snapshots remain readable during an exclusive operation; camera I/O does not. */
 export const operationMode = {
+  getLanguage: "snapshot",
+  setLanguage: "snapshot",
   state: "snapshot",
   getDefaults: "snapshot",
   listDefaultsRuns: "snapshot",

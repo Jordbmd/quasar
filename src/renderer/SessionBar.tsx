@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useState } from "react";
 import { ShieldCheck, LogOut, RefreshCw } from "lucide-react";
 import type { CameraSession } from "../shared/types";
@@ -34,10 +35,14 @@ export function SessionBar({
       <Button
         className="session-trigger"
         aria-label={
-          session?.active ? "Gérer la connexion aux caméras" : "Se connecter"
+          session?.active
+            ? `${session.username || t("Session active")} ${t("{0} / {1} caméras connectées", session.connected, session.total)} · ${t("Gérer la connexion aux caméras")}`
+            : `${t("Se connecter")} ${t("Connexion aux caméras")}`
         }
         title={
-          session?.active ? "Gérer la connexion aux caméras" : "Se connecter"
+          session?.active
+            ? t("Gérer la connexion aux caméras")
+            : t("Se connecter")
         }
         disabled={busy}
         onClick={() => {
@@ -50,21 +55,25 @@ export function SessionBar({
         <span>
           <strong>
             {session?.active
-              ? session.username || "Session active"
-              : "Se connecter"}
-          </strong>
+              ? session.username || t("Session active")
+              : t("Se connecter")}
+          </strong>{" "}
           <small>
             {session?.active
-              ? `${session.connected} / ${session.total} caméras connectées`
-              : "Connexion aux caméras"}
+              ? t(
+                  "{0} / {1} caméras connectées",
+                  session.connected,
+                  session.total,
+                )
+              : t("Connexion aux caméras")}
           </small>
         </span>
       </Button>
-      <Modal open={open} title="Connexion à l’application" onClose={close}>
+      <Modal open={open} title={t("Connexion à l’application")} onClose={close}>
         {session?.active && (
           <div className="session-dialog-state">
             <Status kind={partial ? "warning" : "success"}>
-              {session.connected} / {session.total} caméras connectées ·{" "}
+              {session.connected} / {session.total} {t("caméras connectées ·")}{" "}
               {session.username}
             </Status>
             {partial && (
@@ -78,7 +87,7 @@ export function SessionBar({
                 }}
               >
                 <RefreshCw size={16} />
-                Réessayer les connexions
+                {t("Réessayer les connexions")}
               </Button>
             )}
             <Button
@@ -91,13 +100,14 @@ export function SessionBar({
               }}
             >
               <LogOut size={16} />
-              Déconnecter
+              {t("Déconnecter")}
             </Button>
           </div>
         )}
         <p className="session-help">
-          Ces identifiants seront utilisés pour toutes les caméras détectées.
-          Chaque caméra doit accepter ce compte.
+          {t(
+            "Ces identifiants seront utilisés pour toutes les caméras détectées. Chaque caméra doit accepter ce compte.",
+          )}
         </p>
         <form
           className="manual-form"
@@ -111,7 +121,7 @@ export function SessionBar({
             })();
           }}
         >
-          <Field label="Identifiant">
+          <Field label={t("Identifiant")}>
             <input
               autoFocus
               autoComplete="off"
@@ -120,7 +130,7 @@ export function SessionBar({
               onChange={(e) => setUsername(e.target.value)}
             />
           </Field>
-          <Field label="Mot de passe">
+          <Field label={t("Mot de passe")}>
             <input
               type="password"
               autoComplete="off"
@@ -130,11 +140,12 @@ export function SessionBar({
             />
           </Field>
           <small>
-            Identifiants conservés uniquement pour cette session, sans
-            enregistrement sur le disque.
+            {t(
+              "Identifiants conservés uniquement pour cette session, sans enregistrement sur le disque.",
+            )}
           </small>
           <Button className="primary" type="submit" disabled={busy || !ready}>
-            Connecter les caméras
+            {t("Connecter les caméras")}
           </Button>
         </form>
       </Modal>

@@ -1,4 +1,7 @@
 node_modules/
+.local/
+site-dist/
+assets-dist/
 dist/
 # Données privées : sessions, rapports, sauvegardes et captures matérielles.
 .runtime/

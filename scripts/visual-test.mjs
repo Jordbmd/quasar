@@ -3,6 +3,10 @@ import assert from "node:assert/strict";
 import sharp from "sharp";
 import { start, visit } from "./storybook-harness.mjs";
 const update = process.argv.includes("--update"),
+  baselineDirectory =
+    process.platform === "win32"
+      ? "tests/visual-baselines/windows-chrome"
+      : "tests/visual-baselines",
   h = await start(),
   results = [];
 const cases = [
@@ -15,12 +19,12 @@ const cases = [
 ];
 try {
   await mkdir("test-results/visual", { recursive: true });
-  await mkdir("tests/visual-baselines", { recursive: true });
+  await mkdir(baselineDirectory, { recursive: true });
   for (const theme of ["dark", "light"])
     for (const id of cases) {
       await visit(h, id, theme);
       const name = `${id}-${theme}.png`,
-        file = `tests/visual-baselines/${name}`;
+        file = `${baselineDirectory}/${name}`;
       const shot = await h.page.screenshot({ animations: "disabled" });
       await writeFile(`test-results/visual/${name}`, shot);
       if (update) {
@@ -98,7 +102,17 @@ try {
   }
   await writeFile(
     "test-results/visual/results.json",
-    JSON.stringify({ update, results }, null, 2),
+    JSON.stringify(
+      {
+        update,
+        baselineDirectory,
+        platform: process.platform,
+        browser: h.context.browser().version(),
+        results,
+      },
+      null,
+      2,
+    ),
   );
   assert.deepEqual(
     results.filter((x) => x.ratio > 0.001),

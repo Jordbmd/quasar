@@ -1,7 +1,8 @@
+import { displayDefaultValue as defaultValueLabel } from "./format";
+import { t } from "../shared/i18n";
 import React, { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import {
-  defaultValueLabel,
   type DefaultRow,
   type DefaultsCameraPlan,
   type DefaultsPlan,
@@ -47,29 +48,35 @@ function CameraResult({
     >
       <summary tabIndex={0}>
         <span className="review-camera-title">
-          Caméra <code>{camera.ip}</code>
-          <small>{rows.length} réglages au total</small>
+          {t("Caméra")} <code>{camera.ip}</code>
+          <small>
+            {rows.length} {t("réglages au total")}
+          </small>
         </span>
         <span className="review-camera-counts">
           {error && (
-            <span className="review-count errors">Contrôle à reprendre</span>
+            <span className="review-count errors">
+              {t("Contrôle à reprendre")}
+            </span>
           )}
           {sections.map((section) => {
             const count = sectionRows(rows, section).length;
             return (
               count > 0 && (
                 <span key={section.id} className={`review-count ${section.id}`}>
-                  {count} {section.label.toLocaleLowerCase("fr")}
+                  {count} {t(section.label).toLocaleLowerCase()}
                 </span>
               )
             );
           })}
-          {!rows.length && !error && <span>Aucun réglage à afficher</span>}
+          {!rows.length && !error && (
+            <span>{t("Aucun réglage à afficher")}</span>
+          )}
         </span>
       </summary>
       {open && (
         <div className="review-camera-body">
-          {error && <Alert kind="warning">{error}</Alert>}
+          {error && <Alert kind="warning">{t(error)}</Alert>}
           {sections.map((section) => {
             const entries = sectionRows(rows, section);
             if (!entries.length) return null;
@@ -79,7 +86,7 @@ function CameraResult({
                 key={section.id}
               >
                 <summary tabIndex={0}>
-                  {section.label} <span>{entries.length}</span>
+                  {t(section.label)} <span>{entries.length}</span>
                 </summary>
                 <dl>
                   {entries.map((r) => (
@@ -88,40 +95,42 @@ function CameraResult({
                       className={`defaults-result-row ${r.state}`}
                     >
                       <dt>
-                        {r.label}
-                        <small>{rowStatus(r)}</small>
+                        {t(r.label)}
+                        <small>{t(rowStatus(r))}</small>
                       </dt>
                       <dd>
                         <div className="review-values">
                           {r.before !== undefined && (
                             <span>
-                              <small>Avant</small>
-                              {r.before || "Non renseigné"}
+                              <small>{t("Avant")}</small>
+                              {r.before || t("Non renseigné")}
                             </span>
                           )}
                           <span>
-                            <small>Valeur souhaitée</small>
+                            <small>{t("Valeur souhaitée")}</small>
                             {defaultValueLabel(r.value)}
                           </span>
                           {r.observed !== undefined && (
                             <span>
-                              <small>Valeur relue</small>
+                              <small>{t("Valeur relue")}</small>
                               {defaultValueLabel(r.observed)}
                             </span>
                           )}
                         </div>
                         {["errors", "manual", "unsupported"].includes(
                           section.id,
-                        ) && <p className="review-reason">{r.message}</p>}
+                        ) && <p className="review-reason">{t(r.message)}</p>}
                         <details className="review-control-details">
-                          <summary tabIndex={0}>Détails du contrôle</summary>
-                          {r.code && <p>{issueLabels[r.code]}</p>}
+                          <summary tabIndex={0}>
+                            {t("Détails du contrôle")}
+                          </summary>
+                          {r.code && <p>{t(issueLabels[r.code])}</p>}
                           {!["errors", "manual", "unsupported"].includes(
                             section.id,
-                          ) && <p>{r.message}</p>}
+                          ) && <p>{t(r.message)}</p>}
                           {r.issues?.map((issue, i) => (
                             <p key={i}>
-                              {issueLabels[issue.code]} : {issue.message}
+                              {t(issueLabels[issue.code])} : {t(issue.message)}
                             </p>
                           ))}
                         </details>
@@ -135,13 +144,13 @@ function CameraResult({
           <Button
             disabled={busy}
             onClick={() =>
-              void run("Ouverture de l’interface de la caméra", () =>
+              void run(t("Ouverture de l’interface de la caméra"), () =>
                 window.sezaam.call("openWeb", { id: camera.id }),
               )
             }
           >
             <ExternalLink size={14} />
-            Interface constructeur
+            {t("Interface constructeur")}
           </Button>
         </div>
       )}
@@ -167,12 +176,16 @@ export function DefaultsResults({
     <>
       <p className="help-text review-scope">
         {report
-          ? "Dépliez une caméra pour consulter son bilan. Les erreurs et les interventions manuelles apparaissent en premier."
-          : "Dépliez une caméra pour consulter ses réglages. Les erreurs et les interventions manuelles apparaissent en premier. Le bouton Appliquer concerne les réglages compatibles de toutes les caméras de ce bilan, même repliées."}
+          ? t(
+              "Dépliez une caméra pour consulter son bilan. Les erreurs et les interventions manuelles apparaissent en premier.",
+            )
+          : t(
+              "Dépliez une caméra pour consulter ses réglages. Les erreurs et les interventions manuelles apparaissent en premier. Le bouton Appliquer concerne les réglages compatibles de toutes les caméras de ce bilan, même repliées.",
+            )}
       </p>
       <div
         className="review-camera-accordions"
-        aria-label="Résultats par caméra, par IP croissante"
+        aria-label={t("Résultats par caméra, par IP croissante")}
       >
         {cameras.map((result) => (
           <CameraResult
@@ -182,7 +195,7 @@ export function DefaultsResults({
             run={run}
           />
         ))}
-        {!cameras.length && <p>Aucune caméra dans ce bilan.</p>}
+        {!cameras.length && <p>{t("Aucune caméra dans ce bilan.")}</p>}
       </div>
     </>
   );

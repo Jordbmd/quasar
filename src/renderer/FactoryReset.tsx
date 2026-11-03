@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useEffect, useState } from "react";
 import type { Camera } from "../shared/types";
 import {
@@ -51,28 +52,28 @@ export function FactoryResetDialog({
   return (
     <Modal
       open
-      title="Remise à zéro d’usine"
+      title={t("Remise à zéro d’usine")}
       onClose={() => {
         if (!busy) onClose();
       }}
     >
       <div className="addressing-review factory-reset-review">
         <Alert kind="danger">
-          Le reset complet efface les réglages des caméras. Leurs IP et
-          identifiants peuvent revenir aux valeurs d’usine. Cette action est
-          irréversible ; le profil Sezaam enregistré dans Quasar est conservé.
+          {t(
+            "Le reset complet efface les réglages des caméras. Leurs IP et identifiants peuvent revenir aux valeurs d’usine. Cette action est irréversible ; le profil Sezaam enregistré dans Quasar est conservé.",
+          )}
         </Alert>
         <p>
-          Les caméras sont traitées par IP croissante. Les IP en conflit sont
-          exclues. Le lot s’arrête à la première erreur ou réponse incertaine,
-          sans renvoyer la commande.
+          {t(
+            "Les caméras sont traitées par IP croissante. Les IP en conflit sont exclues. Le lot s’arrête à la première erreur ou réponse incertaine, sans renvoyer la commande.",
+          )}
         </p>
-        {error && <Alert kind="danger">{error}</Alert>}
+        {error && <Alert kind="danger">{t(error)}</Alert>}
         {!plan || plan.phase === "preview" ? (
           <Button
             disabled={busy || !cameras.length}
             onClick={() =>
-              execute("Vérification des caméras avant reset", async () => {
+              execute(t("Vérification des caméras avant reset"), async () => {
                 setPlan(undefined);
                 setConfirmation("");
                 setPlan(
@@ -83,19 +84,19 @@ export function FactoryResetDialog({
               })
             }
           >
-            Vérifier les {cameras.length} caméras
+            {t("Vérifier les")} {cameras.length} {t("caméras")}
           </Button>
         ) : null}
         {plan && (
           <>
             <div className="addressing-table">
               <table>
-                <caption>Caméras concernées — reset complet</caption>
+                <caption>{t("Caméras concernées — reset complet")}</caption>
                 <thead>
                   <tr>
-                    <th>Caméra</th>
-                    <th>Identité</th>
-                    <th>État</th>
+                    <th>{t("Caméra")}</th>
+                    <th>{t("Identité")}</th>
+                    <th>{t("État")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -104,15 +105,17 @@ export function FactoryResetDialog({
                       <td>
                         <strong>{row.camera.ip}</strong>
                         <small>
-                          {row.camera.name || row.camera.model || "Caméra"}
+                          {row.camera.name || row.camera.model || t("Caméra")}
                         </small>
                       </td>
                       <td>
-                        {row.camera.serial || row.camera.mac || "Non vérifiée"}
+                        {row.camera.serial ||
+                          row.camera.mac ||
+                          t("Non vérifiée")}
                       </td>
                       <td>
-                        <strong>{labels[row.state]}</strong>
-                        <small>{row.message}</small>
+                        <strong>{t(labels[row.state])}</strong>
+                        <small>{t(row.message)}</small>
                       </td>
                     </tr>
                   ))}
@@ -123,11 +126,13 @@ export function FactoryResetDialog({
             {plan.phase === "preview" && ready > 0 && (
               <>
                 <p>
-                  {ready} caméra(s) seront réinitialisées.{" "}
-                  {plan.rows.length - ready} exclue(s). Une dernière
-                  confirmation affichera les adresses avant l’envoi.
+                  {ready} {t("caméra(s) seront réinitialisées.")}{" "}
+                  {plan.rows.length - ready}{" "}
+                  {t(
+                    "exclue(s). Une dernière confirmation affichera les adresses avant l’envoi.",
+                  )}
                 </p>
-                <Field label="Saisissez EFFACER pour autoriser le reset">
+                <Field label={t("Saisissez EFFACER pour autoriser le reset")}>
                   <input
                     autoComplete="off"
                     spellCheck={false}
@@ -140,7 +145,7 @@ export function FactoryResetDialog({
                   variant="destructive"
                   disabled={busy || confirmation !== resetConfirmation}
                   onClick={() =>
-                    execute("Remise à zéro des caméras", async () => {
+                    execute(t("Remise à zéro des caméras"), async () => {
                       const reviewed = plan;
                       // Consume the review in the UI as well as in the main process.
                       setPlan({ ...reviewed, phase: "running" });
@@ -161,7 +166,7 @@ export function FactoryResetDialog({
                     })
                   }
                 >
-                  Réinitialiser {ready} caméra(s)
+                  {t("Réinitialiser")} {ready} {t("caméra(s)")}
                 </Button>
               </>
             )}
@@ -173,31 +178,28 @@ export function FactoryResetDialog({
                   ).length
                 }{" "}
                 / {plan.rows.filter((r) => r.state !== "blocked").length}{" "}
-                caméra(s) traitée(s). Ne débranchez pas le réseau pendant
-                l’envoi.
+                {t(
+                  "caméra(s) traitée(s). Ne débranchez pas le réseau pendant l’envoi.",
+                )}
               </p>
             )}
             {plan.phase === "complete" && (
               <>
                 <Alert kind="warning">
-                  Une commande acceptée ne confirme pas à elle seule le retour
-                  aux paramètres d’usine. Attendez le redémarrage, puis
-                  redétectez les caméras et reconnectez-vous avec leurs
-                  identifiants actuels. Si plusieurs partagent la même IP
-                  d’usine, utilisez « Attribuer les IP » pour vérifier la
-                  résolution par identifiant constructeur sans débranchement.
-                  Une caméra incompatible nécessite encore une isolation.
+                  {t(
+                    "Une commande acceptée ne confirme pas à elle seule le retour aux paramètres d’usine. Attendez le redémarrage, puis redétectez les caméras et reconnectez-vous avec leurs identifiants actuels. Si plusieurs partagent la même IP d’usine, utilisez « Attribuer les IP » pour vérifier la résolution par identifiant constructeur sans débranchement. Une caméra incompatible nécessite encore une isolation.",
+                  )}
                 </Alert>
                 <Button
                   disabled={busy}
                   onClick={() =>
-                    execute("Redétection après reset", async () => {
+                    execute(t("Redétection après reset"), async () => {
                       await window.sezaam.call("discover", undefined);
                       onApplied();
                     })
                   }
                 >
-                  Redétecter les caméras
+                  {t("Redétecter les caméras")}
                 </Button>
               </>
             )}

@@ -2,7 +2,11 @@
 
 État de consolidation au 27 octobre 2026. Aucun hub, switch ou caméra utilisé pendant cette validation. Les résultats matériels historiques de la V1 ne valident pas les nouveaux adaptateurs système.
 
-## Matrice de validation
+## Mise à jour du 3 novembre 2026
+
+La matrice ci-dessous décrit la consolidation historique. La branche de préparation production ajoute une CI publique native et des artefacts statiques. Les preuves de cette branche, notamment Windows exécuté localement et les essais restant nécessaires sur macOS/Linux, sont séparées dans [PRODUCTION.md](PRODUCTION.md). Aucun test historique ne vaut validation de ce commit.
+
+## Matrice historique de validation
 
 | Cible | Implémenté | Compilé | Exécuté | Tests sans matériel | Matériel |
 | --- | --- | --- | --- | --- | --- |
@@ -34,6 +38,7 @@ Racine : `app.getPath("appData")/sezaam-camera-tool`, identifiant historique inc
 | Historique profil / resets / sauvegardes web | profile-journal/ |
 | Sauvegardes OSD / réseau | osd/ et backups/ |
 | Préférences, stockage local Chromium et ses caches | electron/ |
+| Langue FR/EN partagée avec les menus natifs | language.json |
 | Logs Electron | logs/ |
 | Configuration temporaire du relais, sans identifiants | temporary/ |
 

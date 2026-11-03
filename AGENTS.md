@@ -9,7 +9,7 @@ Application Electron locale de configuration de caméras Ethernet. Lire README.m
 - `src/main/service.ts` : orchestration des sessions/opérations. Les opérations spécialisées sont dans defaults, addressing, factory-reset, sync-clock, osd et encoding.
 - `src/main/platform.ts` et `platforms/` : réseau système en lecture seule. Ne pas confondre réseau du poste et configuration réseau d’une caméra.
 - `src/main/onvif.ts`, `vendor-transport.ts` : transports et compatibilités de firmware.
-- `src/shared/types.ts`, `ipc-schemas.ts`, `ipc.ts` : contrat, validation et politiques IPC. Ajouter une méthode exige une entrée dans les trois contrats et un cas dispatch typé.
+- `src/shared/types.ts`, `ipc-schemas.ts`, `ipc.ts` : contrat, validation et politiques IPC. Ajouter une méthode exige une entrée dans les trois contrats et un traitement typé (préférences locales dans IpcController, opérations caméra dans dispatch).
 - `src/renderer/entry.tsx`, `main.tsx` : composition React. Pages dans `pages/`, réception des lectures dans `camera-reader.ts`, brouillons dans `Settings.tsx`.
 - Aucun import main/Electron/Node depuis renderer ou shared. Vérifié par dependency-cruiser.
 
@@ -32,3 +32,11 @@ Application Electron locale de configuration de caméras Ethernet. Lire README.m
 Exécuter `npm run setup:video` pour le binaire officiel vérifié. Les intégrations RTSP ne doivent jamais être ignorées parce que le binaire manque. Injecter discovery/système, utiliser uniquement 127.0.0.1 pour les serveurs. Ne pas lancer deux builds sur les mêmes sorties pendant un test UI. Ne pas augmenter les délais pour cacher une course. Une simulation Windows n’est pas une exécution Windows ; aucune caméra réelle n’est validée par ces tests.
 
 `npm run package:dir` prépare un paquet autonome local, sans publication. Ne pas remplacer le lanceur installé avant validation explicite. Voir docs/PLATEFORMES.md pour les limites et la migration. Ne pas publier de release ni committer/pousser sans demande explicite.
+
+## Préparation production
+
+Lire `docs/standards/production.md` (contrat commun 1.0.1) et `docs/PRODUCTION.md`. Quasar reste local et sans compte cloud obligatoire. Ne jamais envoyer identifiants, IP/MAC, noms, réglages, journaux ou images caméra à la plateforme. Les seuls rapports CI sont techniques, normalisés et produits comme artefacts.
+
+`src/shared/translations.json` contient les textes FR/EN ; `t` ne reçoit que les textes rédigés par l’application. Conserver les interpolations et ne jamais traduire une identité ou une valeur OSD. Langue native dans `language.json`, préférence thème héritée `sezaam-theme` (`light|dark|system`). Tester changement et redémarrage réels dans le smoke Electron.
+
+`build:web` assemble le portail public `site-dist/` et l’espace technique `assets-dist/`, Storybook sous `/storybook/`. Les deux réutilisent les tokens/assets existants. `test:web` vérifie langues, thèmes, mobile, Axe et absence de requêtes externes. L’origine asset doit être protégée avant exposition. CI publique épinglée, trois OS natifs, `--publish never`, manifest SHA-256 ; ne pas confondre package, installation native, signature/notarisation et recette caméra. Aucune publication ni achat dans ce lot.

@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import { syncClock } from "./sync-clock";
 import { readDaylight } from "./daylight";
 import { FactoryReset } from "./factory-reset";
@@ -616,7 +617,18 @@ export class CameraService {
     if (
       confirmation &&
       !(await this.confirm(
-        `${before.model || "Caméra"} · ${before.ip}\nSérie : ${before.serial || "non disponible"} · MAC : ${before.mac || "non disponible"}\n\n${description}\n\nCette action modifie uniquement cette caméra. Continuer ?`,
+        [
+          `${before.model || t("Caméra")} · ${before.ip}`,
+          t(
+            "Série : {0} · MAC : {1}",
+            before.serial || t("non disponible"),
+            before.mac || t("non disponible"),
+          ),
+          "",
+          t(description),
+          "",
+          t("Cette action modifie uniquement cette caméra. Continuer ?"),
+        ].join("\n"),
       ))
     )
       throw new Error("Opération annulée.");
@@ -669,8 +681,18 @@ export class CameraService {
     conn = await this.approve(
       v.id,
       allowDuplicate
-        ? `ATTENTION — DOUBLON IP DÉTECTÉ\n${old.ip} → ${v.address} / ${v.mask}\nCette adresse est déjà utilisée. Voulez-vous forcer son attribution ? L’autre caméra ne sera pas modifiée. Les appareils pourront devenir inaccessibles. La commande sera envoyée une seule fois, sans connexion à l’IP partagée. Il faudra résoudre le conflit avant toute autre modification.`
-        : `Adresse IP : ${old.ip} → ${v.address}\nMasque : ${v.mask}\nMode : statique\n\nLa connexion sera rétablie et la nouvelle adresse vérifiée.`,
+        ? t(
+            "ATTENTION — DOUBLON IP DÉTECTÉ\n{0} → {1} / {2}\nCette adresse est déjà utilisée. Voulez-vous forcer son attribution ? L’autre caméra ne sera pas modifiée. Les appareils pourront devenir inaccessibles. La commande sera envoyée une seule fois, sans connexion à l’IP partagée. Il faudra résoudre le conflit avant toute autre modification.",
+            old.ip,
+            v.address,
+            v.mask,
+          )
+        : t(
+            "Adresse IP : {0} → {1}\nMasque : {2}\nMode : statique\n\nLa connexion sera rétablie et la nouvelle adresse vérifiée.",
+            old.ip,
+            v.address,
+            v.mask,
+          ),
       allowDuplicate || !confirmed,
     );
     await this.conflict(
@@ -924,14 +946,22 @@ export class CameraService {
     if (!ready.length) return saved.plan;
     if (
       !(await this.confirm(
-        "Attribuer les adresses suivantes aux caméras identifiées ?\n\n" +
+        t("Attribuer les adresses suivantes aux caméras identifiées ?\n\n") +
           ready
-            .map(
-              (r) =>
-                `${r.name} · ${r.identity} : ${r.from} → ${r.to} (casier ${r.locker})`,
+            .map((r) =>
+              t(
+                "{0} · {1} : {2} → {3} (casier {4})",
+                r.name,
+                r.identity,
+                r.from,
+                r.to,
+                r.locker,
+              ),
             )
             .join("\n") +
-          "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
+          t(
+            "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
+          ),
       ))
     )
       throw Error("Opération annulée.");
@@ -2088,7 +2118,16 @@ export class CameraService {
       };
     conn = await this.approve(
       v.id,
-      `Modifier le réseau de cette caméra :\n${JSON.stringify({ dhcp: v.dhcp, address: v.address, mask: v.mask, gateway: v.gateway, dns: v.dns })}\nUne coupure de connexion est possible.`,
+      t(
+        "Modifier le réseau de cette caméra :\n{0}\nUne coupure de connexion est possible.",
+        JSON.stringify({
+          dhcp: v.dhcp,
+          address: v.address,
+          mask: v.mask,
+          gateway: v.gateway,
+          dns: v.dns,
+        }),
+      ),
       true,
     );
     const freshNIC = matchInterface(
@@ -2742,7 +2781,18 @@ export class CameraService {
         );
         conn = await this.approve(
           v.id,
-          `Modifier le profil vidéo ${v.token}\nAvant : ${JSON.stringify(entry.config.resolution)}, ${entry.config.rateControl?.frameRateLimit} FPS\nAprès : ${v.width} × ${v.height}, ${v.fps} FPS${v.quality !== undefined ? " · qualité " + v.quality : ""}${v.bitrate !== undefined ? " · débit " + v.bitrate + " kb/s" : ""}\nEncodage demandé : ${v.codec ?? entry.config.encoding}. Les profils partageant cet encodeur sont concernés.`,
+          t(
+            "Modifier le profil vidéo {0}\nAvant : {1}, {2} FPS\nAprès : {3} × {4}, {5} FPS{6}{7}\nEncodage demandé : {8}. Les profils partageant cet encodeur sont concernés.",
+            v.token,
+            JSON.stringify(entry.config.resolution),
+            entry.config.rateControl?.frameRateLimit,
+            v.width,
+            v.height,
+            v.fps,
+            v.quality !== undefined ? " · qualité " + v.quality : "",
+            v.bitrate !== undefined ? " · débit " + v.bitrate + " kb/s" : "",
+            v.codec ?? entry.config.encoding,
+          ),
           false,
         );
         await this.video.stop();
@@ -2796,7 +2846,11 @@ export class CameraService {
         }
         conn = await this.approve(
           v.id,
-          `Modifier l’image\nAvant : ${JSON.stringify(detail.image.data.settings)}\nValeurs demandées : ${JSON.stringify(v.values)}\nLe filtre infrarouge n’est pas une commande de LED.`,
+          t(
+            "Modifier l’image\nAvant : {0}\nValeurs demandées : {1}\nLe filtre infrarouge n’est pas une commande de LED.",
+            JSON.stringify(detail.image.data.settings),
+            JSON.stringify(v.values),
+          ),
           false,
         );
         const values = Object.fromEntries(

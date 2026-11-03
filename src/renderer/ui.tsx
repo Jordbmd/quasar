@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React from "react";
 import { Info } from "lucide-react";
 import type { Feature } from "../shared/types";
@@ -9,14 +10,14 @@ export function Capability({ feature }: { feature?: Feature }) {
   return (
     <p className="capability">
       <Info size={15} />
-      {feature?.message ||
+      {(feature?.message && t(feature.message)) ||
         (feature?.state === "loading"
-          ? "Lecture en cours…"
+          ? t("Lecture en cours…")
           : feature?.state === "unsupported"
-            ? "Non pris en charge par cette caméra."
+            ? t("Non pris en charge par cette caméra.")
             : feature?.state === "error"
-              ? "Lecture impossible. Relisez la caméra."
-              : "Connectez une caméra pour lire ses capacités.")}
+              ? t("Lecture impossible. Relisez la caméra.")
+              : t("Connectez une caméra pour lire ses capacités."))}
     </p>
   );
 }

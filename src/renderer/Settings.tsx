@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import { osdCorners, type WebOSD } from "../shared/web-osd";
 import {
   Button,
@@ -26,7 +27,7 @@ import { osdPositionLabels, osdTextLabels } from "../shared/osd-options";
 import { networkValues, videoValues, options } from "./camera-form-values";
 export function Settings({
   detail,
-  unavailable = "Sélectionnez une caméra pour afficher ses paramètres.",
+  unavailable = t("Sélectionnez une caméra pour afficher ses paramètres."),
   busy,
   onDirty,
   run,
@@ -162,7 +163,7 @@ export function Settings({
   const updateVideo = (key: keyof typeof video, v: string) =>
     setVideo((n) => ({ ...n, [key]: v }));
   const apply = () =>
-    void run("Application des modifications", async () => {
+    void run(t("Application des modifications"), async () => {
       if (!detail) return;
       setResults([]);
       const outcome: { parameter: string; result: WriteResult }[] = [];
@@ -213,7 +214,9 @@ export function Settings({
           input.govLength = Number(video.govLength);
         if (video.constantBitrate !== baseVideo.constantBitrate)
           input.constantBitrate = video.constantBitrate === "true";
-        if (!(await step("Vidéo", () => window.sezaam.call("setVideo", input))))
+        if (
+          !(await step(t("Vidéo"), () => window.sezaam.call("setVideo", input)))
+        )
           return;
       }
       if (
@@ -250,7 +253,7 @@ export function Settings({
       if (
         disabledOSDs.length &&
         !(await step(
-          "Désactivation OSD",
+          t("Désactivation OSD"),
           () => window.sezaam.call("disableOSD", { id, tokens: disabledOSDs }),
           () => setDisabledOSDs([]),
         ))
@@ -259,7 +262,7 @@ export function Settings({
       if (
         restoreOSD &&
         !(await step(
-          "Activation OSD",
+          t("Activation OSD"),
           () => window.sezaam.call("restoreOSD", { id }),
           () => setRestoreOSD(false),
         ))
@@ -268,7 +271,7 @@ export function Settings({
       if (
         newOSD &&
         !(await step(
-          "Nouvelle incrustation OSD",
+          t("Nouvelle incrustation OSD"),
           () =>
             window.sezaam.call("createOSD", {
               id,
@@ -294,7 +297,7 @@ export function Settings({
         if (net.dns !== baseNet.dns)
           input.dns = net.dns.split(/[,\s]+/).filter(Boolean);
         if (
-          !(await step("Réseau", () =>
+          !(await step(t("Réseau"), () =>
             window.sezaam.call("setCameraNetwork", input),
           ))
         )
@@ -313,7 +316,10 @@ export function Settings({
   if (!detail)
     return (
       <Panel className="settings-empty panel">
-        <EmptyState icon={SlidersHorizontal} title="Paramètres de la caméra">
+        <EmptyState
+          icon={SlidersHorizontal}
+          title={t("Paramètres de la caméra")}
+        >
           {unavailable}
         </EmptyState>
       </Panel>
@@ -324,7 +330,7 @@ export function Settings({
         <Panel className="panel settings-panel">
           <h3>
             <Network size={22} />
-            Configuration réseau
+            {t("Configuration réseau")}
           </h3>
           <fieldset
             disabled={
@@ -334,36 +340,36 @@ export function Settings({
             }
           >
             <legend className="sr-only">
-              Configuration réseau de la caméra
+              {t("Configuration réseau de la caméra")}
             </legend>
-            <Field label="Mode IP">
+            <Field label={t("Mode IP")}>
               <select
                 value={net.dhcp ? "dhcp" : "static"}
                 onChange={(e) => updateNet("dhcp", e.target.value === "dhcp")}
               >
-                <option value="static">Statique</option>
+                <option value="static">{t("Statique")}</option>
                 <option value="dhcp">DHCP</option>
               </select>
             </Field>
-            <Field label="Adresse IP">
+            <Field label={t("Adresse IP")}>
               <input
                 className="mono"
                 value={net.address}
                 disabled={net.dhcp}
-                placeholder="Non disponible"
+                placeholder={t("Non disponible")}
                 onChange={(e) => updateNet("address", e.target.value)}
               />
             </Field>
-            <Field label="Masque de sous-réseau">
+            <Field label={t("Masque de sous-réseau")}>
               <input
                 className="mono"
                 value={net.mask}
                 disabled={net.dhcp}
-                placeholder="Non disponible"
+                placeholder={t("Non disponible")}
                 onChange={(e) => updateNet("mask", e.target.value)}
               />
             </Field>
-            <Field label="Passerelle">
+            <Field label={t("Passerelle")}>
               <input
                 className="mono"
                 disabled={detail?.gateway.state !== "available"}
@@ -371,33 +377,33 @@ export function Settings({
                 placeholder={
                   detail?.gateway.state === "available"
                     ? "Aucune"
-                    : "Non disponible"
+                    : t("Non disponible")
                 }
                 onChange={(e) => updateNet("gateway", e.target.value)}
               />
             </Field>
-            <Field label="Serveurs DNS">
+            <Field label={t("Serveurs DNS")}>
               <input
                 className="mono"
                 disabled={detail?.dns.state !== "available"}
                 value={net.dns}
                 placeholder={
                   detail?.dns.state === "available"
-                    ? "Séparés par une virgule"
-                    : "Non disponibles"
+                    ? t("Séparés par une virgule")
+                    : t("Non disponibles")
                 }
                 onChange={(e) => updateNet("dns", e.target.value)}
               />
             </Field>
             <div className="sub-panel">
-              <strong>Aide à l’adressage par casier</strong>
-              <Field label="Numéro de casier">
+              <strong>{t("Aide à l’adressage par casier")}</strong>
+              <Field label={t("Numéro de casier")}>
                 <input
                   type="number"
                   min="1"
                   max="244"
                   value={locker}
-                  placeholder="1 à 244"
+                  placeholder={t("1 à 244")}
                   disabled={net.dhcp}
                   onChange={(e) => {
                     setLocker(e.target.value);
@@ -409,18 +415,20 @@ export function Settings({
                   }}
                 />
               </Field>
-              <small>192.168.1.(casier + 10)</small>
+              <small>{t("192.168.1.(casier + 10)")}</small>
             </div>
             {netDirty && (
               <>
                 <p className="help-text">
-                  Le changement réseau peut couper l’accès. Une confirmation
-                  sera demandée avant envoi.
+                  {t(
+                    "Le changement réseau peut couper l’accès. Une confirmation sera demandée avant envoi.",
+                  )}
                 </p>
                 {net.dhcp && (
                   <p className="help-text">
-                    Un serveur DHCP est nécessaire. La nouvelle adresse sera
-                    recherchée.
+                    {t(
+                      "Un serveur DHCP est nécessaire. La nouvelle adresse sera recherchée.",
+                    )}
                   </p>
                 )}
               </>
@@ -433,11 +441,13 @@ export function Settings({
         <Panel className="panel settings-panel">
           <h3>
             <SlidersHorizontal size={22} />
-            Paramètres vidéo
+            {t("Paramètres vidéo")}
           </h3>
           <fieldset disabled={!editable || detail?.video.state !== "available"}>
-            <legend className="sr-only">Encodage du flux sélectionné</legend>
-            <Field label="Flux à configurer">
+            <legend className="sr-only">
+              {t("Encodage du flux sélectionné")}
+            </legend>
+            <Field label={t("Flux à configurer")}>
               <select
                 value={encoder}
                 disabled={videoDirty}
@@ -450,7 +460,7 @@ export function Settings({
                   setVideo(next);
                 }}
               >
-                <option value="">Choisir un flux</option>
+                <option value="">{t("Choisir un flux")}</option>
                 {entries.map((x) => (
                   <option key={x.profile} value={x.profile}>
                     {x.name || x.profile}
@@ -458,14 +468,15 @@ export function Settings({
                 ))}
               </select>
             </Field>
-            <Field label="Résolution">
+            <Field label={t("Résolution")}>
               <select
                 value={video.resolution}
                 disabled={!o.resolutions.length}
                 onChange={(e) => updateVideo("resolution", e.target.value)}
               >
                 <option value={baseVideo.resolution}>
-                  {baseVideo.resolution.replace("x", " × ") || "Non disponible"}
+                  {baseVideo.resolution.replace("x", " × ") ||
+                    t("Non disponible")}
                 </option>
                 {o.resolutions
                   .filter(
@@ -481,7 +492,7 @@ export function Settings({
                   ))}
               </select>
             </Field>
-            <Field label="FPS (images/s)">
+            <Field label={t("FPS (images/s)")}>
               {o.fpsValues.length ? (
                 <select
                   value={video.fps}
@@ -504,12 +515,12 @@ export function Settings({
                   max={o.fps?.max}
                   value={video.fps}
                   disabled={!o.fps}
-                  placeholder="Non disponible"
+                  placeholder={t("Non disponible")}
                   onChange={(e) => updateVideo("fps", e.target.value)}
                 />
               )}
             </Field>
-            <Field label="Codec vidéo">
+            <Field label={t("Codec vidéo")}>
               <select
                 value={video.codec}
                 disabled={!o.codecs.length}
@@ -526,7 +537,7 @@ export function Settings({
                 }}
               >
                 <option value={baseVideo.codec}>
-                  {baseVideo.codec || "Non disponible"}
+                  {baseVideo.codec || t("Non disponible")}
                 </option>
                 {o.codecs
                   .filter((c) => c !== baseVideo.codec)
@@ -535,7 +546,7 @@ export function Settings({
                   ))}
               </select>
             </Field>
-            <Field label="Contrôle du débit">
+            <Field label={t("Contrôle du débit")}>
               <select
                 value={video.constantBitrate}
                 disabled={!o.rateMode}
@@ -543,28 +554,28 @@ export function Settings({
               >
                 {!o.rateMode ? (
                   <option value={video.constantBitrate}>
-                    Non configurable via ONVIF
+                    {t("Non configurable via ONVIF")}
                   </option>
                 ) : (
                   <>
-                    <option value="false">Variable (VBR)</option>
-                    <option value="true">Constant (CBR)</option>
+                    <option value="false">{t("Variable (VBR)")}</option>
+                    <option value="true">{t("Constant (CBR)")}</option>
                   </>
                 )}
               </select>
             </Field>
-            <Field label="Débit cible (kb/s)">
+            <Field label={t("Débit cible (kb/s)")}>
               <input
                 type="number"
                 min={o.bitrate?.min}
                 max={o.bitrate?.max}
                 disabled={!o.bitrate}
                 value={video.bitrate}
-                placeholder="Non disponible"
+                placeholder={t("Non disponible")}
                 onChange={(e) => updateVideo("bitrate", e.target.value)}
               />
             </Field>
-            <Field label="Qualité">
+            <Field label={t("Qualité")}>
               <input
                 type="number"
                 step="any"
@@ -572,26 +583,27 @@ export function Settings({
                 max={o.quality?.max}
                 disabled={!o.quality}
                 value={video.quality}
-                placeholder="Non disponible"
+                placeholder={t("Non disponible")}
                 onChange={(e) => updateVideo("quality", e.target.value)}
               />
             </Field>
-            <Field label="Intervalle I-Frame">
+            <Field label={t("Intervalle I-Frame")}>
               <input
                 type="number"
                 min={o.gov?.min}
                 max={o.gov?.max}
                 disabled={!o.gov}
                 value={video.govLength}
-                placeholder="Non disponible"
+                placeholder={t("Non disponible")}
                 onChange={(e) => updateVideo("govLength", e.target.value)}
               />
             </Field>
           </fieldset>
           <p className="help-text">
             <Info size={14} />
-            Les choix proviennent des capacités ONVIF. Les profils partageant
-            cet encodeur sont concernés.
+            {t(
+              "Les choix proviennent des capacités ONVIF. Les profils partageant cet encodeur sont concernés.",
+            )}
           </p>
           {entry?.options?.state !== "available" && (
             <Capability feature={entry?.options ?? detail?.video} />
@@ -600,7 +612,7 @@ export function Settings({
         <Panel className="panel settings-panel osd-panel">
           <h3>
             <Type size={22} />
-            Affichage à l’écran (OSD)
+            {t("Affichage à l’écran (OSD)")}
           </h3>
           {detail?.osd.state === "available" && webOSD ? (
             <fieldset disabled={busy}>
@@ -612,9 +624,9 @@ export function Settings({
                     setWebOSD({ ...webOSD, enabled: e.target.checked })
                   }
                 />
-                Activer l’OSD
+                {t("Activer l’OSD")}
               </label>
-              <Field label="Texte affiché">
+              <Field label={t("Texte affiché")}>
                 <input
                   value={webOSD.title}
                   maxLength={64}
@@ -625,13 +637,13 @@ export function Settings({
               </Field>
               {(
                 [
-                  ["titlePosition", "Position du texte"],
-                  ["timePosition", "Date et heure"],
+                  ["titlePosition", t("Position du texte")],
+                  ["timePosition", t("Date et heure")],
                 ] as const
               ).map(([key, label]) => (
-                <Field key={key} label={label}>
+                <Field key={key} label={t(label)}>
                   <select
-                    aria-label={label}
+                    aria-label={t(label)}
                     value={webOSD[key]}
                     onChange={(e) =>
                       setWebOSD({ ...webOSD, [key]: e.target.value })
@@ -645,15 +657,16 @@ export function Settings({
                       )
                       .map(([key, label]) => (
                         <option key={key} value={key}>
-                          {label}
+                          {t(label)}
                         </option>
                       ))}
                   </select>
                 </Field>
               ))}
               <p className="help-text">
-                Les changements sont envoyés avec « Appliquer », puis relus sur
-                la caméra. La désactivation conserve le texte et ses positions.
+                {t(
+                  "Les changements sont envoyés avec « Appliquer », puis relus sur la caméra. La désactivation conserve le texte et ses positions.",
+                )}
               </p>
             </fieldset>
           ) : detail?.osd.state === "available" ? (
@@ -662,7 +675,7 @@ export function Settings({
                 <strong>
                   {osds.length
                     ? `${osds.length} incrustation(s) active(s)`
-                    : "OSD désactivé"}
+                    : t("OSD désactivé")}
                 </strong>
                 {osds.length > 0 ? (
                   <Button
@@ -676,8 +689,8 @@ export function Settings({
                     }
                   >
                     {disabledOSDs.length === osds.length
-                      ? "Conserver l’OSD"
-                      : "Désactiver l’OSD"}
+                      ? t("Conserver l’OSD")
+                      : t("Désactiver l’OSD")}
                   </Button>
                 ) : detail.osdRestoreAvailable ? (
                   <label className="checkbox">
@@ -687,11 +700,11 @@ export function Settings({
                       checked={restoreOSD}
                       onChange={(e) => setRestoreOSD(e.target.checked)}
                     />
-                    Activer l’OSD sauvegardé
+                    {t("Activer l’OSD sauvegardé")}
                   </label>
                 ) : canCreate.length > 0 && !newOSD ? (
                   <Button disabled={busy} onClick={beginOSD}>
-                    Activer l’OSD
+                    {t("Activer l’OSD")}
                   </Button>
                 ) : null}
               </div>
@@ -717,14 +730,17 @@ export function Settings({
                           }
                         />
                         <span>
-                          {osdTextLabels[item.textType] ||
+                          {(osdTextLabels[item.textType] &&
+                            t(osdTextLabels[item.textType])) ||
                             (item.text
-                              ? "Afficher le texte"
-                              : "Date / heure ou texte")}
+                              ? t("Afficher le texte")
+                              : t("Date / heure ou texte"))}
                         </span>
                       </label>
                       <small>
-                        {osdPositionLabels[item.position] || item.position}
+                        {osdPositionLabels[item.position]
+                          ? t(osdPositionLabels[item.position])
+                          : item.position}
                       </small>
                       <OSDFields
                         values={{ ...item, ...edits }}
@@ -741,8 +757,9 @@ export function Settings({
                       />
                       {caps?.state !== "available" && (
                         <p className="help-text">
-                          Les options de position et de style ne sont pas
-                          exposées par cette caméra.
+                          {t(
+                            "Les options de position et de style ne sont pas exposées par cette caméra.",
+                          )}
                         </p>
                       )}
                     </div>
@@ -751,9 +768,9 @@ export function Settings({
               </div>
               {newOSD && (
                 <div className="osd-create">
-                  <h4>Nouvelle incrustation</h4>
+                  <h4>{t("Nouvelle incrustation")}</h4>
                   {canCreate.length > 1 && (
-                    <Field label="Source vidéo OSD">
+                    <Field label={t("Source vidéo OSD")}>
                       <select
                         value={newOSD.source}
                         disabled={busy}
@@ -786,7 +803,7 @@ export function Settings({
                     }
                   />
                   <Button disabled={busy} onClick={() => setNewOSD(undefined)}>
-                    Retirer cette incrustation
+                    {t("Retirer cette incrustation")}
                   </Button>
                 </div>
               )}
@@ -794,27 +811,29 @@ export function Settings({
                 canCreate.length > 0 &&
                 (osds.length > 0 || detail.osdRestoreAvailable) && (
                   <Button disabled={busy} onClick={beginOSD}>
-                    Ajouter une incrustation
+                    {t("Ajouter une incrustation")}
                   </Button>
                 )}
               {!osds.length &&
                 !canCreate.length &&
                 !detail.osdRestoreAvailable && (
                   <p className="help-text">
-                    La caméra ne communique pas d’options de création OSD via
-                    ONVIF. Les réglages propres au fabricant restent accessibles
-                    dans son interface web.
+                    {t(
+                      "La caméra ne communique pas d’options de création OSD via ONVIF. Les réglages propres au fabricant restent accessibles dans son interface web.",
+                    )}
                   </p>
                 )}
               <p className="help-text">
-                Les changements sont envoyés avec « Appliquer ». Les
-                incrustations désactivées sont sauvegardées pour pouvoir les
-                réactiver.
+                {t(
+                  "Les changements sont envoyés avec « Appliquer ». Les incrustations désactivées sont sauvegardées pour pouvoir les réactiver.",
+                )}
               </p>
               {disabledOSDs.length > 0 && (
                 <div className="pending-note">
-                  {disabledOSDs.length} incrustation(s) à supprimer. La
-                  disparition sera vérifiée par relecture.
+                  {disabledOSDs.length}{" "}
+                  {t(
+                    "incrustation(s) à supprimer. La disparition sera vérifiée par relecture.",
+                  )}
                 </div>
               )}
             </>
@@ -824,14 +843,15 @@ export function Settings({
                 <Type size={30} />
                 <strong>
                   {detail
-                    ? "Gestion OSD non disponible"
-                    : "Incrustations de la caméra"}
+                    ? t("Gestion OSD non disponible")
+                    : t("Incrustations de la caméra")}
                 </strong>
               </div>
               <Capability feature={detail?.osd} />
               <p className="help-text">
-                Si ONVIF ne permet pas cette opération, utilisez « Ouvrir
-                l’interface web » sur la fiche caméra.
+                {t(
+                  "Si ONVIF ne permet pas cette opération, utilisez « Ouvrir l’interface web » sur la fiche caméra.",
+                )}
               </p>
             </>
           )}
@@ -839,21 +859,21 @@ export function Settings({
       </div>
       {results.length > 0 && (
         <Panel className="write-results panel" aria-live="polite">
-          <h3>Résultat des modifications</h3>
+          <h3>{t("Résultat des modifications")}</h3>
           {results.map(({ parameter, result }, i) => (
             <div key={i}>
               <strong>
                 {parameter} ·{" "}
                 {result.verified
-                  ? "Vérifié"
+                  ? t("Vérifié")
                   : result.sent
-                    ? "Envoyé · non vérifié"
-                    : "Non vérifié"}
+                    ? t("Envoyé · non vérifié")
+                    : t("Non vérifié")}
               </strong>
-              <p>{result.message}</p>
+              <p>{t(result.message)}</p>
               {result.results?.map((r, j) => (
                 <p key={j}>
-                  {r.verified ? "✓" : "!"} {r.parameter} : {r.message}
+                  {r.verified ? "✓" : "!"} {t(r.parameter)} : {t(r.message)}
                 </p>
               ))}
             </div>
@@ -865,27 +885,27 @@ export function Settings({
           {dirty ? (
             <>
               <span className="unsaved-dot" />
-              Modifications non enregistrées
+              {t("Modifications non enregistrées")}
             </>
           ) : detail ? (
             detail.loading ? (
-              "Lecture des paramètres complémentaires…"
+              t("Lecture des paramètres complémentaires…")
             ) : detail?.readState === "cached" ? (
-              "Informations en mémoire · aucune modification locale"
+              t("Informations en mémoire · aucune modification locale")
             ) : (
-              "Paramètres lus sur la caméra"
+              t("Paramètres lus sur la caméra")
             )
           ) : (
-            "Connectez une caméra pour modifier ses paramètres"
+            t("Connectez une caméra pour modifier ses paramètres")
           )}
         </span>
         <Button className="secondary" disabled={!dirty || busy} onClick={reset}>
           <X size={16} />
-          Annuler
+          {t("Annuler")}
         </Button>
         <Button className="primary" disabled={!dirty || busy} onClick={apply}>
           <Check size={18} />
-          Appliquer
+          {t("Appliquer")}
         </Button>
       </footer>
     </>

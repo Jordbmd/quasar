@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import { randomUUID } from "node:crypto";
 import type { Camera } from "../shared/types";
 import {
@@ -94,7 +95,13 @@ export class FactoryReset {
       throw Error("Aucune caméra prête pour la remise à zéro.");
     if (
       !(await this.hooks.confirm(
-        `Effacer les réglages de ${ready.length} caméra(s) et restaurer les valeurs d’usine ?\n\n${ready.map((r) => `${r.camera.ip} · ${r.camera.serial || r.camera.mac}`).join("\n")}\n\nLes réglages, adresses IP et identifiants peuvent être perdus. Plusieurs caméras peuvent revenir à la même IP. Aucun retour arrière automatique. Le profil Sezaam enregistré dans Quasar sera conservé.`,
+        t(
+          "Effacer les réglages de {0} caméra(s) et restaurer les valeurs d’usine ?\n\n{1}\n\nLes réglages, adresses IP et identifiants peuvent être perdus. Plusieurs caméras peuvent revenir à la même IP. Aucun retour arrière automatique. Le profil Sezaam enregistré dans Quasar sera conservé.",
+          ready.length,
+          ready
+            .map((r) => `${r.camera.ip} · ${r.camera.serial || r.camera.mac}`)
+            .join("\n"),
+        ),
       ))
     )
       throw Error("Remise à zéro annulée.");
