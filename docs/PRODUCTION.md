@@ -28,6 +28,8 @@ Les artefacts contiennent installateur, `SHA256SUMS.txt`, manifest (version, com
 
 Le runtime embarque également `dist/version.json`, contrôlé à l'intérieur de l'ASAR par le smoke du paquet autonome. Un artefact construit avant commit indique `workingTreeDirty:true` ; il ne constitue pas une livraison exacte de ce commit. La construction finale après commit doit indiquer `false`.
 
+Le premier run natif du 3 novembre ([41659591250](https://github.com/Jordbmd/quasar/actions/runs/41659591250)) a validé Windows/macOS/Linux, mais l’artefact Linux inspecté signale un arbre modifié par le ZIP des assets : son horodatage DOS dépendait du fuseau. Ils constituent une preuve des contrôles natifs, pas une livraison exacte. Le générateur conserve désormais une heure civile ZIP fixe, indépendante du fuseau. La CI conserve `source-state.json` (noms/statistiques des différences, aucun contenu de fichier) et échoue si la génération ou les tests modifient le checkout. Les builds de PR désignent leur commit de fusion temporaire ; ne pas le confondre avec le SHA de la branche.
+
 `npm run package:dir && npm run test:packaged` teste le paquet autonome. Cela ne lance pas l’assistant NSIS/DMG/AppImage et ne prouve pas leur installation. Le lanceur installé n’est jamais remplacé par ces tests.
 
 ## Signatures et coûts — aucune dépense engagée

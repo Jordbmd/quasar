@@ -343,7 +343,9 @@ await writeFile(
     Object.fromEntries(
       Object.entries(kit).map(([name, data]) => [
         name,
-        [data, { mtime: new Date("2026-10-27T00:00:00Z") }],
+        // ZIP stores a local DOS timestamp. Keep the original 01:00 wall clock
+        // in every timezone instead of converting an instant through the host TZ.
+        [data, { mtime: new Date(2026, 9, 27, 1, 0, 0) }],
       ]),
     ),
   ),

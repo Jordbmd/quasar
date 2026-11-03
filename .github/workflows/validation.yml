@@ -64,6 +64,9 @@ jobs:
       - name: Windows Chrome visual references
         if: runner.os == 'Windows'
         run: npm run test:visual
+      - name: Verify source provenance after generation and packaging
+        if: always()
+        run: node scripts/check-source.mjs
       - name: Normalised CI report
         if: always()
         env:
