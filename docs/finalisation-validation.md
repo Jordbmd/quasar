@@ -2,6 +2,8 @@
 
 316 tests Windows et 1 POSIX non applicable ; 317 sur POSIX. 44 stories × 4 variantes, 12 références Windows, 22 RTSP/superviseur.
 
+La suite Storybook conserve sa propre instance Axe pour éviter une concurrence avec l’instance chargée par l’addon. Les deux scans restent actifs ; aucune règle ni variante n’est supprimée. Ce correctif du harnais de test et les mises à jour documentaires ne changent pas les runtimes des paquets retenus au commit dd8215f.
+
 Les preuves CI et artefacts retenus sont dans [retained-artifacts.json](retained-artifacts.json). Elles identifient le commit réellement construit, distinct du dernier commit documentaire. Les anciennes exécutions ne servent pas à valider un nouveau changement de runtime.
 
 Le laboratoire Platform utilise les vrais runtimes, Authentik et SMTP synthétiques, TLS vérifié et aucun port hôte. Il qualifie SSO/retour, invitations, récupération, expiration/usage unique, MFA et secours, révocation CLI, sessions et limites du logout global. Mira/Singularity/Orbit restent explicitement owner_only.

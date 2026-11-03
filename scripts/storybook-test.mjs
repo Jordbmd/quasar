@@ -33,14 +33,18 @@ try {
     (e) => e.type === "story",
   );
   const axe = await readFile(require.resolve("axe-core"), "utf8");
+  // Keep our own engine instance atomically: the Storybook addon can import
+  // its engine later and replace window.axe while its automatic scan runs.
+  // Both scans remain enabled and inspect the same rendered components.
+  const isolatedAxe = `${axe}\nwindow.quasarAuditAxe = window.axe;`;
   for (const language of ["fr", "en"])
     for (const theme of ["dark", "light"])
       for (const story of stories) {
         await visit(h, story.id, theme, language);
-        await h.page.evaluate(axe);
+        await h.page.evaluate(isolatedAxe);
         const violations = await h.page.evaluate(async () =>
           (
-            await window.axe.run(document, {
+            await window.quasarAuditAxe.run(document, {
               runOnly: {
                 type: "tag",
                 values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"],
@@ -133,9 +137,9 @@ try {
       .getByRole("heading", { name: "Cameras", exact: true })
       .waitFor();
     assert.equal(await h.page.locator("html").getAttribute("lang"), "en");
-    await h.page.evaluate(axe);
+    await h.page.evaluate(isolatedAxe);
     const violations = await h.page.evaluate(async () =>
-      (await window.axe.run(document)).violations.map((v) => ({
+      (await window.quasarAuditAxe.run(document)).violations.map((v) => ({
         id: v.id,
         targets: v.nodes.map((n) => n.target),
       })),
