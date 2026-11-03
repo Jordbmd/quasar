@@ -1,28 +1,28 @@
 [
   {
     "platform": "win",
-    "artifactId": 13269191412,
-    "expiresAt": "2026-11-17T20:32:50Z",
-    "archiveSha256": "123b1a99f825f9b2382271e41bb38552a90d53f6078442a4279f0d4ecd89c16e",
-    "archiveBytes": 132738598,
-    "retainedCopy": ".local\\retained-b7a16cf\\win.zip",
-    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
-    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
-    "workflowRun": 41711850457,
+    "artifactId": 13272316384,
+    "expiresAt": "2026-11-17T21:19:11Z",
+    "archiveSha256": "7a1e7b0c8ec6f3068b3630f93080cb58d2c06c631f0630a4d9aa3bdb1f70808c",
+    "archiveBytes": 132735872,
+    "retainedCopy": ".local\\retained-dd8215f\\win.zip",
+    "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "workflowRun": 41718943481,
     "workingTreeDirty": false,
     "files": [
       {
         "platform": "win32",
         "arch": "x64",
         "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
-        "sha256": "1105bace60ad930b89368fe2bf6205ff3b4e2d365481d9f92a9aa952c596ee35",
-        "bytes": 120165671,
+        "sha256": "e2b5b7a816732833f8abc77eeeaf4cdc56ba7158adf589874c060971144ab03f",
+        "bytes": 120166015,
         "nativePackaging": true,
         "signing": {
           "mode": "unsigned",
           "installer": "NotSigned",
           "tool": "Get-AuthenticodeSignature",
-          "checkedAt": "2026-11-03T20:31:56.221Z"
+          "checkedAt": "2026-11-03T21:17:56.984Z"
         }
       }
     ],
@@ -31,7 +31,7 @@
     "cameraValidated": false,
     "distributedAudit": {
       "schemaVersion": 1,
-      "checkedAt": "2026-11-03T20:32:33.058Z",
+      "checkedAt": "2026-11-03T21:18:53.950Z",
       "source": "https://api.osv.dev",
       "goRuntime": "go1.27.3",
       "binarySha256": "b271d1e37639e1cd91e830522ea9c211225fda24b70110647c577ba9da4a7def",
@@ -354,29 +354,29 @@
   },
   {
     "platform": "mac",
-    "artifactId": 13268362117,
-    "expiresAt": "2026-11-17T20:30:10Z",
-    "archiveSha256": "c5bc84201565ae75de1fdacd4fafbef5762a5fc026f5196c2a31dfd9ff82077e",
-    "archiveBytes": 158686789,
-    "retainedCopy": ".local\\retained-b7a16cf\\mac.zip",
-    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
-    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
-    "workflowRun": 41711850457,
+    "artifactId": 13272076038,
+    "expiresAt": "2026-11-17T21:15:48Z",
+    "archiveSha256": "b1c3901f3b7bbba684392c2e3a67eea4251943748350092ebe5bd027348be452",
+    "archiveBytes": 158672334,
+    "retainedCopy": ".local\\retained-dd8215f\\mac.zip",
+    "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "workflowRun": 41718943481,
     "workingTreeDirty": false,
     "files": [
       {
         "platform": "darwin",
         "arch": "arm64",
         "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
-        "sha256": "0ad4bcd2b19c4d5723e6d0d5a012598bca8c7f9fff16287be48b935804f1e1c0",
-        "bytes": 147622488,
+        "sha256": "74ece0e43d7b55efd485a370ee297f6a9bd9fb6223d7e9121adea261678229c2",
+        "bytes": 147625995,
         "nativePackaging": true,
         "signing": {
           "mode": "ad-hoc-verified-not-notarized",
           "application": "Valid",
           "installer": "NotSigned",
           "tool": "codesign --verify --deep --strict",
-          "checkedAt": "2026-11-03T20:29:41.415Z",
+          "checkedAt": "2026-11-03T21:15:06.689Z",
           "notarization": "not-checked"
         }
       }
@@ -386,7 +386,7 @@
     "cameraValidated": false,
     "distributedAudit": {
       "schemaVersion": 1,
-      "checkedAt": "2026-11-03T20:30:07.996Z",
+      "checkedAt": "2026-11-03T21:15:45.612Z",
       "source": "https://api.osv.dev",
       "goRuntime": "go1.27.3",
       "binarySha256": "0c89eaa6628d99de07ddd51de9ec88c6a3936fde2c6024adda40d2cd7858dd25",
@@ -709,28 +709,28 @@
   },
   {
     "platform": "linux",
-    "artifactId": 13268152409,
-    "expiresAt": "2026-11-17T20:29:39Z",
-    "archiveSha256": "fe8b1a36cbd188c4d84e0da0528265149d4405c7e3d056c4d3cb56c1e13e3cbe",
-    "archiveBytes": 154067202,
-    "retainedCopy": ".local\\retained-b7a16cf\\linux.zip",
-    "builtCommit": "b7a16cfc48f8e29221adfb369e8179f2836042a1",
-    "branchCommit": "3eaab0f8a554546307d36b72abf8435968af93f7",
-    "workflowRun": 41711850457,
+    "artifactId": 13271825954,
+    "expiresAt": "2026-11-17T21:14:48Z",
+    "archiveSha256": "1795803c0ad3e794c668965fd098cbcbfcd47ce5dfb2f534e4cb1f56155f531a",
+    "archiveBytes": 235758193,
+    "retainedCopy": ".local\\retained-dd8215f\\linux.zip",
+    "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "workflowRun": 41718943481,
     "workingTreeDirty": false,
     "files": [
       {
         "platform": "linux",
         "arch": "x64",
         "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
-        "sha256": "9ba371c68715bade700390b800ddc21b182f775eb516677229822ab87dcb10b9",
-        "bytes": 143556354,
+        "sha256": "46e7a84ff3c4b601102febb1e96a85699231b2fd10a39cc88ee526d73bd828fd",
+        "bytes": 143556333,
         "nativePackaging": true,
         "signing": {
           "mode": "unsigned",
           "installer": "No embedded signature",
           "tool": "readelf --hex-dump=.sha256_sig",
-          "checkedAt": "2026-11-03T20:29:13.235Z"
+          "checkedAt": "2026-11-03T21:14:22.184Z"
         }
       }
     ],
@@ -739,7 +739,7 @@
     "cameraValidated": false,
     "distributedAudit": {
       "schemaVersion": 1,
-      "checkedAt": "2026-11-03T20:29:36.588Z",
+      "checkedAt": "2026-11-03T21:14:45.106Z",
       "source": "https://api.osv.dev",
       "goRuntime": "go1.27.3",
       "binarySha256": "2118c970ffc3da22a41d2262774f0fc57ac0dfd52843c3a5f374861bf8bdb46e",
