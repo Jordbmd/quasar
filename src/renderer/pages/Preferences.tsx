@@ -1,8 +1,14 @@
 import { t } from "../../shared/i18n";
+import { AutoLoginSettings } from "../AutoLoginSettings";
+import type { AutoLoginStatus, AutoLoginInput } from "../../shared/auto-login";
 import React from "react";
 import { Panel, Field } from "../design-system/components";
 import type { Preferences } from "../preferences";
 export function PreferencesPage({
+  autoLogin,
+  busy = false,
+  onSaveAutoLogin,
+  onLoginDirty,
   preferences,
   setPreferences,
   theme,
@@ -10,6 +16,10 @@ export function PreferencesPage({
   language,
   chooseLanguage,
 }: {
+  onLoginDirty?: () => void;
+  autoLogin?: AutoLoginStatus;
+  busy?: boolean;
+  onSaveAutoLogin?: (value: AutoLoginInput) => Promise<boolean>;
   preferences: Preferences;
   setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
   theme: string;
@@ -36,6 +46,14 @@ export function PreferencesPage({
         </select>
       </Field>
       <h2>{t("Paramètres de l’application")}</h2>
+      {onSaveAutoLogin && (
+        <AutoLoginSettings
+          onDirty={onLoginDirty}
+          status={autoLogin}
+          busy={busy}
+          onSave={onSaveAutoLogin}
+        />
+      )}
       <h3>{t("Lecture vidéo")}</h3>
       <label className="preference-row">
         <span>

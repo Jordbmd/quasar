@@ -112,5 +112,57 @@
       "byteIdenticalToBranch": true,
       "historicalBaselineRatio": 0.0003497552984748125
     }
+  ],
+  "reviewedUpdates": [
+    {
+      "date": "2026-11-03",
+      "integratedMain": "538a8c71acb7fd2050466e03a4ff20a55fc8a0e1",
+      "preparationBase": "ac94c6e8e63414465fdf148322b1d0766007d354",
+      "source": "Merged working tree; 8 before/after images visually inspected before replacement",
+      "reason": "User-requested Box navigation, Classic/Box tabs and grouped Diagnostic/Network settings from main. Camera forms, preview and modal contents preserved.",
+      "files": [
+        {
+          "name": "pages--add-camera-modal-dark.png",
+          "previousSha256": "e8b1720d5a81e46ced5314af82df7dd3d1395023019c8df5cae34c8a5894fd01",
+          "sha256": "08794da5c9d79debd5721ed96135b4bc367b0bb6ecd199dd1b6ba28ffabdf2df"
+        },
+        {
+          "name": "pages--add-camera-modal-light.png",
+          "previousSha256": "a48eaf1640dc2428c48b5a0b4cb12d2ef0e7e560edef44dc68a8d2bba992065c",
+          "sha256": "bc8d39b18ed47165fc1ccf018740886e7aced495ce5ff8dfc76f32484b454c85"
+        },
+        {
+          "name": "pages--cameras-dark.png",
+          "previousSha256": "c8536e0abf7f00b370d77bba3e6fc2dd60003dad3d81bbcf16a7f7432149b51a",
+          "sha256": "e8b30ac090710a29f64a529b1fe4986334c136c74589b7e034cbee4779fc251c"
+        },
+        {
+          "name": "pages--cameras-light.png",
+          "previousSha256": "80f46aa67af8aab80a8de42b063fe7cf0155a9d47511ead60b2ef9a4d60ed0f2",
+          "sha256": "7e20f97a1ed68e51490c733a724555967dd3e600104c09601c54d1b64fb9fa81"
+        },
+        {
+          "name": "pages--diagnostic-results-dark.png",
+          "previousSha256": "d6011ce31be206c01da43e56361424d0d2b91ecf4d3706cfa92b80bb2cd5e6ac",
+          "sha256": "dd131ca840affbebac9697df66f66e818a3a96f00a34943c03a2007e964b7648"
+        },
+        {
+          "name": "pages--diagnostic-results-light.png",
+          "previousSha256": "b30d6f891420ec645d4cfcd46b34ea3f42ac6b2f3da30a34f95a73c7ad74dbda",
+          "sha256": "c7252bba849943a2363df41bf6307fd673ee46a561e1b09f4e94e63d02d1f8d0"
+        },
+        {
+          "name": "pages--selected-camera-dark.png",
+          "previousSha256": "6adcd95649b5341666fef339e7dc391e5eada5ca77acdc1c335c898b81520c32",
+          "sha256": "421c3b5f2ea12fa90ed7e68168ef689a6d7eb65040a3b08723b4f4711a6184fc"
+        },
+        {
+          "name": "pages--selected-camera-light.png",
+          "previousSha256": "f15cb48aca336641f5fae42290e4980b281a52299e21c0ccb0cfa8a15a3ab014",
+          "sha256": "20ff4199a295d118fc93a7c41b60a7807ceed9da1f50c65127986286710c6df6"
+        }
+      ],
+      "thresholdsChanged": false
+    }
   ]
 }

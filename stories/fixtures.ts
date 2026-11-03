@@ -199,6 +199,7 @@ export function installMock() {
     onCameraDetail: () => () => {},
     onInvalidated: () => () => {},
     call: (async (method: string, input: { language: Language }) => {
+      if (method === "getAutoLogin") return { available: true, enabled: false };
       if (method === "getLanguage") return getLanguage();
       if (method === "setLanguage") {
         setLanguage(input.language);

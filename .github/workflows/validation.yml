@@ -39,11 +39,16 @@ jobs:
         with:
           node-version: "24.22.1"
           cache: npm
-      - run: npm ci --no-fund
+      - run: npm ci --no-fund --allow-remote=root
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.3"
+          cache-dependency-path: config/go2rtc/go.sum
       - run: npm exec -- playwright install --with-deps chrome
       - run: npm run setup:video
       - run: npm run validate:software
       - run: npm run build-storybook && npm run test:stories && npm run build:web && npm run test:web
+      - run: npm run build:portal && npm run test:portal
       - name: Isolated Electron runtime
         run: |
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi
@@ -56,6 +61,8 @@ jobs:
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:packaged; else npm run test:packaged; fi
       - name: Audit runtime dependencies
         run: npm audit --omit=dev --audit-level=moderate
+      - name: Electron and bundled relay advisory inventory
+        run: npm run audit:distributed
       - name: Full audit artifact
         if: always()
         run: |
@@ -80,6 +87,7 @@ jobs:
             test-results/
             release/installers/
             site-dist/
+            portal-dist/
             assets-dist/
           if-no-files-found: error
           retention-days: 14

@@ -1,5 +1,10 @@
+import type { AutoLoginInput, AutoLoginStatus } from "./auto-login";
 import type { WebOSD } from "./web-osd";
-import type { AddressPlan, AddressProgress } from "./addressing";
+import type {
+  AddressPlan,
+  AddressProgress,
+  LockerAssignment,
+} from "./addressing";
 import type { FactoryResetPlan } from "./factory-reset";
 import type {
   ProfileRun,
@@ -117,12 +122,19 @@ export type CameraSession = {
 export type Api = {
   getLanguage: { input: undefined; output: "fr" | "en" };
   setLanguage: { input: { language: "fr" | "en" }; output: "fr" | "en" };
+  getAutoLogin: { input: undefined; output: AutoLoginStatus };
+  saveAutoLogin: { input: AutoLoginInput; output: AutoLoginStatus };
+  connectSavedSession: { input: undefined; output: CameraSession };
   previewFactoryReset: { input: { ids: string[] }; output: FactoryResetPlan };
   applyFactoryReset: {
     input: { planId: string; confirmation: string };
     output: FactoryResetPlan;
   };
-  previewAddresses: { input: { start: number }; output: AddressPlan };
+  previewAddresses: {
+    input: { start: number; assignments?: LockerAssignment[] };
+    output: AddressPlan;
+  };
+  previewIPConflicts: { input: undefined; output: AddressPlan };
   applyAddresses: { input: { planId: string }; output: AddressPlan };
   resolveIPConflict: { input: { id: string; isolated: true }; output: Camera };
   syncCameraTime: {

@@ -63,7 +63,7 @@ const camera = (n: number): Camera => ({
   status: "Découverte",
   ambiguous: false,
 });
-function fixture(count = 5) {
+function fixture(count = 5, autoLogin?: any) {
   let suspend = () => {};
   const guard: any = {
     epoch: 0,
@@ -87,6 +87,9 @@ function fixture(count = 5) {
     async () => {},
     async () => "",
     { read: async () => null } as any,
+    undefined,
+    undefined,
+    autoLogin,
   );
   service.cameras = Array.from({ length: count }, (_, i) => camera(i + 1));
   return {
@@ -316,4 +319,25 @@ it("Réessayer reconnecte aussi une caméra dont une écriture est restée incer
   expect(service.connections.get(id)).not.toBe(first);
   await service.dispatch("readCamera", { id });
   expect(service.uncertain.has(id)).toBe(false);
+});
+
+it("connexion mémorisée : contrôles réseau et pas de nouvelle authentification si la session existe", async () => {
+  const stored = { credentials: vi.fn(async () => credentials) };
+  const { service, guard } = fixture(2, stored);
+  expect(
+    (await service.dispatch("connectSavedSession", undefined)).connected,
+  ).toBe(2);
+  expect(guard.assert).toHaveBeenCalled();
+  await service.dispatch("connectSavedSession", undefined);
+  expect(stored.credentials).toHaveBeenCalledTimes(1);
+  expect(mock.connections).toHaveLength(2);
+});
+it("connexion mémorisée : aucune lecture de secret sur un réseau refusé", async () => {
+  const stored = { credentials: vi.fn(async () => credentials) };
+  const { service, guard } = fixture(1, stored);
+  guard.assert.mockRejectedValue(new Error("Ethernet absent"));
+  await expect(
+    service.dispatch("connectSavedSession", undefined),
+  ).rejects.toThrow("Ethernet absent");
+  expect(stored.credentials).not.toHaveBeenCalled();
 });

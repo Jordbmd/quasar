@@ -1,3 +1,4 @@
+import { autoLoginInput } from "./auto-login";
 import { z } from "zod";
 import { resetConfirmation } from "./factory-reset";
 import { validateDefaults } from "./defaults";
@@ -26,6 +27,9 @@ const osdCorner = z.enum([
   "custom",
 ]);
 export const schemas = {
+  getAutoLogin: z.undefined(),
+  saveAutoLogin: autoLoginInput,
+  connectSavedSession: z.undefined(),
   previewFactoryReset: z
     .object({
       ids: z
@@ -39,8 +43,24 @@ export const schemas = {
     .object({ planId: id, confirmation: z.literal(resetConfirmation) })
     .strict(),
   previewAddresses: z
-    .object({ start: z.number().int().min(1).max(244) })
+    .object({
+      start: z.number().int().min(1).max(244),
+      assignments: z
+        .array(
+          z.object({ id, locker: z.number().int().min(1).max(244) }).strict(),
+        )
+        .min(1)
+        .max(244)
+        .refine(
+          (rows) =>
+            new Set(rows.map((r) => r.id)).size === rows.length &&
+            new Set(rows.map((r) => r.locker)).size === rows.length,
+          "Une caméra et un numéro uniques par casier sont requis.",
+        )
+        .optional(),
+    })
     .strict(),
+  previewIPConflicts: z.undefined(),
   applyAddresses: z.object({ planId: id }).strict(),
   resolveIPConflict: z.object({ id, isolated: z.literal(true) }).strict(),
   setWebOSD: z

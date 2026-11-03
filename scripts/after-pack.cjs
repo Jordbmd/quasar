@@ -1,4 +1,5 @@
 const path = require("node:path");
+const { createHash } = require("node:crypto");
 const { access, readFile, writeFile, mkdir } = require("node:fs/promises");
 module.exports = async function afterPack(context) {
   const platform = context.electronPlatformName;
@@ -21,7 +22,20 @@ module.exports = async function afterPack(context) {
     ),
   );
   const arch = require("electron-builder").Arch[context.arch];
-  if (meta.platform !== platform || meta.arch !== arch || !meta.verifiedAgainst)
+  const relay = await readFile(
+    path.join(
+      resourceRoot,
+      "bin",
+      platform === "win32" ? "go2rtc.exe" : "go2rtc",
+    ),
+  );
+  if (
+    meta.platform !== platform ||
+    meta.arch !== arch ||
+    meta.sourceCommit !== "7c05066c90ab6ad1fccb506d5f0408aa31ebe60f" ||
+    meta.toolchain !== "go1.27.3" ||
+    meta.binarySha256 !== createHash("sha256").update(relay).digest("hex")
+  )
     throw Error(
       "Le relais embarqué ne correspond pas à la plateforme/architecture cible. Relancer setup:video pour cette cible.",
     );

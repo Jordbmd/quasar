@@ -1,0 +1,12 @@
+# Build the static site and bundled portal in trusted CI before building this image.
+FROM node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c
+ARG APP_COMMIT=unknown
+LABEL org.opencontainers.image.revision=$APP_COMMIT
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=4350 PUBLIC_ORIGIN=https://quasar.doublemart.fr
+WORKDIR /app
+COPY site-dist ./site-dist
+COPY portal-dist/server.mjs ./server.mjs
+USER node
+EXPOSE 4350
+HEALTHCHECK --interval=30s --timeout=3s CMD node -e "fetch('http://127.0.0.1:4350/healthz',{headers:{Host:'quasar.doublemart.fr'}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "server.mjs"]

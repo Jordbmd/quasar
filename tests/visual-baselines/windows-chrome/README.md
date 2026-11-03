@@ -1,6 +1,6 @@
 # Références Windows / Chrome
 
-Ces douze images proviennent du commit initial **266ed1bc6c5b95a513e726acf4e312b7903b0569**, reconstruit indépendamment dans une archive Git locale le 3 novembre 2026. Elles ne sont pas générées depuis la branche de préparation production. Les fixtures sont simulées, sans données caméra réelles.
+Les douze références initiales provenaient du commit **266ed1bc6c5b95a513e726acf4e312b7903b0569**, reconstruit indépendamment dans une archive Git locale le 3 novembre 2026. Huit vues de page ont depuis été renouvelées après intégration du main **538a8c7** : navigation Mes Box, modes Classique/Box et onglets Diagnostic. Les huit comparaisons avant/après ont été inspectées ; les quatre références de composants sont inchangées. `provenance.json.reviewedUpdates` conserve les anciens/nouveaux hashes, les deux parents et le motif. Ces nouvelles captures proviennent explicitement du travail de fusion, pas du commit initial. Les fixtures sont simulées, sans données caméra réelles.
 
 Environnement : Windows 11 x64 (10.0.26200), Node 24.22.1, Playwright 1.64.1, Google Chrome signé 156.0.8078.74, viewport 1448 × 1086, échelle 1, locale fr-FR, fuseau Europe/Paris, reduced-motion. Les polices locales Inter, Sora et JetBrains Mono ont les mêmes octets que le commit initial ; leurs SHA-256 et ceux des captures figurent dans `provenance.json`.
 

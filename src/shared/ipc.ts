@@ -35,6 +35,9 @@ export type Reply<T = unknown> =
 export const operationMode = {
   getLanguage: "snapshot",
   setLanguage: "snapshot",
+  getAutoLogin: "snapshot",
+  saveAutoLogin: "exclusive",
+  connectSavedSession: "exclusive",
   state: "snapshot",
   getDefaults: "snapshot",
   listDefaultsRuns: "snapshot",
@@ -70,6 +73,7 @@ export const operationMode = {
   previewDefaults: "exclusive",
   applyDefaults: "exclusive",
   previewAddresses: "exclusive",
+  previewIPConflicts: "exclusive",
   applyAddresses: "exclusive",
   resolveIPConflict: "exclusive",
   previewFactoryReset: "exclusive",

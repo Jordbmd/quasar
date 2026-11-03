@@ -57,7 +57,7 @@ export const Diagnostic = {
   play: async ({ canvasElement }: any) => {
     await userEvent.click(
       within(canvasElement).getByRole("button", {
-        name: t("Diagnostic Tests et résolution de problèmes"),
+        name: t("Diagnostic"),
       }),
     );
   },
@@ -70,7 +70,7 @@ export const DiagnosticResults = {
     );
     await userEvent.click(
       c.getByRole("button", {
-        name: t("Diagnostic Tests et résolution de problèmes"),
+        name: t("Diagnostic"),
       }),
     );
   },

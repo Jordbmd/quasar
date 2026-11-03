@@ -105,7 +105,7 @@ it("le même lot résout un conflit par numéro constructeur sans invoquer l’�
   const { service, plan } = fixture();
   service.cameras[0].ambiguous = true;
   service.addressPlan.lanDevices = {
-    [service.cameras[0].id]: { serial: "fixture" },
+    [service.cameras[0].id]: { serial: "fixture", mac: service.cameras[0].mac },
   };
   service.changeLanAddress = vi.fn(async () => ({
     verified: true,
@@ -174,4 +174,34 @@ it("publie la progression sans annoncer une adresse vérifiée avant sa relectur
   expect(updates.some((p) => p.stage === "Adresse vérifiée")).toBe(false);
   expect(updates[2].stage).toContain("Non exécutée");
   expect(service.changeIP).toHaveBeenCalledOnce();
+});
+
+it("conserve le ciblage constructeur lorsque seule la destination bloque, puis libère le doublon avec un plan débutant à 1", () => {
+  const a = { ...camera(13), ambiguous: true };
+  const b = { ...camera(17), ip: a.ip, ambiguous: true };
+  const cameras = [camera(11), a, b, camera(14)];
+  const targets = new Set([a.id, b.id]);
+  const shifted = addressRows(cameras, 2, new Set(), [], targets);
+  expect(
+    shifted
+      .filter((r) => r.resolution === "serial")
+      .every((r) => r.state === "blocked"),
+  ).toBe(true);
+  const correct = addressRows(cameras, 1, new Set(), [], targets);
+  expect(
+    correct
+      .filter((r) => r.state === "ready")
+      .map((r) => [r.id, r.to, r.resolution]),
+  ).toEqual([[a.id, "192.168.1.12", "serial"]]);
+  expect(correct.filter((r) => r.state === "unchanged")).toHaveLength(2);
+  const afterMove = cameras.map((c) =>
+    c.id === a.id
+      ? { ...c, ip: "192.168.1.12", ambiguous: false }
+      : { ...c, ambiguous: false },
+  );
+  expect(
+    addressRows(afterMove, 1, new Set(), []).every(
+      (r) => r.state === "unchanged",
+    ),
+  ).toBe(true);
 });

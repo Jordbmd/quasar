@@ -8,9 +8,11 @@ import type { DefaultsPlan, DefaultsProgress } from "../shared/defaults";
 export function BatchProgress({
   title,
   progress,
+  unit = "caméras",
 }: {
   title: string;
   progress?: DefaultsProgress;
+  unit?: "caméras" | "étapes";
 }) {
   const [started] = useState(Date.now);
   const [seconds, setSeconds] = useState(0);
@@ -44,7 +46,7 @@ export function BatchProgress({
       />
       <small>
         {total
-          ? t("{0} / {1} caméras traitées. ", progress!.completed, total)
+          ? t("{0} / {1} {2} traitées. ", progress!.completed, total, t(unit))
           : ""}
         {t(
           "Gardez Quasar ouvert jusqu’au bilan. Une caméra peut prendre plusieurs minutes.",
@@ -60,18 +62,19 @@ export function AddressOutcome({ plan }: { plan: AddressPlan }) {
   const attention =
     count("failed") + count("skipped") + count("blocked") + count("ready");
   return (
-    <Alert kind={attention ? "warning" : "success"}>
+    <Alert kind={attention || plan.warning ? "warning" : "success"}>
       <strong>
         {t("Attribution des IP terminée")}
         {attention ? t(" — points à vérifier") : ""}.
       </strong>
       <span className="batch-summary">
-        {count("verified")} {t("adresses modifiées et vérifiées ·")}{" "}
+        {count("verified")} {t("adresses finales vérifiées ·")}{" "}
         {count("unchanged")} {t("déjà conformes ·")} {count("failed")}{" "}
         {t("échecs ou résultats non confirmés ·")}{" "}
         {count("blocked") + count("skipped") + count("ready")}{" "}
         {t("non exécutées.")}
       </span>
+      {plan.warning && <span>{plan.warning}</span>}
     </Alert>
   );
 }

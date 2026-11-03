@@ -102,6 +102,89 @@ try {
     "IPC de configuration Mac supprimé",
     "Renderer sans Node",
   );
+  await page.getByRole("button", { name: "Box", exact: true }).click();
+  await page.getByLabel("Importer les casiers", { exact: true }).setInputFiles({
+    name: "SIMULATION Box Electron.csv",
+    mimeType: "text/csv",
+    buffer: Buffer.from(
+      "Casier,N°,Colonne,Zone,Ports,IP\nIHM,0,1,1,0,0.0.0.0\nS,7,1,2,7,192.168.1.17\n",
+    ),
+  });
+  await page
+    .getByRole("heading", { name: "SIMULATION Box Electron", exact: true })
+    .waitFor();
+  assert.equal(
+    await page.getByRole("button", { name: "IHM 0, sans caméra" }).isDisabled(),
+    true,
+  );
+  assert.equal(await page.locator(".box-locker.warning").count(), 1);
+  await page
+    .getByRole("button", { name: "Modifier la Box", exact: true })
+    .click();
+  const boxEditor = page.getByRole("dialog", {
+    name: "Modifier la Box",
+    exact: true,
+  });
+  await boxEditor
+    .getByLabel("ID de la Box", { exact: true })
+    .fill("TEST-ELECTRON");
+  await boxEditor
+    .getByLabel("Adresse d’installation", { exact: true })
+    .fill("SIMULATION · adresse de test");
+  await boxEditor.getByRole("button", { name: "Enregistrer la Box" }).click();
+  await boxEditor.waitFor({ state: "hidden" });
+  await page.getByText("TEST-ELECTRON", { exact: true }).waitFor();
+  checks.push(
+    "Fiche Box : édition, enregistrement et métadonnées dans le paquet Electron",
+  );
+  const navigation = page.getByRole("navigation", {
+    name: "Navigation principale",
+  });
+  await navigation.getByRole("button", { name: /^Mes Box/ }).click();
+  assert.equal(await page.locator(".box-library-card").count(), 1);
+  await page
+    .getByRole("button", { name: "Créer une Box", exact: true })
+    .click();
+  const manualBox = page.getByRole("dialog", {
+    name: "Créer une Box sans fichier",
+    exact: true,
+  });
+  await manualBox
+    .getByLabel("Nom de la Box", { exact: true })
+    .fill("SIMULATION seconde intervention");
+  await manualBox
+    .getByLabel("ID de la Box", { exact: true })
+    .fill("TEST-SECOND");
+  await manualBox
+    .getByRole("button", { name: "Enregistrer la Box", exact: true })
+    .click();
+  await manualBox.waitFor({ state: "hidden" });
+  await page
+    .getByRole("heading", {
+      name: "SIMULATION seconde intervention",
+      exact: true,
+    })
+    .waitFor();
+  await navigation.getByRole("button", { name: /^Mes Box/ }).click();
+  assert.equal(await page.locator(".box-library-card").count(), 2);
+  await page
+    .locator(".box-library-card")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "SIMULATION Box Electron",
+        exact: true,
+      }),
+    })
+    .getByRole("button", { name: "Ouvrir la Box", exact: true })
+    .click();
+  await page.getByText("TEST-ELECTRON", { exact: true }).waitFor();
+  checks.push(
+    "Bibliothèque Box : deux fiches distinctes et changement de contexte dans Electron",
+  );
+  await page.getByRole("button", { name: "Classique", exact: true }).click();
+  checks.push(
+    "Mode Box : import CSV dans le worker Electron, IHM sans caméra, retour au mode Classique",
+  );
   for (const theme of ["dark", "light"]) {
     const current = await page.locator("html").getAttribute("data-theme");
     if (current !== theme)
@@ -113,7 +196,7 @@ try {
               : "Activer le thème clair",
         })
         .click();
-    await page.getByRole("button", { name: /Caméras Configuration/ }).click();
+    await page.getByRole("button", { name: "Caméras", exact: true }).click();
     await page.getByRole("heading", { name: "Caméras", exact: true }).waitFor();
     await page.locator(".operation").waitFor({ state: "hidden" });
     await page
@@ -153,7 +236,7 @@ try {
       path: `test-results/cameras-${theme}.png`,
       fullPage: true,
     });
-    await page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+    await page.getByRole("button", { name: "Diagnostic", exact: true }).click();
     await page
       .getByRole("heading", { name: "Diagnostic des caméras", exact: true })
       .waitFor();

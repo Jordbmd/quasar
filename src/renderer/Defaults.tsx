@@ -117,7 +117,7 @@ export function DefaultsPage({
           aria-pressed={view === "profile"}
           onClick={() => setView("profile")}
         >
-          {t("Paramètres")}
+          {t("Réglages du profil")}
         </Button>
         <Button
           aria-pressed={view === "compatibility"}
@@ -356,12 +356,14 @@ export function DefaultsApply({
   run,
   onClose,
   onApplied,
+  onResult,
 }: {
   targets: string[] | null;
   busy: boolean;
   run: Run;
   onClose: () => void;
   onApplied: () => Promise<unknown>;
+  onResult?: (result: DefaultsPlan) => void;
 }) {
   const [plan, setPlan] = useState<DefaultsPlan>();
   const [report, setReport] = useState(false);
@@ -398,6 +400,7 @@ export function DefaultsApply({
           planId: plan!.id,
         });
         setPlan(result);
+        onResult?.(result);
         setReport(true);
       } catch (e) {
         setError((e as Error).message);
@@ -462,7 +465,7 @@ export function DefaultsApply({
         {report && (
           <p>
             {t(
-              "Rapport enregistré dans Profil Sezaam → Journal et erreurs, sauf avertissement de sauvegarde ci-dessus.",
+              "Rapport enregistré dans Paramètres → Profil Sezaam → Journal et erreurs, sauf avertissement de sauvegarde ci-dessus.",
             )}
           </p>
         )}

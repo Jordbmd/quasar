@@ -1,9 +1,10 @@
 import { t } from "../shared/i18n";
+import type { AutoLoginStore } from "./auto-login";
 import { syncClock } from "./sync-clock";
 import { readDaylight } from "./daylight";
 import { FactoryReset } from "./factory-reset";
 import { type FactoryResetPlan } from "../shared/factory-reset";
-import { addressRows } from "./addressing";
+import { addressSchedule, conflictSchedule } from "./addressing";
 import {
   discoverLan,
   lanBroadcast,
@@ -12,7 +13,11 @@ import {
   sendLanChange,
   type LanDevice,
 } from "./lan-addressing";
-import type { AddressPlan, AddressProgress } from "../shared/addressing";
+import type {
+  AddressPlan,
+  AddressProgress,
+  AddressStep,
+} from "../shared/addressing";
 import { readWebOSD, changeWebOSD, webOSDBody } from "./web-osd";
 import { ProfileJournal } from "./profile-journal";
 import {
@@ -161,6 +166,7 @@ export class CameraService {
     private osdStore: OSDStore,
     defaultsStore = new DefaultsStore(),
     public profileJournal = new ProfileJournal(),
+    private autoLogin?: AutoLoginStore,
   ) {
     this.factoryReset = new FactoryReset({
       context: () => `${this.guard.epoch}:${this.sessionGeneration}`,
@@ -834,12 +840,25 @@ export class CameraService {
       };
     }
   }
-  async previewAddresses(start: number): Promise<AddressPlan> {
+  async previewAddresses(
+    start: number,
+    assignments?: Api["previewAddresses"]["input"]["assignments"],
+  ): Promise<AddressPlan> {
+    return this.prepareAddressPlan("lockers", start, assignments);
+  }
+  async previewIPConflicts(): Promise<AddressPlan> {
+    return this.prepareAddressPlan("conflicts");
+  }
+  private async prepareAddressPlan(
+    kind: "lockers" | "conflicts",
+    start = 1,
+    assignments?: Api["previewAddresses"]["input"]["assignments"],
+  ): Promise<AddressPlan> {
     this.addressPlan = undefined;
     const a = await this.guard.assert();
     if (!this.credentials)
       throw Error("Connectez d’abord l’application aux caméras.");
-    if (!sameSubnet(a.address, "192.168.1.11", a.mask))
+    if (kind === "lockers" && !sameSubnet(a.address, "192.168.1.11", a.mask))
       throw Error(
         "Le profil casier utilise 192.168.1.x. L’Ethernet du Mac doit appartenir à ce réseau.",
       );
@@ -847,21 +866,19 @@ export class CameraService {
     const epoch = this.guard.epoch;
     const session = this.sessionGeneration;
     const lanDevices: Record<string, LanDevice> = {};
-    const conflicts = this.cameras.filter(
-      (c) =>
-        c.ambiguous ||
-        this.cameras.some((other) => other.id !== c.id && other.ip === c.ip),
-    );
-    if (conflicts.length) {
+    const observed = new Set<string>();
+    if (this.cameras.length) {
       // A discovery UUID alone does not authorize a write to a shared IP.
       // Only the documented serial-addressed LAN protocol may bypass that block.
       try {
         await this.guard.assert(lanBroadcast(a.address, a.mask));
         const first = await discoverLan(a.address, a.mask, this.abort.signal);
+        first.forEach((device) => observed.add(device.ip));
         this.guard.ensureEpoch(epoch);
         const second = await discoverLan(a.address, a.mask, this.abort.signal);
+        second.forEach((device) => observed.add(device.ip));
         this.guard.ensureEpoch(epoch);
-        for (const c of conflicts) {
+        for (const c of this.cameras) {
           const before = matchLanDevice(c, first),
             after = matchLanDevice(c, second);
           if (
@@ -882,39 +899,102 @@ export class CameraService {
     }
     if (session !== this.sessionGeneration)
       throw Error("Session modifiée. Vérifiez à nouveau la plage.");
-    const neighbors = await this.guard.system.neighbors(a.id);
-    const rows = addressRows(
-      this.cameras,
-      start,
-      new Set(neighbors.map((n) => n.ip)),
-      this.guard.ownAddresses(),
-      new Set(Object.keys(lanDevices)),
-    );
-    // Probe all proposed targets with bounded concurrency, without guessing that
-    // a silent target is free. Discovery, ARP and identity are rechecked on apply.
-    for (let i = 0; i < rows.length; i += 4)
-      await Promise.all(
-        rows
-          .slice(i, i + 4)
-          .filter((r) => r.state === "ready")
-          .map((r) => this.guard.system.probe(r.to, a.address)),
-      );
-    const occupied = new Set(
-      (await this.guard.system.neighbors(a.id)).map((n) => n.ip),
-    );
+    const addressPrefix =
+      kind === "conflicts"
+        ? a.address.split(".").slice(0, 3).join(".")
+        : "192.168.1";
+    const temporaryCandidates = Array.from(
+      { length: 244 },
+      (_, i) => `${addressPrefix}.${254 - i}`,
+    ).filter((ip) => {
+      try {
+        cameraAddress(
+          ip,
+          "255.255.255.0",
+          a.address,
+          a.mask,
+          this.guard.ownAddresses(),
+        );
+        return !Object.values(lanDevices).some((d) =>
+          [d.lan.Gateway, d.lan.DNS1, d.lan.DNS2].includes(ip),
+        );
+      } catch {
+        return false;
+      }
+    });
+    // Include constructor-only devices too, not just ONVIF camera cards.
+    const schedule = (occupied: Set<string>) =>
+      kind === "conflicts"
+        ? conflictSchedule(
+            this.cameras,
+            occupied,
+            this.guard.ownAddresses(),
+            new Set(Object.keys(lanDevices)),
+            temporaryCandidates,
+            (id, ip) => {
+              const device = lanDevices[id];
+              if (!device) return false;
+              try {
+                cameraAddress(
+                  ip,
+                  device.lan.Netmask,
+                  a.address,
+                  a.mask,
+                  this.guard.ownAddresses(),
+                );
+                return true;
+              } catch {
+                return false;
+              }
+            },
+          )
+        : addressSchedule(
+            this.cameras,
+            start,
+            occupied,
+            this.guard.ownAddresses(),
+            new Set(Object.keys(lanDevices)),
+            temporaryCandidates,
+            assignments,
+          );
+    const occupied = new Set([
+      ...observed,
+      ...(await this.guard.system.neighbors(a.id)).map((n) => n.ip),
+    ]);
+    // If a scratch address responds, reserve it and recompute; never silently
+    // substitute a different target after the user has reviewed the plan.
+    const probed = new Set<string>();
+    let prepared = schedule(occupied);
+    for (;;) {
+      const targets = [
+        ...new Set(
+          prepared.steps.filter((s) => s.kind !== "verify").map((s) => s.to),
+        ),
+      ].filter((ip) => !probed.has(ip));
+      if (!targets.length) break;
+      for (let i = 0; i < targets.length; i += 4)
+        await Promise.all(
+          targets.slice(i, i + 4).map(async (ip) => {
+            await this.guard.assert(ip);
+            await this.guard.system.probe(ip, a.address);
+            probed.add(ip);
+          }),
+        );
+      for (const n of await this.guard.system.neighbors(a.id))
+        occupied.add(n.ip);
+      this.guard.ensureEpoch(epoch);
+      if (session !== this.sessionGeneration)
+        throw Error("Session modifiée. Vérifiez à nouveau la plage.");
+      prepared = schedule(occupied);
+    }
     this.guard.ensureEpoch(epoch);
     if (session !== this.sessionGeneration)
       throw Error("Session modifiée. Vérifiez à nouveau la plage.");
     const plan: AddressPlan = {
+      kind,
       id: randomUUID(),
       createdAt: new Date().toISOString(),
-      rows: addressRows(
-        this.cameras,
-        start,
-        occupied,
-        this.guard.ownAddresses(),
-        new Set(Object.keys(lanDevices)),
-      ),
+      ...prepared,
     };
     for (const row of plan.rows) {
       const device = lanDevices[row.id];
@@ -946,105 +1026,209 @@ export class CameraService {
     if (!ready.length) return saved.plan;
     if (
       !(await this.confirm(
-        t("Attribuer les adresses suivantes aux caméras identifiées ?\n\n") +
+        (saved.plan.kind === "conflicts"
+          ? t("Résoudre les conflits IP avec les changements suivants ?\n\n")
+          : t(
+              "Attribuer les adresses suivantes aux caméras identifiées ?\n\n",
+            )) +
           ready
-            .map((r) =>
-              t(
-                "{0} · {1} : {2} → {3} (casier {4})",
-                r.name,
-                r.identity,
-                r.from,
-                r.to,
-                r.locker,
-              ),
+            .map(
+              (r) =>
+                `${r.name} · ${r.identity} : ${r.from} → ${r.temporaryIP ? r.temporaryIP + t(" (temporaire) → ") : ""}${r.to}${r.locker === undefined ? (r.from === r.to ? t(" (adresse conservée)") : "") : t(" (casier {0})", r.locker)}`,
             )
             .join("\n") +
           t(
-            "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
+            "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Les IP temporaires sont incluses dans cette confirmation. Aucun retour automatique après un résultat incertain. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
           ),
       ))
     )
       throw Error("Opération annulée.");
+    const steps: AddressStep[] =
+      saved.plan.steps ??
+      ready.map((r) => ({
+        id: r.id,
+        from: r.from,
+        to: r.to,
+        kind: "final",
+      }));
     let stopped = false;
+    const released = new Set<string>();
     let completed = 0;
     const progress = (camera: string, stage: string) =>
       this.onAddressProgress?.({
         planId,
         camera,
         completed,
-        total: ready.length,
+        total: steps.length,
         stage,
       });
-    for (const row of ready) {
+    // Persist the reviewed route before any move, then each completed step.
+    if (saved.plan.steps)
+      await this.profileJournal.backupVendor(
+        {},
+        "addressing-report",
+        JSON.stringify(saved.plan),
+      );
+    for (const step of steps) {
+      const row = saved.plan.rows.find((r) => r.id === step.id)!;
       if (stopped) {
-        row.state = "skipped";
-        row.message =
-          "Non envoyée : le changement précédent n’a pas été confirmé.";
+        step.state = "skipped";
+        step.message =
+          "Non envoyée : l’étape précédente n’a pas été confirmée.";
+        if (row.state !== "failed" && row.state !== "verified") {
+          row.state = "skipped";
+          row.message =
+            step.message +
+            (row.lastVerifiedIP
+              ? ` Dernière IP vérifiée : ${row.lastVerifiedIP}.`
+              : "");
+        }
         completed++;
-        progress(row.from, "Non exécutée après un résultat incertain");
+        progress(step.from, "Non exécutée après un résultat incertain");
         continue;
       }
-      progress(
-        `${row.from} → ${row.to}`,
-        "Attribution et relecture de l’adresse",
-      );
+      const label =
+        step.kind === "temporary"
+          ? "Libération par IP temporaire"
+          : step.kind === "verify"
+            ? "Vérification de l’adresse conservée"
+            : "Attribution et relecture de l’adresse";
+      progress(`${step.from} → ${step.to}`, label);
       try {
         this.guard.ensureEpoch(saved.epoch);
         if (saved.session !== this.sessionGeneration)
           throw Error("Session modifiée.");
-        const current = this.camera(row.id),
-          before = saved.cameras.find((c) => c.id === row.id)!;
+        const current = this.camera(row.id);
+        const before = saved.cameras.find((c) => c.id === row.id)!;
         const lanDevice = saved.lanDevices?.[row.id];
         if (
-          current.ip !== row.from ||
+          current.ip !== step.from ||
           (lanDevice
-            ? current.endpoint !== before.endpoint || current.mac !== before.mac
+            ? current.endpoint !== before.endpoint ||
+              (current.mac && current.mac.toLowerCase() !== lanDevice.mac)
             : current.ambiguous || !identityMatches(before, current))
         )
           throw Error("Identité ou adresse modifiée depuis la préparation.");
-        const result = lanDevice
-          ? await this.changeLanAddress(
-              row.id,
-              lanDevice,
-              row.to,
-              saved.epoch,
-              saved.session,
-            )
-          : await this.changeIP(
-              {
-                id: row.id,
-                address: row.to,
-                mask: "255.255.255.0",
-                isolated: false,
+        let result: WriteResult;
+        if (step.kind === "verify") {
+          if (!lanDevice)
+            throw Error("Ciblage constructeur absent pour la vérification.");
+          await this.verifyLanAddress(
+            row.id,
+            lanDevice,
+            saved.epoch,
+            saved.session,
+          );
+          result = {
+            sent: false,
+            acknowledged: false,
+            verified: true,
+            message:
+              "Adresse conservée et identité unique vérifiées après libération du conflit.",
+          };
+        } else {
+          result = lanDevice
+            ? await this.changeLanAddress(
+                row.id,
+                lanDevice,
+                step.to,
+                saved.epoch,
+                saved.session,
+                released.has(step.to),
+                saved.plan.kind === "conflicts"
+                  ? lanDevice.lan.Netmask
+                  : "255.255.255.0",
+              )
+            : await this.changeIP(
+                {
+                  id: row.id,
+                  address: step.to,
+                  mask: "255.255.255.0",
+                  isolated: false,
+                },
+                true,
+              );
+        }
+        step.state = result.verified ? "verified" : "failed";
+        step.message = result.message;
+        if (result.verified) {
+          row.lastVerifiedIP = step.to;
+          if (step.kind !== "verify") released.add(step.from);
+          if (lanDevice && step.kind !== "verify")
+            saved.lanDevices![row.id] = {
+              ...lanDevice,
+              ip: step.to,
+              lan: {
+                ...lanDevice.lan,
+                IPAddress: step.to,
+                Netmask:
+                  saved.plan.kind === "conflicts"
+                    ? lanDevice.lan.Netmask
+                    : "255.255.255.0",
+                DHCP: "0",
               },
-              true,
-            );
-        row.state = result.verified ? "verified" : "failed";
-        row.message = result.message;
-        if (!result.verified) stopped = true;
+            };
+          row.state = step.kind === "temporary" ? "ready" : "verified";
+          row.message =
+            step.kind === "temporary"
+              ? `IP temporaire vérifiée : ${step.to}. Attribution finale en attente.`
+              : result.message;
+        } else {
+          row.state = "failed";
+          row.message = result.message;
+          stopped = true;
+        }
       } catch (error) {
+        step.state = "failed";
+        step.message = this.log.safe(error);
         row.state = "failed";
-        row.message = this.log.safe(error);
+        row.message =
+          `${step.from} → ${step.to} : ${step.message}` +
+          (row.lastVerifiedIP
+            ? ` Dernière IP vérifiée : ${row.lastVerifiedIP}.`
+            : "");
         stopped = true;
       }
       completed++;
       progress(
-        row.to,
-        row.state === "verified" ? "Adresse vérifiée" : "Résultat à vérifier",
+        step.to,
+        step.state === "verified"
+          ? step.kind === "temporary"
+            ? "IP temporaire vérifiée"
+            : "Adresse vérifiée"
+          : "Résultat à vérifier",
       );
       this.log.add(
-        row.state === "verified" ? "info" : "attention",
+        step.state === "verified" ? "info" : "attention",
         "Adressage par casier",
-        `Casier ${row.locker} : ${row.from} → ${row.to}. ${row.message}`,
-        row.from,
+        `${row.locker === undefined ? "Résolution du conflit" : "Casier " + row.locker} : ${step.from} → ${step.to}. ${row.message}`,
+        step.from,
       );
+      if (saved.plan.steps) {
+        try {
+          await this.profileJournal.backupVendor(
+            {},
+            "addressing-report",
+            JSON.stringify(saved.plan),
+          );
+        } catch (error) {
+          stopped = true;
+          saved.plan.warning =
+            "Sauvegarde du bilan impossible : " + this.log.safe(error);
+        }
+      }
     }
     progress("", "Enregistrement du bilan");
-    await this.profileJournal.backupVendor(
-      {},
-      "addressing-report",
-      JSON.stringify(saved.plan),
-    );
+    try {
+      await this.profileJournal.backupVendor(
+        {},
+        "addressing-report",
+        JSON.stringify(saved.plan),
+      );
+    } catch (error) {
+      saved.plan.warning =
+        "Sauvegarde du bilan impossible : " + this.log.safe(error);
+    }
     return saved.plan;
   }
   private async changeLanAddress(
@@ -1053,6 +1237,8 @@ export class CameraService {
     target: string,
     epoch: number,
     session: number,
+    waitForRelease = false,
+    mask = "255.255.255.0",
   ): Promise<WriteResult> {
     const check = () => {
       this.guard.ensureEpoch(epoch);
@@ -1061,36 +1247,39 @@ export class CameraService {
     const c = this.camera(id);
     const a = await this.guard.assert();
     check();
-    cameraAddress(
-      target,
-      "255.255.255.0",
-      a.address,
-      a.mask,
-      this.guard.ownAddresses(),
+    cameraAddress(target, mask, a.address, a.mask, this.guard.ownAddresses());
+    const fresh = await reconnect(
+      async () => {
+        await this.guard.assert(lanBroadcast(a.address, a.mask));
+        check();
+        const devices = await discoverLan(a.address, a.mask, this.abort.signal);
+        check();
+        const fresh = matchLanDevice(c, devices);
+        if (!fresh || lanFingerprint(fresh) !== lanFingerprint(expected))
+          throw Error(
+            "Identité ou configuration constructeur modifiée depuis la préparation.",
+          );
+        await this.guard.system.probe(target, a.address);
+        const onvif = await discoverOnInterface(
+          a.address,
+          a.mask,
+          this.abort.signal,
+        );
+        if (
+          devices.some((d) => d.ip === target) ||
+          onvif.some((d) => d.ip === target) ||
+          (await this.guard.system.neighbors(a.id)).some((n) => n.ip === target)
+        )
+          throw Error(
+            "Adresse cible encore observée sur Ethernet : aucune commande envoyée. Relancez la vérification après sa libération ; une IP temporaire déjà attribuée est conservée.",
+          );
+        check();
+        return fresh;
+      },
+      () => true,
+      waitForRelease ? 4 : 1,
+      1500,
     );
-    await this.guard.assert(lanBroadcast(a.address, a.mask));
-    const devices = await discoverLan(a.address, a.mask, this.abort.signal);
-    check();
-    const fresh = matchLanDevice(c, devices);
-    if (!fresh || lanFingerprint(fresh) !== lanFingerprint(expected))
-      throw Error(
-        "Identité ou configuration constructeur modifiée depuis la préparation.",
-      );
-    await this.guard.system.probe(target, a.address);
-    const onvif = await discoverOnInterface(
-      a.address,
-      a.mask,
-      this.abort.signal,
-    );
-    if (
-      devices.some((d) => d.ip === target) ||
-      onvif.some((d) => d.ip === target) ||
-      (await this.guard.system.neighbors(a.id)).some((n) => n.ip === target)
-    )
-      throw Error(
-        "Adresse cible déjà observée sur Ethernet : aucune commande envoyée.",
-      );
-    check();
     await this.profileJournal.backupVendor(
       c,
       "network-serial",
@@ -1107,7 +1296,15 @@ export class CameraService {
     this.uncertain.add(id);
     c.status = "Attribution IP · résultat à vérifier";
     try {
-      await sendLanChange(a.address, a.mask, fresh, target, this.abort.signal);
+      await sendLanChange(
+        a.address,
+        a.mask,
+        fresh,
+        target,
+        this.abort.signal,
+        undefined,
+        mask,
+      );
       // A UDP send is not an acknowledgement. Re-discover by serial + MAC,
       // require the exact LAN configuration, then cross-check ONVIF and ARP.
       const updated = {
@@ -1116,72 +1313,11 @@ export class CameraService {
         lan: {
           ...fresh.lan,
           IPAddress: target,
-          Netmask: "255.255.255.0",
+          Netmask: mask,
           DHCP: "0",
         },
       };
-      await reconnect(
-        async () => {
-          await this.guard.assert(target);
-          check();
-          const observations = await discoverLan(
-            a.address,
-            a.mask,
-            this.abort.signal,
-          );
-          check();
-          const found = matchLanDevice(
-            { ...c, ip: target, mac: fresh.mac },
-            observations,
-          );
-          if (
-            !found ||
-            lanFingerprint(found) !== lanFingerprint(updated) ||
-            observations.filter((d) => d.ip === target).length !== 1
-          )
-            throw Error(
-              "Nouvelle IP, identité ou configuration réseau non confirmée.",
-            );
-          const discovery = await discoverOnInterface(
-            a.address,
-            a.mask,
-            this.abort.signal,
-          );
-          const peers = discovery.filter((d) => d.ip === target);
-          if (
-            peers.length !== 1 ||
-            (c.endpoint && peers[0].endpoint !== c.endpoint)
-          )
-            throw Error("Identité ONVIF à la nouvelle adresse non confirmée.");
-          await this.guard.system.probe(target, a.address);
-          const neighbors = (await this.guard.system.neighbors(a.id)).filter(
-            (n) => n.ip === target,
-          );
-          if (
-            neighbors.length !== 1 ||
-            neighbors[0].mac.toLowerCase() !== fresh.mac
-          )
-            throw Error(
-              "Identité Ethernet à la nouvelle adresse non confirmée.",
-            );
-          check();
-          return true;
-        },
-        () => true,
-        4,
-        1500,
-      );
-      check();
-      Object.assign(c, {
-        ip: target,
-        mac: fresh.mac,
-        ambiguous: false,
-        connectionError: undefined,
-        status: "Adresse vérifiée · à connecter",
-      });
-      this.uncertain.delete(id);
-      this.attempted.delete(id);
-      this.discoveryRead = undefined;
+      await this.verifyLanAddress(id, updated, epoch, session);
       return {
         sent: true,
         acknowledged: false,
@@ -1195,6 +1331,80 @@ export class CameraService {
         "Changement IP non confirmé : relancez la détection avant toute nouvelle écriture.";
       throw error;
     }
+  }
+  private async verifyLanAddress(
+    id: string,
+    expected: LanDevice,
+    epoch: number,
+    session: number,
+  ) {
+    const c = this.camera(id);
+    const a = await this.guard.assert(expected.ip);
+    const target = expected.ip;
+    const check = () => {
+      this.guard.ensureEpoch(epoch);
+      if (session !== this.sessionGeneration) throw Error("Session modifiée.");
+    };
+    await reconnect(
+      async () => {
+        await this.guard.assert(target);
+        check();
+        const observations = await discoverLan(
+          a.address,
+          a.mask,
+          this.abort.signal,
+        );
+        check();
+        const found = matchLanDevice(
+          { ...c, ip: target, mac: expected.mac },
+          observations,
+        );
+        if (
+          !found ||
+          lanFingerprint(found) !== lanFingerprint(expected) ||
+          observations.filter((d) => d.ip === target).length !== 1
+        )
+          throw Error(
+            "Nouvelle IP, identité ou configuration réseau non confirmée.",
+          );
+        const discovery = await discoverOnInterface(
+          a.address,
+          a.mask,
+          this.abort.signal,
+        );
+        const peers = discovery.filter((d) => d.ip === target);
+        if (
+          peers.length !== 1 ||
+          (c.endpoint && peers[0].endpoint !== c.endpoint)
+        )
+          throw Error("Identité ONVIF à la nouvelle adresse non confirmée.");
+        await this.guard.system.probe(target, a.address);
+        const neighbors = (await this.guard.system.neighbors(a.id)).filter(
+          (n) => n.ip === target,
+        );
+        if (
+          neighbors.length !== 1 ||
+          neighbors[0].mac.toLowerCase() !== expected.mac
+        )
+          throw Error("Identité Ethernet à la nouvelle adresse non confirmée.");
+        check();
+        return true;
+      },
+      () => true,
+      4,
+      1500,
+    );
+    check();
+    Object.assign(c, {
+      ip: target,
+      mac: expected.mac,
+      ambiguous: false,
+      connectionError: undefined,
+      status: "Adresse vérifiée · à connecter",
+    });
+    this.uncertain.delete(id);
+    this.attempted.delete(id);
+    this.discoveryRead = undefined;
   }
   async resolveIPConflict(id: string): Promise<Camera> {
     const selected = this.camera(id),
@@ -2572,6 +2782,29 @@ export class CameraService {
     const request = parseRequest(method, input);
     let out: Api[keyof Api]["output"] = undefined;
     switch (request.method) {
+      case "getAutoLogin": {
+        out = this.autoLogin
+          ? await this.autoLogin.status()
+          : { enabled: false, available: false };
+        break;
+      }
+      case "saveAutoLogin": {
+        if (!this.autoLogin) throw Error("Stockage sécurisé indisponible.");
+        out = await this.autoLogin.save(request.input);
+        break;
+      }
+      case "connectSavedSession": {
+        if (this.credentials) {
+          out = this.session();
+          break;
+        }
+        await this.guard.assert();
+        const credentials = await this.autoLogin?.credentials();
+        if (!credentials)
+          throw Error("La connexion automatique n’est pas configurée.");
+        out = await this.dispatch("connectSession", credentials);
+        break;
+      }
       case "previewFactoryReset": {
         const v = request.input;
         await this.guard.assert();
@@ -2651,9 +2884,13 @@ export class CameraService {
         };
         break;
       }
+      case "previewIPConflicts": {
+        out = await this.previewIPConflicts();
+        break;
+      }
       case "previewAddresses": {
         const v = request.input;
-        out = await this.previewAddresses(v.start);
+        out = await this.previewAddresses(v.start, v.assignments);
         break;
       }
       case "applyAddresses": {

@@ -1,3 +1,4 @@
+import { build } from "esbuild";
 import {
   mkdir,
   readFile,
@@ -52,7 +53,7 @@ const content = {
     eyebrow: "Application locale · macOS / Windows / Linux",
     release: "Consulter la version 0.2.0",
     local:
-      "Aucun compte cloud requis. Les identifiants caméra restent dans la session locale.",
+      "Aucun compte cloud requis. Les identifiants caméra restent locaux ; leur mémorisation chiffrée est facultative.",
     computer: "Votre ordinateur · Quasar",
     ethernet: "Connexion Ethernet",
     camera: "Vos caméras IP",
@@ -96,7 +97,7 @@ const content = {
     asset: "Espace technique (accès protégé)",
     footer: "Application locale. Aucune télémétrie caméra.",
     privacy:
-      "Ce portail ne collecte aucune donnée et n’intègre aucun outil de suivi.",
+      "Ce portail peut mesurer des performances et des vues agrégées, sans identifiant ni contenu caméra.",
     assetTitle: "Quasar · espace technique",
     assetIntro: "Identité et composants de l’application locale.",
     storybook: "Ouvrir Storybook",
@@ -123,7 +124,7 @@ const content = {
     eyebrow: "Local application · macOS / Windows / Linux",
     release: "View version 0.2.0",
     local:
-      "No cloud account required. Camera credentials remain in the local session.",
+      "No cloud account required. Camera credentials remain local; encrypted storage is optional.",
     computer: "Your computer · Quasar",
     ethernet: "Ethernet connection",
     camera: "Your IP cameras",
@@ -166,7 +167,8 @@ const content = {
       "The design reuses the application’s Storybook components, tokens and local resources. The technical space will be protected at the origin.",
     asset: "Technical space (protected access)",
     footer: "Local application. No camera telemetry.",
-    privacy: "This portal collects no data and includes no tracking.",
+    privacy:
+      "This portal can measure aggregate views and performance without identifiers or camera content.",
     assetTitle: "Quasar · technical space",
     assetIntro: "Identity and components of the local application.",
     storybook: "Open Storybook",
@@ -184,7 +186,7 @@ function page(lang, technical = false) {
     base = technical
       ? "https://asset.quasar.doublemart.fr"
       : "https://quasar.doublemart.fr";
-  return `<!doctype html><html lang="${lang}" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${esc(technical ? c.assetIntro : c.intro)}"><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="${base}/${lang}/"><link rel="alternate" hreflang="${c.other}" href="${base}/${c.other}/"><title>${technical ? c.assetTitle : "Quasar — " + c.title}</title><link rel="icon" href="/static/symbol.svg" type="image/svg+xml"><script src="/static/theme.js"></script><link rel="stylesheet" href="/static/style.css"></head><body><a class="skip" href="#content">${c.skip}</a><header><a class="brand" href="/${lang}/"><img src="/static/symbol.svg" alt="">Quasar</a><nav aria-label="${c.docs}">${technical ? `<a href="/storybook/">Storybook</a>` : `<a href="#versions">${c.downloads}</a><a href="#resources">${c.docs}</a>`}<a href="/${c.other}/" lang="${c.other}" hreflang="${c.other}">${c.language}</a><label><span class="sr-only">${c.theme} </span><select data-theme-choice aria-label="${c.theme}"><option value="system">${c.system}</option><option value="light">${c.light}</option><option value="dark">${c.dark}</option></select></label></nav></header><main id="content">${technical ? `<section class="hero"><div><p class="eyebrow">QUASAR / DESIGN</p><h1>${c.assetIntro}</h1><p class="intro">${c.assetNote}</p><div class="actions"><a class="button" href="/storybook/">${c.storybook}</a><a href="/tokens.json">${c.tokens}</a></div><a href="/manifest.json">${c.manifest}</a></div><div class="diagram"><img src="/static/symbol.svg" alt=""><p>Quasar / Prisme</p><p class="muted">Sora · Inter · JetBrains Mono</p></div></section><a href="https://quasar.doublemart.fr/${lang}/">${c.portal}</a>` : `<section class="hero"><div><p class="eyebrow">${c.eyebrow}</p><h1>${c.title}</h1><p class="intro">${c.intro}</p><div class="actions"><a class="button" href="${release}">${c.release}</a><a href="${repository}">${c.source}</a></div><p class="muted">${c.local}</p></div><div class="diagram" role="img" aria-label="${c.diagram}"><img src="/static/symbol.svg" alt=""><div class="node">${c.computer}</div><div class="connector"></div><div class="node">${c.ethernet}</div><div class="connector"></div><div class="node">${c.camera}</div><small>${c.diagramNote}</small></div></section><section class="section two"><div><h2>${c.workflow}</h2><ol>${c.steps.map((s) => `<li>${s}</li>`).join("")}</ol></div><div><h2>${c.control}</h2><p>${c.controlText}</p><a href="${repository}/blob/main/docs/ARCHITECTURE.md">${c.read}</a></div></section><section class="section" id="versions"><p class="eyebrow">QUASAR / 0.2.0</p><h2>${c.versions}</h2><p>${c.versionText}</p><div class="note">${c.signing}</div><div class="platforms">${["mac", "win", "linux"].map((k) => `<article><h3>${c[k]}</h3><p>${c[k + "Info"]}</p><a href="${release}">${c.download}</a></article>`).join("")}</div><div class="note"><h3>${c.prepared}</h3><p>${c.preparedText}</p><a href="${repository}/blob/main/docs/PLATEFORMES.md">${c.platformDocs}</a></div></section><section class="section" id="resources"><h2>${c.sources}</h2><div class="two"><div><h3>${c.technical}</h3><p>${c.technicalText}</p><a href="${repository}/tree/main/docs">${c.docs}</a></div><div><h3>${c.design}</h3><p>${c.designText}</p><a href="https://asset.quasar.doublemart.fr/${lang}/">${c.asset}</a></div></div></section>`}</main><footer><span>Quasar · ${c.footer}</span><span>${c.privacy}</span></footer></body></html>`;
+  return `<!doctype html><html lang="${lang}" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${esc(technical ? c.assetIntro : c.intro)}"><meta name="robots" content="noindex,nofollow"><link rel="canonical" href="${base}/${lang}/"><link rel="alternate" hreflang="${c.other}" href="${base}/${c.other}/"><title>${technical ? c.assetTitle : "Quasar — " + c.title}</title><link rel="icon" href="/static/symbol.svg" type="image/svg+xml"><script src="/static/theme.js"></script><link rel="stylesheet" href="/static/style.css"></head><body data-metrics="disabled">${technical ? "" : `<script type="module" src="/static/metrics.js"></script>`}<a class="skip" href="#content">${c.skip}</a><header><a class="brand" href="/${lang}/"><img src="/static/symbol.svg" alt="">Quasar</a><nav aria-label="${c.docs}">${technical ? `<a href="/storybook/">Storybook</a>` : `<a href="#versions">${c.downloads}</a><a href="#resources">${c.docs}</a>`}<a href="/${c.other}/" lang="${c.other}" hreflang="${c.other}">${c.language}</a><label><span class="sr-only">${c.theme} </span><select data-theme-choice aria-label="${c.theme}"><option value="system">${c.system}</option><option value="light">${c.light}</option><option value="dark">${c.dark}</option></select></label></nav></header><main id="content">${technical ? `<section class="hero"><div><p class="eyebrow">QUASAR / DESIGN</p><h1>${c.assetIntro}</h1><p class="intro">${c.assetNote}</p><div class="actions"><a class="button" href="/storybook/">${c.storybook}</a><a href="/tokens.json">${c.tokens}</a></div><a href="/manifest.json">${c.manifest}</a></div><div class="diagram"><img src="/static/symbol.svg" alt=""><p>Quasar / Prisme</p><p class="muted">Sora · Inter · JetBrains Mono</p></div></section><a href="https://quasar.doublemart.fr/${lang}/">${c.portal}</a>` : `<section class="hero"><div><p class="eyebrow">${c.eyebrow}</p><h1>${c.title}</h1><p class="intro">${c.intro}</p><div class="actions"><a class="button" href="${release}">${c.release}</a><a href="${repository}">${c.source}</a></div><p class="muted">${c.local}</p></div><div class="diagram" role="img" aria-label="${c.diagram}"><img src="/static/symbol.svg" alt=""><div class="node">${c.computer}</div><div class="connector"></div><div class="node">${c.ethernet}</div><div class="connector"></div><div class="node">${c.camera}</div><small>${c.diagramNote}</small></div></section><section class="section two"><div><h2>${c.workflow}</h2><ol>${c.steps.map((s) => `<li>${s}</li>`).join("")}</ol></div><div><h2>${c.control}</h2><p>${c.controlText}</p><a href="${repository}/blob/main/docs/ARCHITECTURE.md">${c.read}</a></div></section><section class="section" id="versions"><p class="eyebrow">QUASAR / 0.2.0</p><h2>${c.versions}</h2><p>${c.versionText}</p><div class="note">${c.signing}</div><div class="platforms">${["mac", "win", "linux"].map((k) => `<article><h3>${c[k]}</h3><p>${c[k + "Info"]}</p><a href="${release}">${c.download}</a></article>`).join("")}</div><div class="note"><h3>${c.prepared}</h3><p>${c.preparedText}</p><a href="${repository}/blob/main/docs/PLATEFORMES.md">${c.platformDocs}</a></div></section><section class="section" id="resources"><h2>${c.sources}</h2><div class="two"><div><h3>${c.technical}</h3><p>${c.technicalText}</p><a href="${repository}/tree/main/docs">${c.docs}</a></div><div><h3>${c.design}</h3><p>${c.designText}</p><a href="https://asset.quasar.doublemart.fr/${lang}/">${c.asset}</a></div></div></section>`}</main><footer><span>Quasar · ${c.footer}</span><span>${c.privacy}</span></footer></body></html>`;
 }
 for (const [directory, technical] of [
   ["site-dist", false],
@@ -225,6 +227,14 @@ for (const [directory, technical] of [
     );
     await cp("storybook-static", `${directory}/storybook`, { recursive: true });
   }
+  if (!technical)
+    await build({
+      entryPoints: ["web/metrics.js"],
+      bundle: true,
+      minify: true,
+      format: "esm",
+      outfile: directory + "/static/metrics.js",
+    });
   const files = await inventory(directory);
   const manifest =
     JSON.stringify(

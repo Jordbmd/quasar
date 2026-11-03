@@ -1,0 +1,6 @@
+**
+!Dockerfile.portal
+!site-dist/
+!site-dist/**
+!portal-dist/
+!portal-dist/**

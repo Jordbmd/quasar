@@ -1,0 +1,49 @@
+# Checklist de finalisation — quasar
+
+État au 3 novembre 2026. Une case partielle reste ouverte. Les preuves antérieures
+ne valident pas les modifications de cette reprise. « À compléter » désigne du travail
+réalisable dans cette mission, pas un blocage lié au futur VPS.
+
+| Fait | ID | Résultat attendu | État / preuve courte |
+| --- | --- | --- | --- |
+| [x] | BASE — Maintenance | AGENTS et socle lus ; changements locaux préservés | vérifié — AGENTS.md ; git status/fetch du 3 novembre |
+| [ ] | SEC — Autorisations | Refus serveur, IPC ou origine ; aucune donnée privée accessible sans habilitation | à revalider — Tests de sécurité propres au projet |
+| [ ] | INPUT — Entrées | XSS/SQL, redirections, uploads et archives bornés ; erreurs sans secret | à revalider — Tests ciblés entrées et erreurs |
+| [ ] | IDENTITY — Compte | Runtime réel avec Authentik : SSO, retour, refus autre compte, expiration et révocation | non applicable au natif hors ligne ; portail public, assets privés à tester séparément — Laboratoire Platform tests/authentik-integration |
+| [ ] | RECOVERY — Invitation/récupération | SMTP local : invitation contrôlée, expiration et usage unique | non applicable au natif hors ligne ; portail public, assets privés à tester séparément — Laboratoire Authentik + SMTP de test |
+| [ ] | MFA — MFA | TOTP standard, codes de secours et habilitation admin CLI ; compte quotidien distinct | non applicable au natif hors ligne ; portail public, assets privés à tester séparément — Tests Authentik ; CLI Platform |
+| [ ] | LOGOUT — Déconnexion | Libellés honnêtes ; local distinct de session IdP et autres applications | non applicable au natif hors ligne ; portail public, assets privés à tester séparément — Tests des vrais runtimes |
+| [ ] | ISOLATION — Données | Politique propriétaire explicite ; second compte refusé sur données/fichiers/tâches/exports | non applicable au natif hors ligne ; portail public, assets privés à tester séparément — Tests de contrôle d’accès |
+| [ ] | I18N — FR/EN | Libellés applicatifs et identité complets sans traduction du contenu utilisateur | à compléter — Parcours navigateur et catalogues |
+| [ ] | THEME — Thèmes | Clair/sombre/système persistants sans flash | à revalider — Tests navigateur ou Electron |
+| [ ] | A11Y — Accessibilité | Clavier, focus, contraste, reduced-motion, mobile | à revalider — Axe et parcours composants réels |
+| [x] | STORIES — Storybook | Composants réels, langues/thèmes, lent/vide/erreur/reprise/succès synthétiques | 44 stories × FR/EN × clair/sombre, Axe et clavier ; `stories/Box.stories.tsx`, `test:stories` du 3 novembre |
+| [ ] | ASYNC — Chargements | Géométrie réservée, même ressource conservée, réponses obsolètes ignorées | à revalider — Tests chargement/reprise/race |
+| [ ] | ROBOTS — Non-indexation | HTML/statique/erreurs noindex ; aucun sitemap indexable | à revalider — Tests HTTP |
+| [ ] | ASSETS — Design privé | Pages, archives, fichiers, iframe et origine protégés | à compléter — Laboratoire Caddy + Authentik |
+| [ ] | VITALS — Web Vitals | LCP/INP/CLS standard ; indisponible distinct de zéro | à compléter — Bibliothèque web-vitals + tests navigateur |
+| [ ] | VIEWS — Navigation | Vues et navigations pertinentes, sans double comptage ni URL brute | à compléter — Tests SPA/SSR |
+| [ ] | METRICS — Collecte | Files/lots bornés, délai court, abandon en panne, rétention ; aucun secret frontend | à compléter — Chaîne application → collecteur → admin |
+| [ ] | COST — Coût | Mesure avant/après et panne collecteur sans attente métier | à compléter — Benchmark local synthétique |
+| [ ] | REPORTS — Rapports | CI/audit datés et commit raccordés ; secret réservé aux jobs de confiance | à compléter — Chaîne CI → ingestion → admin ; test local |
+| [ ] | STATUS — États techniques | Inconnu/périmé/échoué/non exécuté/réussi distincts ; santé/backup/livraison sans succès inventé | à compléter — Tests contrats et vues admin |
+| [ ] | CI — Validation | Installation reproductible, tests utiles, secrets, audits ; jobs épinglés, caches, rétention, annulation | à compléter — Nouvelle exécution CI sur version réunie |
+| [x] | BRANCH — Protection effective | Contrôle final obligatoire sur main, branche à jour, conversations résolues, administrateur inclus ; force push et suppression interdits | API GitHub PUT 200 le 2026-11-03T19:00:40.524Z, contexte `Required validation` fourni par GitHub Actions ; `doublemart-platform/docs/branch-protection.json`. |
+| [ ] | ARTIFACT — Artefacts | Commit branche/construit, image/paquet, checksum et registre distincts ; copie vérifiée | à compléter — Manifestes et artefacts retenus |
+| [ ] | DELIVERY — Livraison | Promotion locale jetable sans reconstruction ; production inactive | à compléter — Exercice local Compose |
+| [ ] | COMPOSE — Compose | Services, DNS interne, réseaux, ports, santé, secrets, permissions, redémarrage | à compléter — Compose local isolé |
+| [ ] | BACKUP — Sauvegarde | Backup cohérent restauré vers destination neuve ; image et données distinctes | à compléter — Tests synthétiques backup/restore/rollback |
+| [ ] | RESOURCES — Ressources | Applications + Caddy/Authentik/Postgres/Chromium mesurés ; limites explicites | à compléter — Mesures locales représentatives |
+
+## Nouveautés main à valider
+
+- [ ] Commit `538a8c7` intégré : conflits résolus, validation de la version réunie en cours.
+- [x] Bibliothèque Box, import CSV/XLSX/XLS/ODS et formules/volumes refusés — tests Box, workbook-archive et worker Electron.
+- [x] Associations caméras et changement de Box sans fuite de contexte/brouillon — tests Box library, simulation et Electron isolé.
+- [x] Connexion automatique opt-in chiffrée, basic_text refusé, aucun secret renderer — tests auto-login et smoke Electron.
+- [x] Conflits IP : double découverte, identité, confirmation des IP temporaires — tests addressing-conflicts ; aucune caméra réelle contactée.
+- [x] Adressage interrompu/incertain : aucune réécriture automatique ; reprise explicite — tests addressing/session.
+- [ ] Progression et résultat par caméra, FR/EN et thèmes, clavier.
+- [ ] Signature vérifiée dans le paquet ; manifeste honnête si absente/inconnue.
+- [x] Electron et go2rtc inclus dans le contrôle des composants distribués — `audit:distributed` bloquant, rebuild go2rtc corrigé, OSV et govulncheck du 3 novembre sans avis connu ; 22 tests RTSP/superviseur.
+- [ ] Matériel réel : externe, caméra et autorisation nécessaires.

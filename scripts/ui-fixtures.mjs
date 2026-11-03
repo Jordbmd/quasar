@@ -112,6 +112,10 @@ try {
       const detailListeners = new Set();
       const defaultsListeners = new Set();
       const addressListeners = new Set();
+      let savedLogin = JSON.parse(
+        localStorage.getItem("test-auto-login") ||
+          '{"enabled":false,"available":true}',
+      );
       let active = false;
       let sessionUsername = "";
       const session = () => ({
@@ -349,10 +353,65 @@ try {
               ),
             };
           }
+          if (
+            method === "previewIPConflicts" ||
+            (method === "applyAddresses" && v.planId === "conflict-fixture")
+          ) {
+            const done = method === "applyAddresses";
+            return {
+              id: "conflict-fixture",
+              kind: "conflicts",
+              createdAt: new Date().toISOString(),
+              steps: [
+                {
+                  id: cameras[1].id,
+                  from: "192.168.1.13",
+                  to: "192.168.1.254",
+                  kind: "final",
+                },
+                {
+                  id: cameras[0].id,
+                  from: "192.168.1.13",
+                  to: "192.168.1.13",
+                  kind: "verify",
+                },
+              ],
+              rows: cameras.slice(0, 2).map((c, i) => ({
+                id: c.id,
+                name: c.name,
+                identity: c.mac,
+                from: "192.168.1.13",
+                to: i ? "192.168.1.254" : "192.168.1.13",
+                state: done ? "verified" : "ready",
+                resolution: "serial",
+                message: done
+                  ? "Identité et adresse vérifiées"
+                  : "SIMULATION — ciblage confirmé",
+              })),
+            };
+          }
           if (method === "previewAddresses")
             return {
               id: "address-fixture",
               createdAt: new Date().toISOString(),
+              ...(window.__sezaamTest.stagedAddress
+                ? {
+                    steps: [
+                      {
+                        id: cameras[1].id,
+                        from: cameras[1].ip,
+                        to: "192.168.1.254",
+                        kind: "temporary",
+                      },
+                      {
+                        id: cameras[1].id,
+                        from: "192.168.1.254",
+                        to: "192.168.1.12",
+                        kind: "final",
+                      },
+                    ],
+                  }
+                : {}),
               rows: cameras.slice(0, 3).map((c, i) => ({
                 id: c.id,
                 name: c.name,
@@ -360,14 +419,60 @@ try {
                 from: c.ip,
                 to: `192.168.1.${v.start + i + 10}`,
                 locker: v.start + i,
-                state: i === 0 ? "blocked" : "ready",
+                state:
+                  i === 0 ||
+                  (c.ambiguous && window.__sezaamTest.occupiedSerialTarget)
+                    ? "blocked"
+                    : "ready",
                 ...(c.ambiguous ? { resolution: "serial" } : {}),
+                ...(i === 1 && window.__sezaamTest.stagedAddress
+                  ? { temporaryIP: "192.168.1.254" }
+                  : {}),
                 message:
                   i === 0
                     ? "SIMULATION — IP partagée"
-                    : c.ambiguous
-                      ? "SIMULATION — conflit résoluble sans débranchement"
-                      : "SIMULATION — prête",
+                    : c.ambiguous && window.__sezaamTest.occupiedSerialTarget
+                      ? "SIMULATION — adresse cible occupée"
+                      : c.ambiguous
+                        ? "SIMULATION — conflit résoluble sans débranchement"
+                        : "SIMULATION — prête",
+              })),
+            };
+          if (method === "applyAddresses" && window.__sezaamTest.stagedAddress)
+            return {
+              id: "address-fixture",
+              createdAt: new Date().toISOString(),
+              steps: [
+                {
+                  id: cameras[1].id,
+                  from: cameras[1].ip,
+                  to: "192.168.1.254",
+                  kind: "temporary",
+                  state: "verified",
+                },
+                {
+                  id: cameras[1].id,
+                  from: "192.168.1.254",
+                  to: "192.168.1.12",
+                  kind: "final",
+                  state: "skipped",
+                },
+              ],
+              rows: cameras.slice(0, 3).map((c, i) => ({
+                id: c.id,
+                name: c.name,
+                identity: c.mac,
+                from: c.ip,
+                to: `192.168.1.${i + 11}`,
+                locker: i + 1,
+                state: i === 1 ? "skipped" : "blocked",
+                message: "SIMULATION — reprise nécessaire",
+                ...(i === 1
+                  ? {
+                      temporaryIP: "192.168.1.254",
+                      lastVerifiedIP: "192.168.1.254",
+                    }
+                  : {}),
               })),
             };
           if (method === "applyAddresses")
@@ -530,6 +635,24 @@ try {
             return structuredClone(profileRuns.find((r) => r.id === v.id));
           if (method === "exportDefaultsRun")
             return "SIMULATION — rapport JSON exporté";
+          if (method === "getAutoLogin") return structuredClone(savedLogin);
+          if (method === "saveAutoLogin") {
+            savedLogin = {
+              enabled: v.enabled,
+              available: true,
+              ...(v.enabled ? { username: v.username } : {}),
+            };
+            localStorage.setItem("test-auto-login", JSON.stringify(savedLogin));
+            return structuredClone(savedLogin);
+          }
+          if (method === "connectSavedSession") {
+            if (localStorage.getItem("test-auto-refused"))
+              throw Error("SIMULATION : authentification refusée");
+            active = true;
+            sessionUsername = savedLogin.username;
+            cameras.forEach((c) => (c.status = "Connectée · lecture seule"));
+            return structuredClone(session());
+          }
           if (method === "state") return structuredClone(state());
           if (method === "previewProfiles")
             return window.__sezaamTest.emptyPreviewProfiles?.[v.id]
@@ -728,7 +851,10 @@ try {
       .isEnabled(),
     true,
   );
-  await page.getByTitle("Réseau", { exact: true }).click();
+  await page.getByRole("button", { name: "Diagnostic", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Réseau Ethernet", exact: true })
+    .click();
   await page.getByText("Adresse IPv4 locale", { exact: true }).waitFor();
   assert.equal(await page.locator(".network-meta .status.warning").count(), 1);
   await page.evaluate(() =>
@@ -739,7 +865,7 @@ try {
     }),
   );
   await page.getByText("TEST : hub débranché", { exact: true }).waitFor();
-  await page.getByRole("button", { name: /Caméras Configuration/ }).click();
+  await page.getByRole("button", { name: "Caméras", exact: true }).click();
   assert.equal(
     await page
       .getByRole("button", { name: "Relancer la détection", exact: true })
@@ -1110,7 +1236,7 @@ try {
     () =>
       window.__sezaamTest.calls.filter((c) => c.method === "stopVideo").length,
   );
-  await page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+  await page.getByRole("button", { name: "Diagnostic", exact: true }).click();
   assert.ok(
     (await page.evaluate(
       () =>
@@ -1127,7 +1253,7 @@ try {
     path: "test-results/diagnostic-results-SIMULATION.png",
     fullPage: true,
   });
-  await page.getByRole("button", { name: /Caméras Configuration/ }).click();
+  await page.getByRole("button", { name: "Caméras", exact: true }).click();
   await page
     .getByRole("button", { name: "Ajouter par IP", exact: true })
     .click();
@@ -1141,7 +1267,7 @@ try {
     .click();
   assert.equal(await page.getByRole("alert").count(), 0);
   await page.keyboard.press("Escape");
-  await page.getByTitle("Paramètres", { exact: true }).click();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
   await page.getByLabel("Lecture automatique", { exact: false }).check();
   assert.equal(
     await page.evaluate(
@@ -1150,7 +1276,7 @@ try {
     true,
   );
   failVideo = false;
-  await page.getByRole("button", { name: /Caméras Configuration/ }).click();
+  await page.getByRole("button", { name: "Caméras", exact: true }).click();
   await page.getByRole("button", { name: "Arrêter", exact: true }).waitFor();
   assert.equal(await page.locator("video").getAttribute("controls"), null);
   await page.getByRole("button", { name: "Arrêter", exact: true }).click();
@@ -1263,6 +1389,82 @@ try {
   await page
     .getByRole("button", { name: "Résoudre les conflits", exact: true })
     .click();
+  const conflicts = page.getByRole("dialog");
+  await conflicts.getByText("192.168.1.254", { exact: true }).waitFor();
+  assert.equal(await conflicts.getByRole("spinbutton").count(), 0);
+  assert.equal(await conflicts.getByText(/Premier casier/).count(), 0);
+  assert.equal(await conflicts.locator(".ip-conflict-camera").count(), 2);
+  const automaticAnalysis = await page.evaluate(() =>
+    window.__sezaamTest.calls.filter((c) => c.method === "previewIPConflicts"),
+  );
+  assert.equal(automaticAnalysis.length, 1);
+  await page.screenshot({
+    path: "test-results/ip-conflicts-preview-SIMULATION.png",
+  });
+  const priorTheme = await page.locator("html").getAttribute("data-theme");
+  await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
+  await page.screenshot({
+    path: "test-results/ip-conflicts-dark-SIMULATION.png",
+  });
+  await page.setViewportSize({ width: 700, height: 820 });
+  assert.equal(
+    await conflicts.evaluate((el) => el.scrollWidth > el.clientWidth),
+    false,
+  );
+  await page.screenshot({
+    path: "test-results/ip-conflicts-narrow-SIMULATION.png",
+  });
+  await page.setViewportSize({ width: 1448, height: 1086 });
+  await page.evaluate(
+    (t) => (document.documentElement.dataset.theme = t),
+    priorTheme,
+  );
+  await page.evaluate(() => (window.__sezaamTest.holdBatch = "applyAddresses"));
+  await conflicts
+    .getByRole("button", { name: "Résoudre les conflits", exact: true })
+    .click();
+  await conflicts
+    .getByText("Résolution et vérification des IP", { exact: true })
+    .waitFor();
+  await page.keyboard.press("Escape");
+  assert.equal(
+    await conflicts.isVisible(),
+    true,
+    "Le bilan reste accessible pendant l’écriture",
+  );
+  await page.evaluate(() => {
+    window.__sezaamTest.emitBatch("address", {
+      planId: "conflict-fixture",
+      completed: 1,
+      total: 2,
+      camera: "192.168.1.13",
+      stage: "Contrôle de l’identité",
+    });
+  });
+  await conflicts
+    .getByText("Contrôle de l’identité · 192.168.1.13", { exact: true })
+    .waitFor();
+  await page.screenshot({
+    path: "test-results/ip-conflicts-progress-SIMULATION.png",
+  });
+  await page.evaluate(() => window.__sezaamTest.finishBatch());
+
+  await conflicts
+    .getByText("Les conflits détectés sont résolus.", { exact: true })
+    .waitFor();
+  assert.equal(
+    await conflicts.getByText("Vérifiée", { exact: true }).count(),
+    2,
+  );
+  await page.screenshot({
+    path: "test-results/ip-conflicts-result-SIMULATION.png",
+  });
+  await conflicts
+    .getByRole("button", { name: "Fermer le bilan", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Attribuer les IP", exact: true })
+    .click();
   await page
     .getByRole("button", { name: "Vérifier les adresses", exact: true })
     .click();
@@ -1275,15 +1477,84 @@ try {
     0,
     "Pas d’étape d’isolation pour un conflit ciblable",
   );
+  await page.evaluate(() => (window.__sezaamTest.occupiedSerialTarget = true));
+  await page
+    .getByRole("button", { name: "Vérifier les adresses", exact: true })
+    .click();
+  const occupiedSerialRow = page
+    .locator(".addressing-table tbody tr")
+    .filter({ hasText: "SIMULATION — adresse cible occupée" });
+  await occupiedSerialRow.waitFor();
+  assert.equal(
+    await occupiedSerialRow
+      .getByRole("button", { name: "Résolution par isolation" })
+      .count(),
+    0,
+  );
+  await occupiedSerialRow
+    .getByText(/Ciblage sans débranchement confirmé/)
+    .waitFor();
+  await page.evaluate(() => (window.__sezaamTest.occupiedSerialTarget = false));
+  await page.evaluate(() => (window.__sezaamTest.stagedAddress = true));
+  await page
+    .getByRole("button", { name: "Vérifier les adresses", exact: true })
+    .click();
+
+  await page
+    .getByText("Via 192.168.1.254 (temporaire)", { exact: true })
+    .waitFor();
+  await page
+    .getByText("Ordre des opérations · 2 étapes", { exact: true })
+    .click();
+  await page.getByText(/IP temporaire ·/).waitFor();
+  await page.screenshot({
+    path: "test-results/addressing-staged-SIMULATION.png",
+  });
   await page
     .getByRole("button", {
       name: "Attribuer les IP à 2 caméra(s)",
       exact: true,
     })
     .waitFor();
+  const reviewedAssignments = await page.evaluate(() =>
+    window.__sezaamTest.calls
+      .filter((c) => c.method === "previewAddresses")
+      .at(-1),
+  );
+  assert.equal(reviewedAssignments.input.assignments, undefined);
+  await page
+    .getByRole("button", {
+      name: "Attribuer les IP à 2 caméra(s)",
+      exact: true,
+    })
+    .click();
+  await page
+    .getByText("Dernière IP vérifiée : 192.168.1.254", { exact: true })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "Vérifier les adresses", exact: true })
+    .click();
+  await page
+    .getByRole("button", {
+      name: "Attribuer les IP à 2 caméra(s)",
+      exact: true,
+    })
+    .waitFor();
+  const resumed = await page.evaluate(
+    () =>
+      window.__sezaamTest.calls
+        .filter((c) => c.method === "previewAddresses")
+        .at(-1).input.assignments,
+  );
+  assert.deepEqual(
+    resumed.map((a) => a.locker),
+    [1, 2, 3],
+  );
+  assert.equal(new Set(resumed.map((a) => a.id)).size, 3);
   await page
     .getByRole("button", { name: "Fermer la fenêtre", exact: true })
     .click();
+  await page.evaluate(() => (window.__sezaamTest.stagedAddress = false));
   await page.evaluate(() => window.__sezaamTest.setAddressConflict(false));
   await page
     .getByRole("button", { name: "Relancer la détection", exact: true })
@@ -1351,7 +1622,9 @@ try {
     ),
   );
   assert.equal(
-    await page.getByTitle("Paramètres", { exact: true }).isEnabled(),
+    await page
+      .getByRole("button", { name: "Paramètres", exact: true })
+      .isEnabled(),
     true,
   );
   assert.equal(await page.locator(".camera-row").isEnabled(), true);
@@ -1377,7 +1650,10 @@ try {
       .count(),
     0,
   );
-  await page.getByTitle("Paramètres par défaut", { exact: true }).click();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Profil Sezaam", exact: true })
+    .click();
   await page.locator("#default-syncTime").waitFor();
   await page.getByRole("button", { name: /Encodage vidéo/ }).click();
   await page.locator("#default-fps").fill("20");
@@ -1588,7 +1864,9 @@ try {
     .getByText("SIMULATION — rapport JSON exporté", { exact: true })
     .waitFor();
   await page.getByRole("button", { name: "Fermer", exact: true }).click();
-  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Réglages du profil", exact: true })
+    .click();
   await page.getByRole("button", { name: /Appliquer à toutes/ }).click();
   await page
     .getByRole("button", {
@@ -1673,16 +1951,19 @@ try {
   );
   await page
     .getByRole("button", {
-      name: "Caméras Configuration et paramètres",
+      name: "Caméras",
       exact: true,
     })
     .click();
-  await page.getByTitle("Paramètres par défaut", { exact: true }).click();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Profil Sezaam", exact: true })
+    .click();
   await page.getByRole("button", { name: /Encodage vidéo/ }).click();
   assert.equal(await page.locator("#default-fps").inputValue(), "20");
   await page
     .getByRole("button", {
-      name: "Caméras Configuration et paramètres",
+      name: "Caméras",
       exact: true,
     })
     .click();
@@ -1759,6 +2040,82 @@ try {
     page,
     await page.evaluate(() => window.__sezaamTest.detailFixture()),
   );
+  // Saved login is mocked here; no real keychain, password file or camera is used.
+  await page.reload();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  await page.getByRole("checkbox", { name: /Connexion automatique/ }).check();
+  assert.equal(
+    await page
+      .getByLabel("Identifiant des caméras", { exact: true })
+      .inputValue(),
+    "admin",
+  );
+  assert.equal(
+    await page
+      .getByLabel("Mot de passe des caméras", { exact: true })
+      .inputValue(),
+    "123456",
+  );
+  await page
+    .getByRole("button", { name: "Enregistrer la connexion", exact: true })
+    .click();
+  await page
+    .getByRole("button", {
+      name: /Gérer la connexion aux caméras$/,
+      exact: true,
+    })
+    .waitFor();
+  const savedAttempts = () =>
+    page.evaluate(
+      () =>
+        window.__sezaamTest.calls.filter(
+          (c) => c.method === "connectSavedSession",
+        ).length,
+    );
+  assert.equal(await savedAttempts(), 1);
+  await page.screenshot({ path: "test-results/auto-login-SIMULATION.png" });
+  await page
+    .getByRole("button", {
+      name: /Gérer la connexion aux caméras$/,
+      exact: true,
+    })
+    .click();
+  await page.getByRole("button", { name: "Déconnecter", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "Se connecter Connexion aux caméras",
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await savedAttempts(), 1);
+  await page.reload();
+  await page
+    .getByRole("button", {
+      name: /Gérer la connexion aux caméras$/,
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await savedAttempts(), 1);
+  await page.evaluate(() => localStorage.setItem("test-auto-refused", "true"));
+  await page.reload();
+  await page
+    .getByRole("alert")
+    .getByText("SIMULATION : authentification refusée", { exact: true })
+    .waitFor();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  assert.equal(await savedAttempts(), 1);
+  await page.getByRole("checkbox", { name: /Connexion automatique/ }).uncheck();
+  await page
+    .getByRole("button", { name: "Enregistrer la connexion", exact: true })
+    .click();
+  await page
+    .getByText("Connexion automatique désactivée. Identifiants supprimés.", {
+      exact: true,
+    })
+    .waitFor();
+  await page.reload();
+  await page.getByRole("button", { name: "Paramètres", exact: true }).click();
+  assert.equal(await savedAttempts(), 0);
   await writeFile(
     "test-results/ui-fixtures.json",
     JSON.stringify(

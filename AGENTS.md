@@ -22,14 +22,14 @@ Application Electron locale de configuration de caméras Ethernet. Lire README.m
 - Aucune répétition automatique des écritures. Conserver les extensions XML et documenter les adaptations ONVIF 0.8.3.
 - Profil Sezaam fourni dans `config/sezaam-profile.json`. Le profil utilisateur est prioritaire, aucun profil n’est appliqué au démarrage.
 - Reset usine séparé du profil, phrase EFFACER et confirmation native, plans consommés une fois.
-- Identifiants en mémoire seulement, jamais arguments/logs/fichiers temporaires. Relais et tests en loopback.
+- Identifiants manuels en mémoire seulement, jamais arguments/logs/fichiers temporaires en clair. À la demande de l’utilisateur, la connexion automatique est opt-in : identifiants chiffrés via safeStorage système dans camera-login.enc, jamais localStorage ni renvoyés au renderer ; aucun repli basic_text. Désactiver supprime le fichier. Relais et tests en loopback.
 - Conserver noms Quasar, bundle `fr.sezaam.camera-tool`, canaux `sezaam:*` et clés de préférences héritées.
 
 ## Validation sans matériel
 
 `npm run validate:software` : types, lint, format, frontières, dépendances, tests, build, contrastes et parcours simulés. `npm run test:ui` : Electron isolé, réseau système désactivé. `npm run build-storybook && npm run test:stories` : catalogue/Axe. `npm run test:visual` : références visuelles (inspecter avant toute actualisation).
 
-Exécuter `npm run setup:video` pour le binaire officiel vérifié. Les intégrations RTSP ne doivent jamais être ignorées parce que le binaire manque. Injecter discovery/système, utiliser uniquement 127.0.0.1 pour les serveurs. Ne pas lancer deux builds sur les mêmes sorties pendant un test UI. Ne pas augmenter les délais pour cacher une course. Une simulation Windows n’est pas une exécution Windows ; aucune caméra réelle n’est validée par ces tests.
+Exécuter `npm run setup:video` avec Go 1.27.3 pour reconstruire le source upstream vérifié et les dépendances corrigées verrouillées dans `config/go2rtc`. Ne jamais revenir silencieusement au binaire upstream vulnérable. Go reste un outil de build. `audit:distributed` contrôle Electron et les modules réellement embarqués, échoue sur un avis connu et ne remplace pas les tests RTSP. Les intégrations RTSP ne doivent jamais être ignorées parce que le binaire manque. Injecter discovery/système, utiliser uniquement 127.0.0.1 pour les serveurs. Ne pas lancer deux builds sur les mêmes sorties pendant un test UI. Ne pas augmenter les délais pour cacher une course. Une simulation Windows n’est pas une exécution Windows ; aucune caméra réelle n’est validée par ces tests.
 
 `npm run package:dir` prépare un paquet autonome local, sans publication. Ne pas remplacer le lanceur installé avant validation explicite. Voir docs/PLATEFORMES.md pour les limites et la migration. Ne pas publier de release ni committer/pousser sans demande explicite.
 
@@ -40,3 +40,9 @@ Lire `docs/standards/production.md` (contrat commun 1.0.1) et `docs/PRODUCTION.m
 `src/shared/translations.json` contient les textes FR/EN ; `t` ne reçoit que les textes rédigés par l’application. Conserver les interpolations et ne jamais traduire une identité ou une valeur OSD. Langue native dans `language.json`, préférence thème héritée `sezaam-theme` (`light|dark|system`). Tester changement et redémarrage réels dans le smoke Electron.
 
 `build:web` assemble le portail public `site-dist/` et l’espace technique `assets-dist/`, Storybook sous `/storybook/`. Les deux réutilisent les tokens/assets existants. `test:web` vérifie langues, thèmes, mobile, Axe et absence de requêtes externes. L’origine asset doit être protégée avant exposition. CI publique épinglée, trois OS natifs, `--publish never`, manifest SHA-256 ; ne pas confondre package, installation native, signature/notarisation et recette caméra. Aucune publication ni achat dans ce lot.
+
+`build:portal` assemble le serveur public isolé ; `Dockerfile.portal` ne copie ni
+Electron, ni données locales, ni espace technique. Collecte activée uniquement
+par un jeton serveur : web-vitals standard, catégories fermées, lots et files
+bornés, abandon en panne, jamais URL/identité/contenu caméra. Préserver les
+tests des nouveaux états Box, l'accessibilité clavier et les réponses obsolètes.

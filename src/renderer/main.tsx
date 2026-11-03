@@ -5,12 +5,26 @@ import {
   subscribeLanguage,
   type Language,
 } from "../shared/i18n";
+import type { AutoLoginStatus } from "../shared/auto-login";
+import { Select } from "./design-system/Select";
+import { BoxView } from "./BoxView";
+import {
+  readBoxLibrary,
+  saveBoxLibrary,
+  upsertBox,
+  bindBox,
+  type BoxLibrary as Library,
+} from "./box-storage";
+import { BoxLibrary } from "./BoxLibrary";
+import { cameraKey, type BoxDefinition } from "../shared/box";
+import type { LockerAssignment } from "../shared/addressing";
 import { PreferencesPage } from "./pages/Preferences";
 import { CameraReader } from "./camera-reader";
 import { Diagnostic } from "./pages/Diagnostic";
 import { displayValue as value } from "./format";
 import { DefaultsPage, DefaultsApply } from "./Defaults";
 import { Addressing } from "./Addressing";
+import { IPConflicts } from "./IPConflicts";
 import { FactoryResetDialog } from "./FactoryReset";
 import {
   CameraCard,
@@ -37,6 +51,7 @@ import React, {
 import {
   Camera as CameraIcon,
   Activity,
+  Boxes,
   Network,
   RefreshCw,
   Search,
@@ -106,9 +121,29 @@ export function App() {
     }
   });
   const { confirm, dialog: confirmationDialog } = useConfirmation();
+  const [cameraMode, setCameraMode] = useState<"classic" | "box">("classic");
+  const [boxStore, setBoxStore] = useState(readBoxLibrary);
+  const boxStoreRef = useRef(boxStore);
+  const boxLibrary = boxStore.library;
+  const boxState = boxLibrary.entries.find(
+    (e) => e.id === boxLibrary.activeId,
+  ) ?? { id: "", box: undefined, bindings: {} };
+  const boxScope = (boxState.id || "classic") + "|";
+  const commitLibrary = (library: Library) => {
+    if (boxStoreRef.current.error) throw Error(boxStoreRef.current.error);
+    saveBoxLibrary(library);
+    boxStoreRef.current = { library };
+    setBoxStore({ library });
+  };
+  const saveBindings = (bindings: Record<string, string>) =>
+    commitLibrary(bindBox(boxStoreRef.current.library, boxState.id, bindings));
+  const [boxAddressing, setBoxAddressing] = useState<LockerAssignment[]>();
+  const [boxIssues, setBoxIssues] = useState<
+    Record<string, { address?: string; profile?: string }>
+  >({});
   const [state, setState] = useState<AppState>();
   const [page, setPage] = useState<
-    "cameras" | "diagnostic" | "network" | "preferences" | "defaults"
+    "cameras" | "boxes" | "diagnostic" | "network" | "preferences" | "defaults"
   >("cameras");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
@@ -140,6 +175,8 @@ export function App() {
   const busyRef = useRef(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [autoLogin, setAutoLogin] = useState<AutoLoginStatus>();
+  const autoLoginAttempted = useRef(false);
   const [selected, setSelected] = useState("");
   const selectedRef = useRef("");
   const previewGeneration = useRef(0);
@@ -163,6 +200,7 @@ export function App() {
   }, [notice]);
   const [add, setAdd] = useState(false);
   const [addressing, setAddressing] = useState(false);
+  const [conflictResolution, setConflictResolution] = useState(false);
   const [factoryResetOpen, setFactoryResetOpen] = useState(false);
   const [manualIP, setManualIP] = useState("");
   const [port, setPort] = useState("80");
@@ -289,6 +327,18 @@ export function App() {
     };
   }, [expanded]);
   useEffect(() => {
+    void window.sezaam
+      .call("getAutoLogin", undefined)
+      .then(setAutoLogin)
+      .catch(() =>
+        setAutoLogin({
+          enabled: false,
+          available: false,
+          error: t(
+            "Impossible de lire les paramètres de connexion automatique.",
+          ),
+        }),
+      );
     void run(t("Lecture de la connexion Ethernet"), refresh);
     const offNetwork = window.sezaam.onNetworkChanged((network) => {
       setState((s) => (s ? { ...s, network } : s));
@@ -576,7 +626,85 @@ export function App() {
             : t("Session prête. Lancez la détection ou ajoutez une caméra."),
         );
     });
-  const openAddressing = async () => {
+  useEffect(() => {
+    if (
+      !autoLogin?.enabled ||
+      !state?.network.ready ||
+      busy ||
+      dirty ||
+      autoLoginAttempted.current
+    )
+      return;
+    autoLoginAttempted.current = true;
+    if (!state.session.active)
+      sessionWork(t("Connexion automatique aux caméras"), () =>
+        window.sezaam.call("connectSavedSession", undefined),
+      );
+  }, [autoLogin, state?.network.ready, state?.session.active, busy, dirty]);
+  const resetBoxContext = async () => {
+    const generation = ++selectionGeneration.current;
+    cameraReader.cancel();
+    selectedRef.current = "";
+    setSelected("");
+    setDetail(undefined);
+    setLoadingCamera("");
+    setDirty(false);
+    setBoxAddressing(undefined);
+    setExpanded(false);
+    await stop();
+    return generation;
+  };
+  const switchBox = async (id: string) => {
+    if (
+      busyRef.current ||
+      !boxStoreRef.current.library.entries.some((e) => e.id === id)
+    )
+      return;
+    if (
+      dirty &&
+      !(await confirm(
+        t("Abandonner les modifications caméra avant de changer de Box ?"),
+      ))
+    )
+      return;
+    try {
+      const generation = await resetBoxContext();
+      if (generation !== selectionGeneration.current) return;
+      commitLibrary({ ...boxStoreRef.current.library, activeId: id });
+      setCameraMode("box");
+      setPage("cameras");
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+  const saveBoxDefinition = async (
+    incoming: BoxDefinition,
+    editingId?: string,
+  ) => {
+    if (busyRef.current) return false;
+    if (
+      dirty &&
+      !(await confirm(
+        t("Abandonner les modifications caméra non enregistrées ?"),
+      ))
+    )
+      return false;
+    const generation = await resetBoxContext();
+    if (generation !== selectionGeneration.current) return false;
+    const next = upsertBox(boxStoreRef.current.library, incoming, editingId);
+    commitLibrary(next.library);
+    setCameraMode("box");
+    setPage("cameras");
+    setNotice(
+      next.updating
+        ? t("Box mise à jour. Associations des casiers présents conservées.")
+        : t(
+            "Box ajoutée à la bibliothèque. Vérifiez les associations caméra–casier.",
+          ),
+    );
+    return true;
+  };
+  const openAddressing = async (conflicts = false) => {
     if (
       dirty &&
       !(await confirm(
@@ -586,8 +714,11 @@ export function App() {
       return;
     setDirty(false);
     await stop();
+    setBoxAddressing(undefined);
+    setConflictResolution(conflicts);
     setAddressing(true);
   };
+  const AddressDialog = conflictResolution ? IPConflicts : Addressing;
   return (
     <div className={`app-shell${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <header className="titlebar">
@@ -646,75 +777,63 @@ export function App() {
       </header>
       <aside className="sidebar" id="primary-sidebar">
         <nav aria-label={t("Navigation principale")}>
+          <span className="nav-group-label">{t("Interventions")}</span>
           <Button
             className={page === "cameras" ? "nav-item active" : "nav-item"}
-            aria-label={t("Caméras Configuration et paramètres")}
-            title={sidebarCollapsed ? t("Caméras") : undefined}
+            aria-label={t("Caméras")}
+            title={t("Caméras")}
             aria-current={page === "cameras" ? "page" : undefined}
             disabled={!!busy}
             onClick={() => navigate("cameras")}
           >
             <CameraIcon />
-            <span>
-              <strong>{t("Caméras")}</strong>{" "}
-              <small>{t("Configuration et paramètres")}</small>
-            </span>
+            <span>{t("Caméras")}</span>
           </Button>
           <Button
-            className={page === "diagnostic" ? "nav-item active" : "nav-item"}
-            aria-label={t("Diagnostic Tests et résolution de problèmes")}
-            title={sidebarCollapsed ? t("Diagnostic") : undefined}
-            aria-current={page === "diagnostic" ? "page" : undefined}
+            className={page === "boxes" ? "nav-item active" : "nav-item"}
+            title={t("Mes Box")}
+            aria-current={page === "boxes" ? "page" : undefined}
+            disabled={!!busy}
+            onClick={() => navigate("boxes")}
+          >
+            <Boxes />
+            <span>{t("Mes Box")}</span>
+            <span className="nav-count">{boxLibrary.entries.length}</span>
+          </Button>
+          <span className="nav-group-label">{t("Outils")}</span>
+          <Button
+            className={
+              ["diagnostic", "network"].includes(page)
+                ? "nav-item active"
+                : "nav-item"
+            }
+            aria-label={t("Diagnostic")}
+            title={t("Diagnostic et réseau")}
+            aria-current={
+              ["diagnostic", "network"].includes(page) ? "page" : undefined
+            }
             disabled={!!busy}
             onClick={() => navigate("diagnostic")}
           >
             <Activity />
-            <span>
-              <strong>{t("Diagnostic")}</strong>{" "}
-              <small>{t("Tests et résolution de problèmes")}</small>
-            </span>
+            <span>{t("Diagnostic")}</span>
           </Button>
           <Button
-            className={page === "network" ? "nav-item active" : "nav-item"}
-            aria-label={`${t("Réseau")} ${t("Connexion Ethernet")}`}
-            title={t("Réseau")}
-            aria-current={page === "network" ? "page" : undefined}
-            disabled={!!busy}
-            onClick={() => navigate("network")}
-          >
-            <Network />
-            <span>
-              <strong>{t("Réseau")}</strong>{" "}
-              <small>{t("Connexion Ethernet")}</small>
-            </span>
-          </Button>
-          <Button
-            className={page === "preferences" ? "nav-item active" : "nav-item"}
-            aria-label={`${t("Paramètres")} ${t("Lecture et apparence")}`}
+            className={
+              ["preferences", "defaults"].includes(page)
+                ? "nav-item active"
+                : "nav-item"
+            }
+            aria-label={t("Paramètres")}
             title={t("Paramètres")}
-            aria-current={page === "preferences" ? "page" : undefined}
+            aria-current={
+              ["preferences", "defaults"].includes(page) ? "page" : undefined
+            }
             disabled={!!busy}
             onClick={() => navigate("preferences")}
           >
             <SettingsIcon />
-            <span>
-              <strong>{t("Paramètres")}</strong>{" "}
-              <small>{t("Lecture et apparence")}</small>
-            </span>
-          </Button>
-          <Button
-            className={page === "defaults" ? "nav-item active" : "nav-item"}
-            aria-label={`${t("Profil Sezaam")} ${t("Paramètres par défaut")}`}
-            title={t("Paramètres par défaut")}
-            aria-current={page === "defaults" ? "page" : undefined}
-            disabled={!!busy}
-            onClick={() => navigate("defaults")}
-          >
-            <SlidersHorizontal />
-            <span>
-              <strong>{t("Profil Sezaam")}</strong>{" "}
-              <small>{t("Paramètres par défaut")}</small>
-            </span>
+            <span>{t("Paramètres")}</span>
           </Button>
         </nav>
         <div className="sidebar-bottom">
@@ -737,17 +856,19 @@ export function App() {
             busy={!!busy}
             ready={!!state?.network.ready}
             beforeChange={beforeSessionChange}
-            onConnect={(credentials) =>
+            onConnect={(credentials) => {
+              autoLoginAttempted.current = true;
               sessionWork(t("Connexion aux caméras"), () =>
                 window.sezaam.call("connectSession", credentials),
-              )
-            }
+              );
+            }}
             onRetry={() =>
               sessionWork(t("Nouvelle tentative de connexion"), () =>
                 window.sezaam.call("retryConnections", undefined),
               )
             }
-            onDisconnect={() =>
+            onDisconnect={() => {
+              autoLoginAttempted.current = true;
               void run(t("Déconnexion de la session"), async () => {
                 await stop();
                 setExpanded(false);
@@ -756,8 +877,8 @@ export function App() {
                 setDirty(false);
                 await window.sezaam.call("disconnectSession", undefined);
                 setNotice(t("Session déconnectée."));
-              })
-            }
+              });
+            }}
           />
         </div>
       </aside>
@@ -765,13 +886,15 @@ export function App() {
         <h1 className="sr-only">
           {page === "cameras"
             ? t("Caméras")
-            : page === "network"
-              ? t("Réseau Ethernet")
-              : page === "preferences"
-                ? t("Paramètres de l’application")
-                : page === "defaults"
-                  ? t("Paramètres par défaut")
-                  : t("Diagnostic des caméras")}
+            : page === "boxes"
+              ? t("Mes Box")
+              : page === "network"
+                ? t("Réseau Ethernet")
+                : page === "preferences"
+                  ? t("Paramètres de l’application")
+                  : page === "defaults"
+                    ? t("Paramètres par défaut")
+                    : t("Diagnostic des caméras")}
         </h1>
         {busy && <Loading label={t(busy)} />}
         {error && !add && (
@@ -780,219 +903,441 @@ export function App() {
           </Alert>
         )}
         {notice && (
-          <div className="toast" role="status">
+          <div className="toast">
             <Alert kind="success" onDismiss={() => setNotice("")}>
               {t(notice)}
             </Alert>
           </div>
         )}
-        {page === "cameras" ? (
-          <div className="camera-workspace">
-            <Panel
-              className="camera-list panel"
-              aria-label={t("Liste des caméras")}
+        {boxStore.error && <Alert kind="danger">{boxStore.error}</Alert>}
+        {["diagnostic", "network"].includes(page) && (
+          <div className="page-section-header">
+            <h2>{t("Diagnostic")}</h2>
+            <div
+              className="page-tabs"
+              role="group"
+              aria-label={t("Rubriques du diagnostic")}
             >
-              <div className="section-title">
-                <h2>
-                  {t("Caméras détectées")}{" "}
-                  <span>({state?.cameras.length || 0})</span>
-                </h2>
-                <Button
-                  className="icon-button"
-                  aria-label={t("Relancer la détection")}
-                  disabled={!!busy || !state?.network.ready}
-                  onClick={() =>
-                    void run(t("Détection ONVIF"), async () => {
-                      const cs = await window.sezaam.call(
-                        "discover",
-                        undefined,
-                      );
-                      setNotice(
-                        t("{0} caméra(s) dans cette session.", cs.length),
-                      );
-                    })
-                  }
-                >
-                  <RefreshCw size={18} />
-                </Button>
-              </div>
-              <label className="search-box">
-                <Search size={17} />
-                <input
-                  aria-label={t("Rechercher une caméra")}
-                  placeholder={t("Rechercher une caméra…")}
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </label>
-              <select
-                className="camera-sort"
-                aria-label={t("Trier les caméras")}
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-              >
-                <option value="ip-asc">{t("IP croissante")}</option>
-                <option value="ip-desc">{t("IP décroissante")}</option>
-                <option value="name">{t("Nom de la caméra")}</option>
-              </select>
-              <div className="list-scroll">
-                {visible.map((c) => (
-                  <CameraCard
-                    key={c.id}
-                    camera={c}
-                    selected={c.id === selected}
-                    disabled={!!busy}
-                    onSelect={() => void choose(c)}
-                  />
-                ))}
-                {!visible.length && (
-                  <div className="list-empty">
-                    <Search size={30} />
-                    <strong>
-                      {search
-                        ? t("Aucun résultat")
-                        : t("Aucune caméra détectée")}
-                    </strong>
-                    <p>
-                      {search
-                        ? t("Essayez une autre IP ou référence.")
-                        : t("Lancez la détection ou ajoutez une adresse IP.")}
-                    </p>
-                    <Button
-                      className="primary"
-                      disabled={!!busy || !state?.network.ready}
-                      onClick={() =>
-                        search
-                          ? setSearch("")
-                          : void run(t("Détection ONVIF"), () =>
-                              window.sezaam.call("discover", undefined),
-                            )
-                      }
-                    >
-                      <RefreshCw size={16} />
-                      {search ? t("Effacer la recherche") : t("Détecter")}
-                    </Button>
-                  </div>
-                )}
-              </div>
               <Button
-                className="add-camera"
+                aria-pressed={page === "diagnostic"}
                 disabled={!!busy}
-                onClick={() => {
-                  setError("");
-                  setAdd(true);
-                }}
+                onClick={() => navigate("diagnostic")}
               >
-                <Plus size={16} />
-                {t("Ajouter par IP")}
+                {t("Caméras et journal")}
               </Button>
               <Button
-                className="add-camera"
-                disabled={!!busy || !state?.cameras.length}
-                onClick={() =>
-                  void applyDefaults(state!.cameras.map((c) => c.id))
-                }
+                aria-pressed={page === "network"}
+                disabled={!!busy}
+                onClick={() => navigate("network")}
               >
-                <SlidersHorizontal size={16} />
-                {t("Profil Sezaam · toutes")}
+                {t("Réseau Ethernet")}
               </Button>
-              {state?.cameras.some((c) => c.ambiguous) && (
+            </div>
+          </div>
+        )}
+        {["preferences", "defaults"].includes(page) && (
+          <div className="page-section-header">
+            <h2>{t("Paramètres")}</h2>
+            <div
+              className="page-tabs"
+              role="group"
+              aria-label={t("Rubriques des paramètres")}
+            >
+              <Button
+                aria-pressed={page === "preferences"}
+                disabled={!!busy}
+                onClick={() => navigate("preferences")}
+              >
+                {t("Application")}
+              </Button>
+              <Button
+                aria-pressed={page === "defaults"}
+                disabled={!!busy}
+                onClick={() => navigate("defaults")}
+              >
+                {t("Profil Sezaam")}
+              </Button>
+            </div>
+          </div>
+        )}
+        {page === "cameras" && (
+          <div className="camera-context-bar">
+            <div
+              className="camera-mode-switch"
+              role="group"
+              aria-label={t("Mode de configuration")}
+            >
+              {(["classic", "box"] as const).map((mode) => (
                 <Button
-                  className="add-camera"
-                  disabled={!!busy || !state.network.ready}
-                  onClick={openAddressing}
-                >
-                  <Network size={16} />
-                  {t("Résoudre les conflits")}
-                </Button>
-              )}
-              <details className="camera-maintenance">
-                <summary>{t("Actions avancées")}</summary>
-                <Button
-                  className="add-camera"
-                  disabled={
-                    !!busy || !state?.network.ready || !state?.cameras.length
-                  }
-                  onClick={openAddressing}
-                >
-                  <Network size={16} />
-                  {t("Attribuer les IP")}
-                </Button>
-                <Button
-                  className="add-camera"
-                  variant="tertiary"
-                  disabled={
-                    !!busy || !state?.network.ready || !state?.cameras.length
-                  }
+                  key={mode}
+                  disabled={!!busy}
+                  aria-pressed={cameraMode === mode}
                   onClick={async () => {
+                    if (mode === cameraMode) return;
                     if (
                       dirty &&
                       !(await confirm(
                         t(
-                          "Abandonner les modifications non enregistrées avant de préparer le reset ?",
+                          "Abandonner les modifications non enregistrées avant de changer de mode ?",
                         ),
                       ))
                     )
                       return;
                     setDirty(false);
+                    selectionGeneration.current++;
+                    cameraReader.cancel();
+                    selectedRef.current = "";
+                    setSelected("");
+                    setDetail(undefined);
+                    setLoadingCamera("");
                     await stop();
-                    setFactoryResetOpen(true);
+                    setCameraMode(mode);
                   }}
                 >
-                  {t("Réinitialiser les caméras…")}
+                  {mode === "classic" ? t("Classique") : "Box"}
                 </Button>
-              </details>
-              <Modal
-                open={add}
-                title={t("Ajouter une caméra par IP")}
-                onClose={() => {
-                  if (!busy) {
-                    setAdd(false);
-                    setError("");
+              ))}
+            </div>
+            {cameraMode === "box" && (
+              <div className="box-switcher">
+                <Select
+                  label={t("Changer de Box")}
+                  value={boxState.id}
+                  disabled={
+                    !!busy || !!boxStore.error || !boxLibrary.entries.length
+                  }
+                  onChange={(id) => void switchBox(id)}
+                  options={boxLibrary.entries.map((e) => ({
+                    value: e.id,
+                    label:
+                      e.box.name +
+                      (e.box.metadata?.id ? " · #" + e.box.metadata.id : ""),
+                  }))}
+                />
+                <Button disabled={!!busy} onClick={() => navigate("boxes")}>
+                  {t("Mes Box")}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+        {page === "boxes" ? (
+          <BoxLibrary
+            library={boxLibrary}
+            busy={!!busy || !!boxStore.error}
+            onOpen={(id) => void switchBox(id)}
+            onSave={saveBoxDefinition}
+          />
+        ) : page === "cameras" ? (
+          <div
+            className={`camera-workspace${cameraMode === "box" ? " box-mode" : ""}`}
+          >
+            {cameraMode === "box" ? (
+              <BoxView
+                key={boxState.id}
+                box={boxState.box}
+                bindings={boxState.bindings}
+                cameras={state?.cameras ?? []}
+                busy={!!busy || !!boxStore.error}
+                ready={!!state?.network.ready}
+                issues={Object.fromEntries(
+                  Object.entries(boxIssues)
+                    .filter(([key]) => key.startsWith(boxScope))
+                    .map(([key, issues]) => [
+                      key.slice(boxScope.length),
+                      Object.values(issues).filter(Boolean).join(" · "),
+                    ]),
+                )}
+                onImport={(incoming, editing) =>
+                  saveBoxDefinition(incoming, editing ? boxState.id : undefined)
+                }
+                onBind={(number, key) => {
+                  try {
+                    const bindings = { ...boxState.bindings, [number]: key };
+                    saveBindings(bindings);
+                  } catch {
+                    setError(
+                      "Impossible d’enregistrer l’association sur cet ordinateur.",
+                    );
                   }
                 }}
-              >
-                {error && <Alert kind="danger">{t(error)}</Alert>}
-                <form
-                  className="manual-form"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void run(t("Ajout de la caméra"), async () => {
-                      const c = await window.sezaam.call("addCamera", {
-                        ip: manualIP.trim(),
-                        port: Number(port),
+                onCamera={async (c) => {
+                  if (!c) {
+                    if (!(await beforeSessionChange())) return false;
+                    await resetBoxContext();
+                    return true;
+                  }
+                  await choose(c);
+                  if (selectedRef.current !== c.id) return false;
+                  requestAnimationFrame(() => {
+                    if (selectedRef.current !== c.id) return;
+                    const workspace = document.querySelector<HTMLElement>(
+                      ".camera-workspace.box-mode",
+                    );
+                    const content =
+                      workspace?.querySelector<HTMLElement>(".camera-content");
+                    if (workspace && content)
+                      workspace.scrollTo({
+                        top:
+                          workspace.scrollTop +
+                          content.getBoundingClientRect().top -
+                          workspace.getBoundingClientRect().top,
+                        behavior: "instant",
                       });
-                      setAdd(false);
-                      await select(c);
-                    });
+                  });
+                  return true;
+                }}
+                onDetect={() =>
+                  void run(t("Détection des caméras de la Box"), () =>
+                    window.sezaam.call("discover", undefined),
+                  )
+                }
+                onResolveConflicts={() => void openAddressing(true)}
+                onAddress={(assignments) => {
+                  void (async () => {
+                    if (
+                      dirty &&
+                      !(await confirm(
+                        t(
+                          "Abandonner les modifications non enregistrées avant l’adressage ?",
+                        ),
+                      ))
+                    )
+                      return;
+                    const bindings = { ...boxState.bindings };
+                    for (const item of assignments) {
+                      const c = state?.cameras.find((c) => c.id === item.id);
+                      if (c) bindings[String(item.locker)] = cameraKey(c);
+                    }
+                    try {
+                      saveBindings(bindings);
+                    } catch {
+                      setError(
+                        t(
+                          "Impossible d’enregistrer les associations. Attribution annulée.",
+                        ),
+                      );
+                      return;
+                    }
+                    setDirty(false);
+                    await stop();
+                    setConflictResolution(false);
+                    setBoxAddressing(assignments);
+                    setAddressing(true);
+                  })();
+                }}
+                onProfile={(ids) => void applyDefaults(ids)}
+              />
+            ) : (
+              <Panel
+                className="camera-list panel"
+                aria-label={t("Liste des caméras")}
+              >
+                <div className="section-title">
+                  <h2>
+                    {t("Caméras détectées")}{" "}
+                    <span>({state?.cameras.length || 0})</span>
+                  </h2>
+                  <Button
+                    className="icon-button"
+                    aria-label={t("Relancer la détection")}
+                    disabled={!!busy || !state?.network.ready}
+                    onClick={() =>
+                      void run(t("Détection ONVIF"), async () => {
+                        const cs = await window.sezaam.call(
+                          "discover",
+                          undefined,
+                        );
+                        setNotice(
+                          t("{0} caméra(s) dans cette session.", cs.length),
+                        );
+                      })
+                    }
+                  >
+                    <RefreshCw size={18} />
+                  </Button>
+                </div>
+                <label className="search-box">
+                  <Search size={17} />
+                  <input
+                    aria-label={t("Rechercher une caméra")}
+                    placeholder={t("Rechercher une caméra…")}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </label>
+                <select
+                  className="camera-sort"
+                  aria-label={t("Trier les caméras")}
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                >
+                  <option value="ip-asc">{t("IP croissante")}</option>
+                  <option value="ip-desc">{t("IP décroissante")}</option>
+                  <option value="name">{t("Nom de la caméra")}</option>
+                </select>
+                <div className="list-scroll">
+                  {visible.map((c) => (
+                    <CameraCard
+                      key={c.id}
+                      camera={c}
+                      selected={c.id === selected}
+                      disabled={!!busy}
+                      onSelect={() => void choose(c)}
+                    />
+                  ))}
+                  {!visible.length && (
+                    <div className="list-empty">
+                      <Search size={30} />
+                      <strong>
+                        {search
+                          ? t("Aucun résultat")
+                          : t("Aucune caméra détectée")}
+                      </strong>
+                      <p>
+                        {search
+                          ? t("Essayez une autre IP ou référence.")
+                          : t("Lancez la détection ou ajoutez une adresse IP.")}
+                      </p>
+                      <Button
+                        className="primary"
+                        disabled={!!busy || !state?.network.ready}
+                        onClick={() =>
+                          search
+                            ? setSearch("")
+                            : void run(t("Détection ONVIF"), () =>
+                                window.sezaam.call("discover", undefined),
+                              )
+                        }
+                      >
+                        <RefreshCw size={16} />
+                        {search ? t("Effacer la recherche") : t("Détecter")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  className="add-camera"
+                  disabled={!!busy}
+                  onClick={() => {
+                    setError("");
+                    setAdd(true);
                   }}
                 >
-                  <Field label={t("Adresse IPv4")}>
-                    <input
-                      autoFocus
-                      required
-                      value={manualIP}
-                      placeholder="192.168.1.11"
-                      onChange={(e) => setManualIP(e.target.value)}
-                    />
-                  </Field>
-                  <Field label={t("Port ONVIF")}>
-                    <input
-                      type="number"
-                      required
-                      min="1"
-                      max="65535"
-                      value={port}
-                      onChange={(e) => setPort(e.target.value)}
-                    />
-                  </Field>
-                  <Button className="primary" type="submit" disabled={!!busy}>
-                    {t("Ajouter")}
+                  <Plus size={16} />
+                  {t("Ajouter par IP")}
+                </Button>
+                <Button
+                  className="add-camera"
+                  disabled={!!busy || !state?.cameras.length}
+                  onClick={() =>
+                    void applyDefaults(state!.cameras.map((c) => c.id))
+                  }
+                >
+                  <SlidersHorizontal size={16} />
+                  {t("Profil Sezaam · toutes")}
+                </Button>
+                {state?.cameras.some((c) => c.ambiguous) && (
+                  <Button
+                    className="add-camera"
+                    disabled={!!busy || !state.network.ready}
+                    onClick={() => void openAddressing(true)}
+                  >
+                    <Network size={16} />
+                    {t("Résoudre les conflits")}
                   </Button>
-                </form>
-              </Modal>
-            </Panel>
-            <div className="camera-content">
+                )}
+                <details className="camera-maintenance">
+                  <summary>{t("Actions avancées")}</summary>
+                  <Button
+                    className="add-camera"
+                    disabled={
+                      !!busy || !state?.network.ready || !state?.cameras.length
+                    }
+                    onClick={() => void openAddressing(false)}
+                  >
+                    <Network size={16} />
+                    {t("Attribuer les IP")}
+                  </Button>
+                  <Button
+                    className="add-camera"
+                    variant="tertiary"
+                    disabled={
+                      !!busy || !state?.network.ready || !state?.cameras.length
+                    }
+                    onClick={async () => {
+                      if (
+                        dirty &&
+                        !(await confirm(
+                          t(
+                            "Abandonner les modifications non enregistrées avant de préparer le reset ?",
+                          ),
+                        ))
+                      )
+                        return;
+                      setDirty(false);
+                      await stop();
+                      setFactoryResetOpen(true);
+                    }}
+                  >
+                    {t("Réinitialiser les caméras…")}
+                  </Button>
+                </details>
+                <Modal
+                  open={add}
+                  title={t("Ajouter une caméra par IP")}
+                  onClose={() => {
+                    if (!busy) {
+                      setAdd(false);
+                      setError("");
+                    }
+                  }}
+                >
+                  {error && <Alert kind="danger">{error}</Alert>}
+                  <form
+                    className="manual-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void run(t("Ajout de la caméra"), async () => {
+                        const c = await window.sezaam.call("addCamera", {
+                          ip: manualIP.trim(),
+                          port: Number(port),
+                        });
+                        setAdd(false);
+                        await select(c);
+                      });
+                    }}
+                  >
+                    <Field label={t("Adresse IPv4")}>
+                      <input
+                        autoFocus
+                        required
+                        value={manualIP}
+                        placeholder="192.168.1.11"
+                        onChange={(e) => setManualIP(e.target.value)}
+                      />
+                    </Field>
+                    <Field label={t("Port ONVIF")}>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        max="65535"
+                        value={port}
+                        onChange={(e) => setPort(e.target.value)}
+                      />
+                    </Field>
+                    <Button className="primary" type="submit" disabled={!!busy}>
+                      {t("Ajouter")}
+                    </Button>
+                  </form>
+                </Modal>
+              </Panel>
+            )}
+            <div
+              className="camera-content"
+              hidden={cameraMode === "box" && !camera}
+            >
               <Panel className="camera-overview panel">
                 <div className="camera-heading">
                   <CameraIcon size={24} />
@@ -1312,6 +1657,29 @@ export function App() {
           />
         ) : page === "preferences" ? (
           <PreferencesPage
+            onLoginDirty={() => setDirty(true)}
+            autoLogin={autoLogin}
+            busy={!!busy}
+            onSaveAutoLogin={async (value) => {
+              const saved = await run(
+                t("Enregistrement de la connexion"),
+                async () => {
+                  const next = await window.sezaam.call("saveAutoLogin", value);
+                  autoLoginAttempted.current = false;
+                  setDirty(false);
+                  setAutoLogin(next);
+                  setNotice(
+                    next.enabled
+                      ? t("Connexion automatique enregistrée.")
+                      : t(
+                          "Connexion automatique désactivée. Identifiants supprimés.",
+                        ),
+                  );
+                  return true;
+                },
+              );
+              return saved === true;
+            }}
             preferences={preferences}
             setPreferences={setPreferences}
             theme={themePreference}
@@ -1341,6 +1709,25 @@ export function App() {
         busy={!!busy}
         run={run}
         onClose={() => setDefaultTargets(null)}
+        onResult={(result) => {
+          setBoxIssues((previous) => {
+            const next = { ...previous };
+            for (const report of result.cameras) {
+              const failed = report.rows.filter(
+                (row) => row.state !== "same" && row.state !== "verified",
+              );
+              next[boxScope + cameraKey(report.camera)] = {
+                ...next[boxScope + cameraKey(report.camera)],
+                profile:
+                  report.error ||
+                  (failed.length
+                    ? t("{0} réglage(s) du profil à vérifier", failed.length)
+                    : ""),
+              };
+            }
+            return next;
+          });
+        }}
         onApplied={async () => {
           if (selectedRef.current) {
             setDetail(undefined);
@@ -1351,13 +1738,31 @@ export function App() {
         }}
       />
       {addressing && (
-        <Addressing
+        <AddressDialog
           open
           onClose={() => setAddressing(false)}
           busy={!!busy}
           run={run}
           cameras={state?.cameras ?? []}
-          onApplied={() => {
+          assignments={boxAddressing}
+          onApplied={(plan) => {
+            if (plan)
+              setBoxIssues((previous) => {
+                const next = { ...previous };
+                for (const row of plan.rows) {
+                  const c = state?.cameras.find((c) => c.id === row.id);
+                  if (c)
+                    next[boxScope + cameraKey(c)] = {
+                      ...next[boxScope + cameraKey(c)],
+                      address: ["failed", "skipped", "blocked"].includes(
+                        row.state,
+                      )
+                        ? row.message
+                        : "",
+                    };
+                }
+                return next;
+              });
             setDetail(undefined);
             setSelected("");
             selectedRef.current = "";

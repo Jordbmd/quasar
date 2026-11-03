@@ -253,6 +253,11 @@ export function Modal({
 }
 export function useConfirmation() {
   const [message, setMessage] = useState("");
+  const [labels, setLabels] = useState<{
+    title?: string;
+    accept?: string;
+    cancel?: string;
+  }>({});
   const resolve = useRef<(v: boolean) => void>(undefined);
   const finish = (v: boolean) => {
     resolve.current?.(v);
@@ -261,24 +266,28 @@ export function useConfirmation() {
   };
   useEffect(() => () => resolve.current?.(false), []);
   return {
-    confirm: (text: string) =>
+    confirm: (
+      text: string,
+      options: { title?: string; accept?: string; cancel?: string } = {},
+    ) =>
       new Promise<boolean>((r) => {
         resolve.current?.(false);
         resolve.current = r;
         setMessage(text);
+        setLabels(options);
       }),
     dialog: (
       <Modal
         open={!!message}
-        title={t("Modifications non enregistrées")}
+        title={labels.title || t("Modifications non enregistrées")}
         onClose={() => finish(false)}
         footer={
           <>
             <Button autoFocus onClick={() => finish(false)}>
-              {t("Continuer la modification")}
+              {labels.cancel || t("Continuer la modification")}
             </Button>
             <Button variant="destructive" onClick={() => finish(true)}>
-              {t("Abandonner les modifications")}
+              {labels.accept || t("Abandonner les modifications")}
             </Button>
           </>
         }
