@@ -1,6 +1,6 @@
 # Préparation production — 3 novembre 2026
 
-Quasar reste une application Electron locale. Aucun compte cloud, OIDC, télémétrie ou envoi de données caméra n’est ajouté. Le [socle commun 2.0.0](standards/core.md) s’applique à la présentation, aux assets et aux rapports techniques.
+Quasar reste une application Electron locale. Aucun compte cloud, OIDC, télémétrie ou envoi de données caméra n’est ajouté. Le [socle commun versionné](standards/core.md) s’applique à la présentation, aux assets et aux rapports techniques.
 
 ## Exécution et langues
 

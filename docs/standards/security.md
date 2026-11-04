@@ -1,4 +1,4 @@
-<!-- Generated rules; version=2.0.0; source=Jordbmd/doublemart-platform@3512cd37201c3fd2dec7ab864c7acccb24ce2ea5:docs/standards/security.md -->
+<!-- Generated rules; version=2.0.1; source=Jordbmd/doublemart-platform@7028752ade32c06346120aa02853306579fbb322:docs/standards/security.md -->
 # Sécurité et identité
 
 - Autoriser chaque accès côté serveur, y compris données, fichiers, exports, tâches, caches et sauvegardes. Visibilité dans un catalogue, disponibilité et droit d’accès sont des notions distinctes.

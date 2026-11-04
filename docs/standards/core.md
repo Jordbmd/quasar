@@ -1,4 +1,4 @@
-<!-- Generated rules; version=2.0.0; source=Jordbmd/doublemart-platform@3512cd37201c3fd2dec7ab864c7acccb24ce2ea5:docs/standards/core.md -->
+<!-- Generated rules; version=2.0.1; source=Jordbmd/doublemart-platform@7028752ade32c06346120aa02853306579fbb322:docs/standards/core.md -->
 # Socle commun
 
 Source entretenue uniquement dans Platform. Les autres dépôts embarquent un export généré autonome ; ne pas corriger ces exports à la main. Lire ce socle à chaque tâche, puis les thèmes utiles. Les contraintes métier et commandes du projet restent dans son AGENTS.md.

@@ -1,4 +1,4 @@
-<!-- Generated rules; version=2.0.0; source=Jordbmd/doublemart-platform@3512cd37201c3fd2dec7ab864c7acccb24ce2ea5:docs/standards/architecture.md -->
+<!-- Generated rules; version=2.0.1; source=Jordbmd/doublemart-platform@7028752ade32c06346120aa02853306579fbb322:docs/standards/architecture.md -->
 # Architecture
 
 - Séparer rendu, orchestration métier et accès aux données aux endroits où les dépendances, erreurs ou cycles de vie diffèrent réellement. Pas de découpe motivée uniquement par la taille d’un fichier.
