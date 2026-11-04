@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { boxSchema, type BoxDefinition, type BoxLocker } from "../shared/box";
@@ -93,7 +94,7 @@ export function BoxEditor({
     if (saving) return;
     if (
       !dirty ||
-      (await confirm("Abandonner les modifications de la fiche Box ?"))
+      (await confirm(t("Abandonner les modifications de la fiche Box ?")))
     )
       onClose();
   };
@@ -105,7 +106,7 @@ export function BoxEditor({
       for (const [key] of textFields) metadata[key] = values[key].trim();
       for (const [key] of flags)
         metadata[key] = values[key] === "" ? undefined : values[key] === "true";
-      if (!values.id.trim()) throw Error("Renseignez l’ID de la Box.");
+      if (!values.id.trim()) throw Error(t("Renseignez l’ID de la Box."));
       const parsed = boxSchema.safeParse({
         ...box,
         name: name.trim() || `Box ${values.id.trim()}`,
@@ -114,7 +115,10 @@ export function BoxEditor({
         lockers: lockers.map((l, index) => {
           if (![l.number, l.column, l.zone].every((v) => /^\d+$/.test(v)))
             throw Error(
-              `Ligne ${index + 1} : renseignez un numéro, une colonne et une zone entiers.`,
+              t(
+                "Ligne {0} : renseignez un numéro, une colonne et une zone entiers.",
+                index + 1,
+              ),
             );
           return {
             kind: l.kind,
@@ -131,9 +135,13 @@ export function BoxEditor({
           parsed.error.issues
             .map((i) => {
               if (i.path[0] === "name")
-                return "Renseignez un nom de Box (160 caractères maximum).";
+                return t("Renseignez un nom de Box (160 caractères maximum).");
               if (i.path[0] === "lockers" && typeof i.path[1] === "number")
-                return `Ligne ${i.path[1] + 1} : vérifiez ${String(i.path[2])} (numéro 0–244, IPv4 valide ou vide).`;
+                return t(
+                  "Ligne {0} : vérifiez {1} (numéro 0–244, IPv4 valide ou vide).",
+                  i.path[1] + 1,
+                  String(i.path[2]),
+                );
               return i.message;
             })
             .join(" "),
@@ -149,60 +157,64 @@ export function BoxEditor({
     <>
       <Modal
         open
-        title={box ? "Modifier la Box" : "Créer une Box sans fichier"}
+        title={box ? t("Modifier la Box") : t("Créer une Box sans fichier")}
         busy={saving}
         onClose={() => void close()}
         footer={
           <>
             <Button disabled={saving} onClick={() => void close()}>
-              Annuler
+              {t("Annuler")}
             </Button>
             <Button
               variant="primary"
               loading={saving}
               onClick={() => void save()}
             >
-              Enregistrer la Box
+              {t("Enregistrer la Box")}
             </Button>
           </>
         }
       >
         <div className="box-editor">
           <p className="help-text">
-            Cette fiche décrit la Box. Son enregistrement ne change aucun
-            réglage caméra ni serrure.
+            {t(
+              "Cette fiche décrit la Box. Son enregistrement ne change aucun réglage caméra ni serrure.",
+            )}
           </p>
           <div
             className="box-tabs"
             role="group"
-            aria-label="Formulaire de la Box"
+            aria-label={t("Formulaire de la Box")}
           >
             <Button
               aria-pressed={tab === "info"}
               onClick={() => setTab("info")}
             >
-              Informations
+              {t("Informations")}
             </Button>
             <Button
               aria-pressed={tab === "lockers"}
               onClick={() => setTab("lockers")}
             >
-              Casiers et serrures · {lockers.length - 1}
+              {t("Casiers et serrures ·")} {lockers.length - 1}
             </Button>
           </div>
           {error && <Alert kind="danger">{error}</Alert>}
           {tab === "info" ? (
             <div className="box-form-fields">
-              <Field label="ID de la Box" hint="Seul champ obligatoire.">
+              <Field
+                label={t("ID de la Box")}
+                hint={t("Seul champ obligatoire.")}
+              >
                 <input
-                  aria-label="ID de la Box"
+                  aria-label={t("ID de la Box")}
                   required
                   maxLength={80}
                   value={values.id}
                   onChange={(e) => change("id", e.target.value)}
                 />
               </Field>
-              <Field label="Nom de la Box">
+              <Field label={t("Nom de la Box")}>
                 <input
                   maxLength={160}
                   value={name}
@@ -215,7 +227,7 @@ export function BoxEditor({
               {textFields
                 .filter(([key]) => key !== "id")
                 .map(([key, label]) => (
-                  <Field key={key} label={label}>
+                  <Field key={key} label={t(label)}>
                     {key === "address" ? (
                       <textarea
                         rows={3}
@@ -232,15 +244,15 @@ export function BoxEditor({
                   </Field>
                 ))}
               {flags.map(([key, label]) => (
-                <Field key={key} label={label}>
+                <Field key={key} label={t(label)}>
                   <select
-                    aria-label={label}
+                    aria-label={t(label)}
                     value={values[key]}
                     onChange={(e) => change(key, e.target.value)}
                   >
-                    <option value="">Non renseigné</option>
-                    <option value="true">Oui</option>
-                    <option value="false">Non</option>
+                    <option value="">{t("Non renseigné")}</option>
+                    <option value="true">{t("Oui")}</option>
+                    <option value="false">{t("Non")}</option>
                   </select>
                 </Field>
               ))}
@@ -248,20 +260,20 @@ export function BoxEditor({
           ) : (
             <>
               <p className="help-text">
-                Une seule IHM, numéro 0, sans caméra. Ports : module:port,
-                séparés par des virgules. L’IP connue peut rester vide. La cible
-                sera toujours numéro de casier + 10.
+                {t(
+                  "Une seule IHM, numéro 0, sans caméra. Ports : module:port, séparés par des virgules. L’IP connue peut rester vide. La cible sera toujours numéro de casier + 10.",
+                )}
               </p>
               <div className="box-table-scroll">
                 <table className="box-editor-table">
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Type (format)</th>
+                      <th>{t("Type (format)")}</th>
                       <th>Zone</th>
-                      <th>Colonne</th>
-                      <th>IP caméra</th>
-                      <th>Ports Southco</th>
+                      <th>{t("Colonne")}</th>
+                      <th>{t("IP caméra")}</th>
+                      <th>{t("Ports Southco")}</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -270,7 +282,7 @@ export function BoxEditor({
                       <tr key={l.key}>
                         <td>
                           <input
-                            aria-label={`Numéro ligne ${i + 1}`}
+                            aria-label={t("Numéro ligne {0}", i + 1)}
                             type="number"
                             min={1}
                             max={244}
@@ -283,7 +295,7 @@ export function BoxEditor({
                         </td>
                         <td>
                           <select
-                            aria-label={`Format ligne ${i + 1}`}
+                            aria-label={t("Format ligne {0}", i + 1)}
                             disabled={l.kind === "IHM"}
                             value={l.kind}
                             onChange={(e) =>
@@ -300,7 +312,7 @@ export function BoxEditor({
                         </td>
                         <td>
                           <input
-                            aria-label={`Zone ligne ${i + 1}`}
+                            aria-label={t("Zone ligne {0}", i + 1)}
                             type="number"
                             min={0}
                             max={256}
@@ -312,7 +324,7 @@ export function BoxEditor({
                         </td>
                         <td>
                           <input
-                            aria-label={`Colonne ligne ${i + 1}`}
+                            aria-label={t("Colonne ligne {0}", i + 1)}
                             type="number"
                             min={0}
                             max={128}
@@ -324,9 +336,9 @@ export function BoxEditor({
                         </td>
                         <td>
                           <input
-                            aria-label={`IP connue ligne ${i + 1}`}
+                            aria-label={t("IP connue ligne {0}", i + 1)}
                             disabled={l.kind === "IHM"}
-                            placeholder="Non renseignée"
+                            placeholder={t("Non renseignée")}
                             value={l.ip}
                             onChange={(e) =>
                               changeLocker(l.key, "ip", e.target.value)
@@ -335,7 +347,7 @@ export function BoxEditor({
                         </td>
                         <td>
                           <input
-                            aria-label={`Ports Southco ligne ${i + 1}`}
+                            aria-label={t("Ports Southco ligne {0}", i + 1)}
                             maxLength={128}
                             placeholder="1:1,2:1"
                             value={l.ports}
@@ -346,7 +358,7 @@ export function BoxEditor({
                         </td>
                         <td>
                           <Button
-                            aria-label={`Supprimer la ligne ${i + 1}`}
+                            aria-label={t("Supprimer la ligne {0}", i + 1)}
                             disabled={l.kind === "IHM"}
                             onClick={() => {
                               setDirty(true);
@@ -388,7 +400,7 @@ export function BoxEditor({
                 }}
               >
                 <Plus size={16} />
-                Ajouter un casier
+                {t("Ajouter un casier")}
               </Button>
             </>
           )}

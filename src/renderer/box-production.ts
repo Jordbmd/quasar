@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import type { WorkBook, WorkSheet } from "xlsx";
 import { utils } from "xlsx";
 import { boxSchema, southcoPorts, type BoxDefinition } from "../shared/box";
@@ -102,7 +103,9 @@ export function readProductionInfo(
   }
   if (ids.size > 1)
     throw Error(
-      "Les ID de Box dans Infos Box et Config sont différents. Corrigez le fichier avant l’import.",
+      t(
+        "Les ID de Box dans Infos Box et Config sont différents. Corrigez le fichier avant l’import.",
+      ),
     );
   const id = [...ids][0];
   if (id) values.id = id;

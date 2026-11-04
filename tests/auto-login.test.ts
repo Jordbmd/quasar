@@ -1,5 +1,12 @@
 import { afterEach, expect, it } from "vitest";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import {
+  mkdtemp,
+  readFile,
+  rm,
+  stat,
+  writeFile,
+  copyFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
@@ -35,6 +42,7 @@ async function fixture() {
     file,
     store: new AutoLoginStore(file, cipher),
     restart: () => new AutoLoginStore(file, cipher),
+    restore: (target: string) => new AutoLoginStore(target, cipher),
     unavailable: () => {
       available = false;
     },
@@ -112,4 +120,30 @@ it("valide strictement les nouvelles commandes IPC", () => {
   expect(schemas.connectSavedSession.safeParse({ password: "x" }).success).toBe(
     false,
   );
+});
+
+it("restaure le fichier chiffré dans une destination neuve sans exposer ni déplacer le secret", async () => {
+  const f = await fixture(),
+    foreign = await fixture();
+  await f.store.save({
+    enabled: true,
+    username: "synthetic",
+    password: "RECOVERY-SYNTHETIC",
+  });
+  const restored = path.join(path.dirname(f.file), "restored.enc");
+  await copyFile(f.file, restored);
+  expect(await readFile(restored)).toEqual(await readFile(f.file));
+  expect(
+    (await readFile(restored)).includes(Buffer.from("RECOVERY-SYNTHETIC")),
+  ).toBe(false);
+  expect(await f.restore(restored).credentials()).toEqual({
+    username: "synthetic",
+    password: "RECOVERY-SYNTHETIC",
+  });
+  await expect(foreign.restore(restored).credentials()).rejects.toThrow(
+    "déverrouiller",
+  );
+  await f.restore(restored).save({ enabled: false });
+  await expect(readFile(restored)).rejects.toMatchObject({ code: "ENOENT" });
+  expect((await f.restart().credentials())?.username).toBe("synthetic");
 });

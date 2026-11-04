@@ -1,10 +1,11 @@
+import { t, getLanguage } from "../shared/i18n";
 import React, { useEffect, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import type { BoxDefinition } from "../shared/box";
 import { Alert } from "./design-system/components";
 export function BoxImport({
   disabled,
-  label = "Importer les casiers",
+  label = t("Importer les casiers"),
   onImport,
 }: {
   disabled: boolean;
@@ -28,7 +29,7 @@ export function BoxImport({
     if (!file) return;
     setError("");
     if (file.size > 5 * 1024 * 1024) {
-      setError("Fichier trop volumineux (5 Mo maximum).");
+      setError(t("Fichier trop volumineux (5 Mo maximum)."));
       return;
     }
     setLoading(true);
@@ -51,11 +52,11 @@ export function BoxImport({
       worker.current = reader;
       timer.current = setTimeout(() => {
         finish();
-        setError("Lecture trop longue. Vérifiez le fichier de casiers.");
+        setError(t("Lecture trop longue. Vérifiez le fichier de casiers."));
       }, 15000);
       reader.onerror = () => {
         finish();
-        setError("Impossible de lire ce fichier.");
+        setError(t("Impossible de lire ce fichier."));
       };
       reader.onmessage = async (
         event: MessageEvent<{ box?: BoxDefinition; error?: string }>,
@@ -70,7 +71,10 @@ export function BoxImport({
           if (mounted.current) setLoading(false);
         }
       };
-      reader.postMessage({ bytes, filename: file.name }, [bytes]);
+      reader.postMessage(
+        { bytes, filename: file.name, language: getLanguage() },
+        [bytes],
+      );
     } catch (e) {
       finish();
       setError((e as Error).message);
@@ -80,9 +84,9 @@ export function BoxImport({
     <div className="box-import">
       <label className="box-upload">
         <Upload size={16} />
-        {loading ? "Lecture du fichier…" : label}
+        {loading ? t("Lecture du fichier…") : label}
         <input
-          aria-label="Importer les casiers"
+          aria-label={t("Importer les casiers")}
           type="file"
           accept=".xlsx,.xls,.ods,.csv"
           disabled={disabled || loading}

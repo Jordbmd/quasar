@@ -12,7 +12,7 @@
     "start": "electron .",
     "launcher": "npm run build && node scripts/create-launcher.mjs",
     "setup:video": "node scripts/install-video.mjs",
-    "format": "prettier --write src scripts tests stories .storybook \"*.ts\" \"*.cjs\" \"*.mjs\" \"*.json\"",
+    "format": "prettier --write src scripts tests stories .storybook web .github \"*.ts\" \"*.cjs\" \"*.mjs\" \"*.json\"",
     "test:contrast": "node scripts/check-contrast.mjs",
     "test:forms": "node scripts/ui-fixtures.mjs",
     "brand:build": "node scripts/brand-build.mjs && node scripts/design-tokens.mjs",
@@ -25,7 +25,7 @@
     "launcher:install": "npm run launcher && node scripts/install-launcher.mjs",
     "check:types": "tsc --noEmit",
     "check:lint": "eslint src",
-    "check:format": "prettier --check src scripts tests stories .storybook \"*.ts\" \"*.cjs\" \"*.mjs\" \"*.json\"",
+    "check:format": "prettier --check src scripts tests stories .storybook web .github \"*.ts\" \"*.cjs\" \"*.mjs\" \"*.json\"",
     "check:architecture": "depcruise --config .dependency-cruiser.cjs src",
     "check:dependencies": "knip",
     "package:dir": "npm run build && electron-builder --config electron-builder.config.cjs --dir --publish never",
@@ -33,11 +33,19 @@
     "package:win": "node scripts/package-installers.mjs win",
     "package:linux": "node scripts/package-installers.mjs linux",
     "package:all": "node scripts/package-installers.mjs all",
-    "validate:software": "npm run check:types && npm run check:lint && npm run check:format && npm run check:architecture && npm run check:dependencies && npm test && npm run build && npm run test:contrast && npm run test:forms && npm run test:box",
-    "test:box": "node scripts/box-mode-test.mjs"
+    "validate:software": "npm run check:types && npm run check:lint && npm run check:format && npm run check:architecture && npm run check:dependencies && npm run check:secrets && npm test && npm run build && npm run test:contrast && npm run test:forms && npm run test:box",
+    "build:web": "node scripts/build-web.mjs",
+    "test:web": "node scripts/web-test.mjs",
+    "test:packaged": "node scripts/packaged-smoke.mjs",
+    "test:box": "node scripts/box-mode-test.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "audit:distributed": "node scripts/audit-distributed.mjs",
+    "build:portal": "node scripts/build-portal.mjs",
+    "test:portal": "vitest run tests/portal.test.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "^5.3.0",
+    "fflate": "0.8.3",
     "lucide-react": "^0.468.0",
     "onvif": "0.8.3",
     "react": "^19.2.0",
@@ -61,7 +69,6 @@
     "esbuild": "^0.28.2",
     "eslint": "10.13.0",
     "eslint-plugin-react-hooks": "7.1.1",
-    "fflate": "0.8.3",
     "fontkit": "2.0.4",
     "knip": "6.43.0",
     "playwright": "^1.56.1",
@@ -71,7 +78,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "8.72.1",
     "vite": "^7.2.2",
-    "vitest": "^4.1.12"
+    "vitest": "^4.1.12",
+    "web-vitals": "6.2.3"
   },
   "productName": "Quasar",
   "engines": {

@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useEffect, useState } from "react";
 import type { AutoLoginInput, AutoLoginStatus } from "../shared/auto-login";
 import { Alert, Button, Field } from "./design-system/components";
@@ -24,12 +25,13 @@ export function AutoLoginSettings({
   }, [status]);
   return (
     <section className="auto-login-settings">
-      <h3>Connexion aux caméras</h3>
-      {status?.error && <Alert kind="warning">{status.error}</Alert>}
+      <h3>{t("Connexion aux caméras")}</h3>
+      {status?.error && <Alert kind="warning">{t(status.error)}</Alert>}
       {status && !status.available && (
         <Alert kind="warning">
-          Le stockage sécurisé du système est indisponible. La connexion
-          manuelle reste accessible.
+          {t(
+            "Le stockage sécurisé du système est indisponible. La connexion manuelle reste accessible.",
+          )}
         </Alert>
       )}
       <form
@@ -53,9 +55,9 @@ export function AutoLoginSettings({
       >
         <label className="preference-row">
           <span>
-            <strong>Connexion automatique</strong>
+            <strong>{t("Connexion automatique")}</strong>
             <small>
-              Se connecter au démarrage, dès que l’Ethernet est prêt.
+              {t("Se connecter au démarrage, dès que l’Ethernet est prêt.")}
             </small>
           </span>
           <input
@@ -74,7 +76,7 @@ export function AutoLoginSettings({
         </label>
         {enabled && (
           <div className="auto-login-fields">
-            <Field label="Identifiant des caméras">
+            <Field label={t("Identifiant des caméras")}>
               <input
                 autoComplete="off"
                 required
@@ -86,15 +88,15 @@ export function AutoLoginSettings({
                 }}
               />
             </Field>
-            <Field label="Mot de passe des caméras">
+            <Field label={t("Mot de passe des caméras")}>
               <input
                 type="password"
                 autoComplete="off"
                 maxLength={256}
                 placeholder={
                   status?.enabled
-                    ? "Enregistré · laisser vide pour conserver"
-                    : "Mot de passe"
+                    ? t("Enregistré · laisser vide pour conserver")
+                    : t("Mot de passe")
                 }
                 value={password}
                 onChange={(e) => {
@@ -105,23 +107,23 @@ export function AutoLoginSettings({
               />
             </Field>
             <p className="help-text">
-              Valeurs par défaut : admin / 123456. Ces identifiants sont
-              utilisés pour toutes les caméras ; chaque caméra doit accepter ce
-              compte.
+              {t(
+                "Valeurs par défaut : admin / 123456. Ces identifiants sont utilisés pour toutes les caméras ; chaque caméra doit accepter ce compte.",
+              )}
             </p>
           </div>
         )}
         <p className="help-text">
-          Les identifiants sont protégés par le stockage sécurisé du système.
-          Désactiver cette option supprime les identifiants enregistrés. Une
-          déconnexion volontaire reste valable jusqu’au prochain démarrage.
+          {t(
+            "Les identifiants sont protégés par le stockage sécurisé du système. Désactiver cette option supprime les identifiants enregistrés. Une déconnexion volontaire reste valable jusqu’au prochain démarrage.",
+          )}
         </p>
         <Button
           type="submit"
           disabled={busy || !status || (enabled && !status.available)}
           variant="primary"
         >
-          Enregistrer la connexion
+          {t("Enregistrer la connexion")}
         </Button>
       </form>
     </section>

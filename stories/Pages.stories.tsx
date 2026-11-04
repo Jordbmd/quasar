@@ -1,3 +1,4 @@
+import { t } from "../src/shared/i18n";
 import React from "react";
 import { within, userEvent, expect } from "storybook/test";
 import { App } from "../src/renderer/main";
@@ -6,7 +7,9 @@ export default {
   parameters: { layout: "fullscreen" },
   render: () => (
     <div className="story-app-preview">
-      <div className="story-simulation">SIMULATION — aucune caméra réelle</div>
+      <div className="story-simulation" role="region" aria-label="Simulation">
+        {t("SIMULATION — aucune caméra réelle")}
+      </div>
       <App />
     </div>
   ),
@@ -16,13 +19,13 @@ export const SessionLogin = {
   play: async ({ canvasElement }: any) => {
     await userEvent.click(
       await within(canvasElement).findByRole("button", {
-        name: "Se connecter",
+        name: `${t("Se connecter")} ${t("Connexion aux caméras")}`,
         exact: true,
       }),
     );
     await expect(
       await within(document.body).findByRole("dialog", {
-        name: "Connexion à l’application",
+        name: t("Connexion à l’application"),
       }),
     ).toBeVisible();
   },
@@ -34,23 +37,28 @@ export const SelectedCamera = {
       await c.findByRole("button", { name: /Caméra Atelier — SIMULATION/ }),
     );
     await userEvent.click(
-      c.getByRole("button", { name: "Se connecter", exact: true }),
+      c.getByRole("button", {
+        name: `${t("Se connecter")} ${t("Connexion aux caméras")}`,
+        exact: true,
+      }),
     );
     await userEvent.click(
       within(document.body).getByRole("button", {
-        name: "Connecter les caméras",
+        name: t("Connecter les caméras"),
         exact: true,
       }),
     );
     await expect(
-      await c.findByLabelText("FPS (images/s)", { exact: true }),
+      await c.findByLabelText(t("FPS (images/s)"), { exact: true }),
     ).toHaveValue(25);
   },
 };
 export const Diagnostic = {
   play: async ({ canvasElement }: any) => {
     await userEvent.click(
-      within(canvasElement).getByRole("button", { name: /Diagnostic Tests/ }),
+      within(canvasElement).getByRole("button", {
+        name: t("Diagnostic"),
+      }),
     );
   },
 };
@@ -60,14 +68,18 @@ export const DiagnosticResults = {
     await userEvent.click(
       await c.findByRole("button", { name: /Caméra Atelier — SIMULATION/ }),
     );
-    await userEvent.click(c.getByRole("button", { name: /Diagnostic Tests/ }));
+    await userEvent.click(
+      c.getByRole("button", {
+        name: t("Diagnostic"),
+      }),
+    );
   },
 };
 export const AddCameraModal = {
   play: async ({ canvasElement }: any) => {
     await userEvent.click(
       within(canvasElement).getByRole("button", {
-        name: "Ajouter par IP",
+        name: t("Ajouter par IP"),
         exact: true,
       }),
     );

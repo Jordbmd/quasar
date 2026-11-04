@@ -10,7 +10,7 @@ Tout fonctionne localement. Aucun dépôt, capture ou rapport caméra n’est tr
 | electron-builder 26.18 | Paquets autonomes cohérents sur trois OS. Forge aurait aussi convenu mais ajouterait un second cycle de makers ; un seul packager retenu. Scripts de lanceur macOS conservés séparément | MIT ; copie/ASAR/signature locale, publication désactivée |
 | fflate 0.8 | Extraction portable d’un seul binaire ZIP connu en mémoire, sans dépendre d’un unzip système. Aucun chemin d’archive matérialisé. Empreinte upstream vérifiée avant extraction | MIT ; uniquement outil d’installation |
 
-Node.js **24** est la référence de développement ; le lockfile fixe les versions. Vitest, Playwright, Storybook, Axe, Zod et Prettier s’exécutent localement. Aucun workflow CI/CD n’est conservé dans le dépôt.
+Node.js **24** est la référence de développement ; le lockfile fixe les versions. Vitest, Playwright, Storybook, Axe, Zod et Prettier s’exécutent localement. Le workflow public de validation native est décrit dans [PRODUCTION.md](PRODUCTION.md) ; il ne déploie ni ne publie.
 
 Repomix (MIT) a été évalué mais n’est pas installé : la carte d’architecture et les recherches ciblées suffisent aujourd’hui. Si un export devient nécessaire, utiliser une liste explicite de sources, datée, sous `analysis-output/` ignoré ; exclure .runtime, données utilisateur, captures, logs, binaires, assets générés et secrets. Ne pas connecter de service externe. « Graphify » ne désigne pas un besoin ou un paquet suffisamment précis ; aucun paquet choisi sur cette seule ressemblance de nom.
 
@@ -26,4 +26,4 @@ Electron passe de 44.9.0 à 44.9.3 pour le correctif de sécurité GHSA-jr5w-w6x
 - [Sécurité Repomix](https://repomix.com/guide/security)
 - [Correctif Electron](https://github.com/electron/electron/security/advisories/GHSA-jr5w-w6x2-84p9)
 
-L’audit npm de l’installation finale n’annonce plus de vulnérabilité. Cela ne remplace pas une revue de sécurité, ni la validation du matériel.
+L’audit historique du 26 octobre était sans alerte. Le 3 novembre 2026, `npm audit --omit=dev` reste à zéro ; l’audit complet signale 26 dépendances de développement affectées par deux avis modérés minimatch/glob (amplification de glob et annulation de parcours). Aucun correctif compatible n’est proposé pour toutes ces branches ; les rétrogradations majeures suggérées par `audit fix --force` ne sont pas appliquées. Les motifs proviennent du dépôt, jamais de données caméra. Voir les rapports CI avant chaque livraison. Cela ne remplace pas une revue de sécurité, ni la validation du matériel.

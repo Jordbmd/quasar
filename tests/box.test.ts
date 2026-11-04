@@ -257,7 +257,7 @@ it("importe les informations de production et conserve le câblage corrigé plut
   });
   expect(actual.lockers[1].ports).toBe("3:1");
   expect(boxWarnings(actual)).toEqual([
-    expect.stringContaining("module Southco 3"),
+    expect.stringContaining("Southco absents de Config : 3"),
   ]);
 });
 it("détecte les divergences de câblage, ports partagés et nombres de casiers", () => {

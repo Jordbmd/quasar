@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useEffect, useState } from "react";
 import type {
   AddressPlan,
@@ -64,7 +65,9 @@ export function Addressing({
     <Modal
       open={open}
       title={
-        finished ? "Bilan d’attribution des IP" : "Attribuer les IP par casier"
+        finished
+          ? t("Bilan d’attribution des IP")
+          : t("Attribuer les IP par casier")
       }
       busy={busy}
       status={
@@ -78,12 +81,12 @@ export function Addressing({
             />
           )}
           {finished && plan && <AddressOutcome plan={plan} />}
-          {error && <Alert kind="danger">{error}</Alert>}
+          {error && <Alert kind="danger">{t(error)}</Alert>}
         </>
       }
       footer={
         <Button disabled={busy} onClick={onClose}>
-          {finished ? "Fermer le bilan" : "Fermer"}
+          {finished ? t("Fermer le bilan") : t("Fermer")}
         </Button>
       }
       onClose={() => {
@@ -92,20 +95,22 @@ export function Addressing({
     >
       <div className="addressing-review">
         <p>
-          Casier 1 → 192.168.1.11, casier 2 → 192.168.1.12. Les caméras sont{" "}
+          {t(
+            "Casier 1 → 192.168.1.11, casier 2 → 192.168.1.12. Les caméras sont",
+          )}{" "}
           {assignments
-            ? "associées aux numéros importés de la Box. L’IHM 0 est exclue."
-            : "classées par IP actuelle puis par identité. Vérifiez l’ordre avant d’appliquer."}
+            ? t("associées aux numéros importés de la Box. L’IHM 0 est exclue.")
+            : t(
+                "classées par IP actuelle puis par identité. Vérifiez l’ordre avant d’appliquer.",
+              )}
         </p>
         <p>
-          Les conflits sont vérifiés pendant cette préparation. Quand le
-          protocole constructeur permet de cibler chaque caméra par son
-          identifiant, l’attribution les résout sans débranchement. Les adresses
-          sont libérées dans le bon ordre ; une IP temporaire est proposée si
-          nécessaire, puis remplacée par l’adresse du casier.
+          {t(
+            "Les conflits sont vérifiés pendant cette préparation. Quand le protocole constructeur permet de cibler chaque caméra par son identifiant, l’attribution les résout sans débranchement. Les adresses sont libérées dans le bon ordre ; une IP temporaire est proposée si nécessaire, puis remplacée par l’adresse du casier.",
+          )}
         </p>
         {!assignments && (
-          <Field label="Premier casier">
+          <Field label={t("Premier casier")}>
             <input
               type="number"
               min="1"
@@ -127,7 +132,7 @@ export function Addressing({
         <Button
           disabled={busy || !cameras.length || !start}
           onClick={() =>
-            execute("Vérification de la plage d’adresses", async () => {
+            execute(t("Vérification de la plage d’adresses"), async () => {
               // A temporary IP must not reorder the intended locker assignment
               // when the user prepares the remainder of an interrupted run.
               const retainedAssignments = assignments ?? resumeAssignments;
@@ -147,20 +152,22 @@ export function Addressing({
             })
           }
         >
-          Vérifier les adresses
+          {t("Vérifier les adresses")}
         </Button>
         {plan && (
           <>
             <div className="addressing-table">
               <table>
-                <caption>Plan d’adressage — masque 255.255.255.0</caption>
+                <caption>
+                  {t("Plan d’adressage — masque 255.255.255.0")}
+                </caption>
                 <thead>
                   <tr>
-                    <th>Caméra</th>
-                    <th>Casier</th>
-                    <th>Adresse actuelle</th>
-                    <th>Nouvelle adresse</th>
-                    <th>Résultat</th>
+                    <th>{t("Caméra")}</th>
+                    <th>{t("Casier")}</th>
+                    <th>{t("Adresse actuelle")}</th>
+                    <th>{t("Nouvelle adresse")}</th>
+                    <th>{t("Résultat")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,23 +182,29 @@ export function Addressing({
                       <td>
                         {row.to}
                         {row.temporaryIP && (
-                          <small>Via {row.temporaryIP} (temporaire)</small>
+                          <small>
+                            {t("Via")} {row.temporaryIP} {t("(temporaire)")}
+                          </small>
                         )}
                       </td>
                       <td>
                         {row.message}
                         {row.lastVerifiedIP && (
                           <small>
-                            Dernière IP vérifiée : {row.lastVerifiedIP}
+                            {t("Dernière IP vérifiée :")} {row.lastVerifiedIP}
                           </small>
                         )}
                         {row.state === "blocked" &&
                           row.resolution === "serial" && (
                             <p className="help-text">
-                              Ciblage sans débranchement confirmé.{" "}
+                              {t("Ciblage sans débranchement confirmé.")}{" "}
                               {row.from === row.to
-                                ? "Cette IP est encore partagée : déplacez d’abord l’autre caméra vers une IP libre, puis vérifiez à nouveau les adresses."
-                                : "Choisissez une adresse libre, puis vérifiez à nouveau les adresses."}
+                                ? t(
+                                    "Cette IP est encore partagée : déplacez d’abord l’autre caméra vers une IP libre, puis vérifiez à nouveau les adresses.",
+                                  )
+                                : t(
+                                    "Choisissez une adresse libre, puis vérifiez à nouveau les adresses.",
+                                  )}
                             </p>
                           )}
                         {row.state === "blocked" &&
@@ -204,7 +217,7 @@ export function Addressing({
                                 setIsolated(false);
                               }}
                             >
-                              Résolution par isolation
+                              {t("Résolution par isolation")}
                             </Button>
                           )}
                       </td>
@@ -216,7 +229,8 @@ export function Addressing({
             {plan.steps?.length ? (
               <details>
                 <summary>
-                  Ordre des opérations · {plan.steps.length} étapes
+                  {t("Ordre des opérations ·")} {plan.steps.length}{" "}
+                  {t("étapes")}
                 </summary>
                 <ol>
                   {plan.steps.map((step, index) => (
@@ -224,12 +238,12 @@ export function Addressing({
                       {step.kind === "temporary"
                         ? "IP temporaire"
                         : step.kind === "verify"
-                          ? "Vérification sans changement"
+                          ? t("Vérification sans changement")
                           : "IP finale"}
                       {" · "}
                       {step.from} → {step.to}
                       {step.state &&
-                        ` · ${step.state === "verified" ? "Vérifiée" : step.state === "failed" ? "À vérifier" : "Non exécutée"}`}
+                        ` · ${step.state === "verified" ? t("Vérifiée") : step.state === "failed" ? t("À vérifier") : t("Non exécutée")}`}
                       {step.message && <small>{step.message}</small>}
                     </li>
                   ))}
@@ -239,18 +253,19 @@ export function Addressing({
             {!applied && (
               <>
                 <p>
-                  {ready} caméra(s) à modifier. Les lignes bloquées seront
-                  exclues. Les changements seront vérifiés un par un ; le lot
-                  s’arrêtera si un résultat reste incertain. Dans ce cas, les IP
-                  temporaires déjà attribuées sont conservées et indiquées dans
-                  le bilan. Une nouvelle vérification prépare la suite.
+                  {ready}{" "}
+                  {t(
+                    "caméra(s) à modifier. Les lignes bloquées seront exclues. Les changements seront vérifiés un par un ; le lot s’arrêtera si un résultat reste incertain. Dans ce cas, les IP temporaires déjà attribuées sont conservées et indiquées dans le bilan. Une nouvelle vérification prépare la suite.",
+                  )}
                 </p>
                 <Button
                   variant="primary"
                   disabled={busy || !ready}
                   onClick={() =>
                     execute(
-                      "Attribution et vérification des IP — cela peut prendre plusieurs minutes",
+                      t(
+                        "Attribution et vérification des IP — cela peut prendre plusieurs minutes",
+                      ),
                       async () => {
                         const reviewed = plan;
                         if (reviewed.steps)
@@ -278,7 +293,7 @@ export function Addressing({
                     )
                   }
                 >
-                  Attribuer les IP à {ready} caméra(s)
+                  {t("Attribuer les IP à")} {ready} {t("caméra(s)")}
                 </Button>
               </>
             )}
@@ -286,18 +301,22 @@ export function Addressing({
         )}
         {cameras.some((c) => c.ambiguous) && !plan && (
           <Alert kind="warning">
-            Des caméras partagent la même IP. « Vérifier les adresses »
-            recherche automatiquement une méthode de résolution sans
-            débranchement.
+            {t(
+              "Des caméras partagent la même IP. « Vérifier les adresses » recherche automatiquement une méthode de résolution sans débranchement.",
+            )}
           </Alert>
         )}
         {selected && (
           <section className="addressing-isolation">
-            <h3>Autre méthode : isoler la caméra à {selected.ip}</h3>
+            <h3>
+              {t("Autre méthode : isoler la caméra à")} {selected.ip}
+            </h3>
             <p>
-              Gardez uniquement la caméra choisie branchée au switch. Identité
-              attendue : <code>{selected.mac || selected.endpoint}</code>. La
-              vérification ne change encore aucune adresse.
+              {t(
+                "Gardez uniquement la caméra choisie branchée au switch. Identité attendue :",
+              )}{" "}
+              <code>{selected.mac || selected.endpoint}</code>
+              {t(". La vérification ne change encore aucune adresse.")}
             </p>
             <label>
               <input
@@ -306,12 +325,12 @@ export function Addressing({
                 disabled={busy}
                 onChange={(e) => setIsolated(e.target.checked)}
               />{" "}
-              J’ai laissé uniquement cette caméra branchée.
+              {t("J’ai laissé uniquement cette caméra branchée.")}
             </label>
             <Button
               disabled={busy || !isolated}
               onClick={() =>
-                execute("Vérification de la caméra isolée", async () => {
+                execute(t("Vérification de la caméra isolée"), async () => {
                   await window.sezaam.call("resolveIPConflict", {
                     id: selected.id,
                     isolated: true,
@@ -325,12 +344,12 @@ export function Addressing({
                 })
               }
             >
-              Vérifier la caméra isolée
+              {t("Vérifier la caméra isolée")}
             </Button>
             <p>
-              Après confirmation, vérifiez la plage et attribuez une nouvelle IP
-              avant de rebrancher la caméra suivante. Aucun ciblage par MAC non
-              vérifié n’est envoyé.
+              {t(
+                "Après confirmation, vérifiez la plage et attribuez une nouvelle IP avant de rebrancher la caméra suivante. Aucun ciblage par MAC non vérifié n’est envoyé.",
+              )}
             </p>
           </section>
         )}

@@ -1,0 +1,31 @@
+{
+  "source": "https://github.com/Jordbmd/quasar/actions/runs/41718943481",
+  "artifactId": 13271825954,
+  "image": {
+    "schemaVersion": 1,
+    "project": "quasar-portal",
+    "commit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "image": "quasar-portal:dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "imageId": "sha256:0d1c417f59204d057534f583504d0daeac758b7f24817647fec188f024c8af25",
+    "archive": "quasar-portal-image.tar.gz",
+    "archiveSha256": "59e3de8eea18722cb341b7903bc7048ada93a2fbe2f0e8c3dffb98f0255c4e68",
+    "checkedAt": "2026-11-03T21:13:26.840Z",
+    "runtimeVerification": "passed",
+    "registryDigest": null,
+    "registryPublished": false,
+    "deployed": false
+  },
+  "verification": {
+    "checkedAt": "2026-11-03T21:18:32.949Z",
+    "project": "quasar-portal",
+    "commit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+    "imageId": "sha256:a5b58b12ec6696745240e7e9d5f1f71e98cea5e53a877cec5fcd7849353b89ed",
+    "originalImageId": "sha256:0d1c417f59204d057534f583504d0daeac758b7f24817647fec188f024c8af25",
+    "archiveDescriptor": "sha256:a5b58b12ec6696745240e7e9d5f1f71e98cea5e53a877cec5fcd7849353b89ed",
+    "archiveSha256": "59e3de8eea18722cb341b7903bc7048ada93a2fbe2f0e8c3dffb98f0255c4e68",
+    "loaded": true,
+    "rebuilt": false,
+    "registryPublished": false,
+    "deployed": false
+  }
+}

@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import type { AutoLoginStore } from "./auto-login";
 import { syncClock } from "./sync-clock";
 import { readDaylight } from "./daylight";
@@ -83,7 +84,7 @@ import {
 } from "./discovery";
 import { cameraAddress, prefix, host, sameSubnet } from "./ip";
 import { VideoRelay } from "./video";
-import { cancelled } from "./cancellation";
+import { abortable, cancelled } from "./cancellation";
 export { schemas } from "../shared/ipc-schemas";
 import { parseRequest } from "../shared/ipc-schemas";
 export class CameraService {
@@ -138,12 +139,18 @@ export class CameraService {
   ) {
     this.detailRequest?.controller.abort(cancelled());
     const controller = new AbortController();
-    const promise = (async () => {
-      const conn = await this.connection(id);
-      return conn.withReadSignal(controller.signal, () =>
-        this.cameraDetail(id, fresh, controller.signal, requestId, scope),
-      );
-    })();
+    // Cancellation owns the whole read, including asynchronous route checks.
+    // A late route result must not start a camera request after selection changed.
+    const promise = abortable(
+      (async () => {
+        const conn = await this.connection(id);
+        controller.signal.throwIfAborted();
+        return conn.withReadSignal(controller.signal, () =>
+          this.cameraDetail(id, fresh, controller.signal, requestId, scope),
+        );
+      })(),
+      controller.signal,
+    );
     const request = { controller, promise };
     this.detailRequest = request;
     return promise.finally(() => {
@@ -622,7 +629,18 @@ export class CameraService {
     if (
       confirmation &&
       !(await this.confirm(
-        `${before.model || "Caméra"} · ${before.ip}\nSérie : ${before.serial || "non disponible"} · MAC : ${before.mac || "non disponible"}\n\n${description}\n\nCette action modifie uniquement cette caméra. Continuer ?`,
+        [
+          `${before.model || t("Caméra")} · ${before.ip}`,
+          t(
+            "Série : {0} · MAC : {1}",
+            before.serial || t("non disponible"),
+            before.mac || t("non disponible"),
+          ),
+          "",
+          t(description),
+          "",
+          t("Cette action modifie uniquement cette caméra. Continuer ?"),
+        ].join("\n"),
       ))
     )
       throw new Error("Opération annulée.");
@@ -675,8 +693,18 @@ export class CameraService {
     conn = await this.approve(
       v.id,
       allowDuplicate
-        ? `ATTENTION — DOUBLON IP DÉTECTÉ\n${old.ip} → ${v.address} / ${v.mask}\nCette adresse est déjà utilisée. Voulez-vous forcer son attribution ? L’autre caméra ne sera pas modifiée. Les appareils pourront devenir inaccessibles. La commande sera envoyée une seule fois, sans connexion à l’IP partagée. Il faudra résoudre le conflit avant toute autre modification.`
-        : `Adresse IP : ${old.ip} → ${v.address}\nMasque : ${v.mask}\nMode : statique\n\nLa connexion sera rétablie et la nouvelle adresse vérifiée.`,
+        ? t(
+            "ATTENTION — DOUBLON IP DÉTECTÉ\n{0} → {1} / {2}\nCette adresse est déjà utilisée. Voulez-vous forcer son attribution ? L’autre caméra ne sera pas modifiée. Les appareils pourront devenir inaccessibles. La commande sera envoyée une seule fois, sans connexion à l’IP partagée. Il faudra résoudre le conflit avant toute autre modification.",
+            old.ip,
+            v.address,
+            v.mask,
+          )
+        : t(
+            "Adresse IP : {0} → {1}\nMasque : {2}\nMode : statique\n\nLa connexion sera rétablie et la nouvelle adresse vérifiée.",
+            old.ip,
+            v.address,
+            v.mask,
+          ),
       allowDuplicate || !confirmed,
     );
     await this.conflict(
@@ -1005,15 +1033,19 @@ export class CameraService {
     if (
       !(await this.confirm(
         (saved.plan.kind === "conflicts"
-          ? "Résoudre les conflits IP avec les changements suivants ?\n\n"
-          : "Attribuer les adresses suivantes aux caméras identifiées ?\n\n") +
+          ? t("Résoudre les conflits IP avec les changements suivants ?\n\n")
+          : t(
+              "Attribuer les adresses suivantes aux caméras identifiées ?\n\n",
+            )) +
           ready
             .map(
               (r) =>
-                `${r.name} · ${r.identity} : ${r.from} → ${r.temporaryIP ? r.temporaryIP + " (temporaire) → " : ""}${r.to}${r.locker === undefined ? (r.from === r.to ? " (adresse conservée)" : "") : " (casier " + r.locker + ")"}`,
+                `${r.name} · ${r.identity} : ${r.from} → ${r.temporaryIP ? r.temporaryIP + t(" (temporaire) → ") : ""}${r.to}${r.locker === undefined ? (r.from === r.to ? t(" (adresse conservée)") : "") : t(" (casier {0})", r.locker)}`,
             )
             .join("\n") +
-          "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Les IP temporaires sont incluses dans cette confirmation. Aucun retour automatique après un résultat incertain. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
+          t(
+            "\n\nLes conflits identifiés comme résolubles seront traités par identifiant constructeur, sans débrancher les caméras. Les lignes bloquées sont exclues. Les IP temporaires sont incluses dans cette confirmation. Aucun retour automatique après un résultat incertain. Une coupure temporaire est attendue. Chaque nouvelle adresse et identité seront relues.",
+          ),
       ))
     )
       throw Error("Opération annulée.");
@@ -2302,7 +2334,16 @@ export class CameraService {
       };
     conn = await this.approve(
       v.id,
-      `Modifier le réseau de cette caméra :\n${JSON.stringify({ dhcp: v.dhcp, address: v.address, mask: v.mask, gateway: v.gateway, dns: v.dns })}\nUne coupure de connexion est possible.`,
+      t(
+        "Modifier le réseau de cette caméra :\n{0}\nUne coupure de connexion est possible.",
+        JSON.stringify({
+          dhcp: v.dhcp,
+          address: v.address,
+          mask: v.mask,
+          gateway: v.gateway,
+          dns: v.dns,
+        }),
+      ),
       true,
     );
     const freshNIC = matchInterface(
@@ -2983,7 +3024,18 @@ export class CameraService {
         );
         conn = await this.approve(
           v.id,
-          `Modifier le profil vidéo ${v.token}\nAvant : ${JSON.stringify(entry.config.resolution)}, ${entry.config.rateControl?.frameRateLimit} FPS\nAprès : ${v.width} × ${v.height}, ${v.fps} FPS${v.quality !== undefined ? " · qualité " + v.quality : ""}${v.bitrate !== undefined ? " · débit " + v.bitrate + " kb/s" : ""}\nEncodage demandé : ${v.codec ?? entry.config.encoding}. Les profils partageant cet encodeur sont concernés.`,
+          t(
+            "Modifier le profil vidéo {0}\nAvant : {1}, {2} FPS\nAprès : {3} × {4}, {5} FPS{6}{7}\nEncodage demandé : {8}. Les profils partageant cet encodeur sont concernés.",
+            v.token,
+            JSON.stringify(entry.config.resolution),
+            entry.config.rateControl?.frameRateLimit,
+            v.width,
+            v.height,
+            v.fps,
+            v.quality !== undefined ? " · qualité " + v.quality : "",
+            v.bitrate !== undefined ? " · débit " + v.bitrate + " kb/s" : "",
+            v.codec ?? entry.config.encoding,
+          ),
           false,
         );
         await this.video.stop();
@@ -3037,7 +3089,11 @@ export class CameraService {
         }
         conn = await this.approve(
           v.id,
-          `Modifier l’image\nAvant : ${JSON.stringify(detail.image.data.settings)}\nValeurs demandées : ${JSON.stringify(v.values)}\nLe filtre infrarouge n’est pas une commande de LED.`,
+          t(
+            "Modifier l’image\nAvant : {0}\nValeurs demandées : {1}\nLe filtre infrarouge n’est pas une commande de LED.",
+            JSON.stringify(detail.image.data.settings),
+            JSON.stringify(v.values),
+          ),
           false,
         );
         const values = Object.fromEntries(

@@ -1,27 +1,27 @@
 import { createHash } from "node:crypto";
-export const version = "v1.9.14";
-// SHA-256 values published by GitHub for this exact upstream release, checked 2026-10-26.
-// https://github.com/AlexxIT/go2rtc/releases/tag/v1.9.14
+export const version = "v1.9.15";
+// SHA-256 values published by GitHub for this exact upstream release, checked 2026-11-03.
+// https://github.com/AlexxIT/go2rtc/releases/tag/v1.9.15
 export const assets = {
   "darwin-arm64": [
     "go2rtc_mac_arm64.zip",
-    "919b78adc759d6b3883d1e1b2ac915ac0985bb903ff1897b4d228527bd64690c",
+    "d0cf858a71803dce2377423bc830639137ee96c335f88e9912e7f7898374266d",
   ],
   "darwin-x64": [
     "go2rtc_mac_amd64.zip",
-    "9b0b9a27a4dc3a5b8b93376e7e8fc2787c6af624a512842622be84aec0171c7a",
+    "7ca6075421b824eebe0383d20bd42a6f6a7ec7591a60931d42290f1d375169b9",
   ],
   "linux-x64": [
     "go2rtc_linux_amd64",
-    "32d616af226bd731678ffde328b94cfb94e30339bfefc469cfb76323144615a6",
+    "20b46c6910734cb05ecefb234066f36868ff19b42ba1418a7a32e13a3e035712",
   ],
   "linux-arm64": [
     "go2rtc_linux_arm64",
-    "359fabade8a7a51e81a55fe6df6b0ef81764a5e1d63179577534eaaa71904b50",
+    "af416f22b21a24ab83b8d78642190b4932ae695b4e386853f11d1b0319781763",
   ],
   "win32-x64": [
     "go2rtc_win64.zip",
-    "dd4167d75cb04abe618855b7c71f8658bd009f60c1a71835d134d2c11c939907",
+    "5b448fc90f15c925406d8da0984301985e385050222c1c2bbdf0a76fe4b1e9cb",
   ],
 };
 export function videoAsset(platform, arch) {

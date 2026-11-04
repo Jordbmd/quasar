@@ -309,6 +309,8 @@ try {
         },
         onInvalidated: () => () => {},
         call: async (method, v) => {
+          if (method === "getLanguage") return "fr";
+          if (method === "setLanguage") return v.language;
           calls.push({ method, input: v });
           if (window.__sezaamTest.holdBatch === method) {
             await new Promise((resolve, reject) => {
@@ -904,7 +906,12 @@ try {
     .fill("Caméra 001");
   assert.equal(await page.locator(".camera-row").count(), 1);
   await page.locator(".camera-row").click();
-  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "Se connecter Connexion aux caméras",
+      exact: true,
+    })
+    .click();
   await page
     .getByRole("dialog", { name: "Connexion à l’application" })
     .waitFor();
@@ -914,10 +921,7 @@ try {
     .click();
   await page.locator(".operation").waitFor({ state: "hidden" });
   await page
-    .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
-      exact: true,
-    })
+    .getByTitle("Gérer la connexion aux caméras", { exact: true })
     .waitFor();
   assert.equal(await page.locator('input[type="password"]:visible').count(), 0);
   const search = page.getByRole("textbox", { name: "Rechercher une caméra" });
@@ -932,10 +936,7 @@ try {
   );
   await page.evaluate(() => (window.__sezaamTest.failSecond = false));
   await page
-    .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
-      exact: true,
-    })
+    .getByTitle("Gérer la connexion aux caméras", { exact: true })
     .click();
   await page
     .getByRole("button", { name: "Réessayer les connexions", exact: true })
@@ -945,13 +946,21 @@ try {
     await search.fill(name);
     await page.locator(".camera-row").click();
     await page.locator(".operation").waitFor({ state: "hidden" });
+    // Camera reads arrive progressively, independently of the exclusive-operation banner.
+    await page
+      .getByLabel("FPS (images/s)", { exact: true })
+      .and(page.locator('input[value="25"]'))
+      .waitFor();
     assert.equal(
       await page.getByLabel("FPS (images/s)", { exact: true }).inputValue(),
       "25",
     );
     assert.equal(
       await page
-        .getByRole("button", { name: "Se connecter", exact: true })
+        .getByRole("button", {
+          name: "Se connecter Connexion aux caméras",
+          exact: true,
+        })
         .count(),
       0,
     );
@@ -966,10 +975,7 @@ try {
   );
   await page.getByLabel("FPS (images/s)", { exact: true }).fill("20");
   await page
-    .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
-      exact: true,
-    })
+    .getByTitle("Gérer la connexion aux caméras", { exact: true })
     .click();
   await page
     .getByRole("button", { name: "Connecter les caméras", exact: true })
@@ -1963,15 +1969,15 @@ try {
     .click();
   await page.getByRole("button", { name: "Arrêter", exact: true }).click();
   await page
-    .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
-      exact: true,
-    })
+    .getByTitle("Gérer la connexion aux caméras", { exact: true })
     .click();
   await page.getByRole("button", { name: "Déconnecter", exact: true }).click();
   await page.locator(".operation").waitFor({ state: "hidden" });
   await page
-    .getByRole("button", { name: "Se connecter", exact: true })
+    .getByRole("button", {
+      name: "Se connecter Connexion aux caméras",
+      exact: true,
+    })
     .waitFor();
   assert.equal(
     await page.getByLabel("FPS (images/s)", { exact: true }).count(),
@@ -2055,7 +2061,7 @@ try {
     .click();
   await page
     .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
+      name: /Gérer la connexion aux caméras$/,
       exact: true,
     })
     .waitFor();
@@ -2070,19 +2076,22 @@ try {
   await page.screenshot({ path: "test-results/auto-login-SIMULATION.png" });
   await page
     .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
+      name: /Gérer la connexion aux caméras$/,
       exact: true,
     })
     .click();
   await page.getByRole("button", { name: "Déconnecter", exact: true }).click();
   await page
-    .getByRole("button", { name: "Se connecter", exact: true })
+    .getByRole("button", {
+      name: "Se connecter Connexion aux caméras",
+      exact: true,
+    })
     .waitFor();
   assert.equal(await savedAttempts(), 1);
   await page.reload();
   await page
     .getByRole("button", {
-      name: "Gérer la connexion aux caméras",
+      name: /Gérer la connexion aux caméras$/,
       exact: true,
     })
     .waitFor();

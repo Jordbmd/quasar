@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Camera } from "./types";
+import { t } from "./i18n";
 
 const lockerSchema = z
   .object({
@@ -61,7 +62,10 @@ export const boxSchema = z
   .superRefine((box, ctx) => {
     const numbers = box.lockers.map((l) => l.number);
     if (new Set(numbers).size !== numbers.length)
-      ctx.addIssue({ code: "custom", message: "Numéro de casier en double." });
+      ctx.addIssue({
+        code: "custom",
+        message: t("Numéro de casier en double."),
+      });
     if (
       box.lockers.filter((l) => l.kind === "IHM").length !== 1 ||
       box.lockers.some(
@@ -72,8 +76,9 @@ export const boxSchema = z
     )
       ctx.addIssue({
         code: "custom",
-        message:
+        message: t(
           "Une seule IHM est requise : casier 0, IP 0.0.0.0, sans caméra.",
+        ),
       });
   });
 export type BoxDefinition = z.infer<typeof boxSchema>;
@@ -149,14 +154,23 @@ export function boxWarnings(box: BoxDefinition) {
     const ports = southcoPorts(locker.ports);
     if (!ports && locker.ports)
       warnings.push(
-        `Casier ${locker.number} : ports Southco non reconnus (${locker.ports}).`,
+        t(
+          "Casier {0} : ports Southco non reconnus ({1}).",
+          locker.number,
+          locker.ports,
+        ),
       );
     for (const p of ports ?? []) {
       modules.add(p.module);
       const key = `${p.module}:${p.port}`;
       if (used.has(key))
         warnings.push(
-          `Port Southco ${key} utilisé par les casiers ${used.get(key)} et ${locker.number}.`,
+          t(
+            "Port Southco {0} utilisé par les casiers {1} et {2}.",
+            key,
+            used.get(key)!,
+            locker.number,
+          ),
         );
       used.set(key, locker.number);
     }
@@ -165,14 +179,21 @@ export function boxWarnings(box: BoxDefinition) {
   const missing = [...modules].filter((m) => declared && !declared.includes(m));
   if (missing.length)
     warnings.push(
-      `Le câblage utilise ${missing.length > 1 ? "les modules Southco" : "le module Southco"} ${missing.join(", ")}, absent(s) de Config. Les ports de Back office sont conservés.`,
+      t(
+        "Modules Southco absents de Config : {0}. Les ports de Back office sont conservés.",
+        missing.join(", "),
+      ),
     );
   if (
     box.metadata?.lockerCount !== undefined &&
     box.metadata.lockerCount !== box.lockers.length - 1
   )
     warnings.push(
-      `Infos Box annonce ${box.metadata.lockerCount} casiers ; le plan en contient ${box.lockers.length - 1} hors IHM.`,
+      t(
+        "Infos Box annonce {0} casiers ; le plan en contient {1} hors IHM.",
+        box.metadata.lockerCount,
+        box.lockers.length - 1,
+      ),
     );
   return [...new Set(warnings)];
 }
@@ -214,13 +235,18 @@ export function boxAssignments(
       const camera = lockerCamera(locker, cameras, bindings);
       if (!camera)
         throw Error(
-          `Casier ${locker.number} : associez une caméra détectée avant d’attribuer les IP.`,
+          t(
+            "Casier {0} : associez une caméra détectée avant d’attribuer les IP.",
+            locker.number,
+          ),
         );
       return { id: camera.id, locker: locker.number };
     });
   if (new Set(assignments.map((a) => a.id)).size !== assignments.length)
     throw Error(
-      "Une même caméra est associée à plusieurs casiers. Corrigez les associations.",
+      t(
+        "Une même caméra est associée à plusieurs casiers. Corrigez les associations.",
+      ),
     );
   return assignments.sort((a, b) => a.locker - b.locker);
 }
@@ -235,17 +261,22 @@ export function parseBoxRows(rows: unknown[][], name: string): BoxDefinition {
           .toLowerCase() !== h.toLowerCase(),
     )
   )
-    throw Error("Colonnes attendues : Casier, N°, Colonne, Zone, Ports, IP.");
+    throw Error(
+      t("Colonnes attendues : Casier, N°, Colonne, Zone, Ports, IP."),
+    );
   const lockers = rows.slice(1).flatMap((row, index) => {
     const values = headers.map((_, i) => String(row[i] ?? "").trim());
     if (values.every((v) => !v)) return [];
     if (values.some((v) => !v))
       throw Error(
-        `Ligne ${index + 2} : les six colonnes doivent être renseignées.`,
+        t("Ligne {0} : les six colonnes doivent être renseignées.", index + 2),
       );
     if ([1, 2, 3].some((i) => !/^\d+$/.test(values[i])))
       throw Error(
-        `Ligne ${index + 2} : numéro, colonne et zone doivent être des entiers positifs ou nuls.`,
+        t(
+          "Ligne {0} : numéro, colonne et zone doivent être des entiers positifs ou nuls.",
+          index + 2,
+        ),
       );
     const result = lockerSchema.safeParse({
       kind: values[0],
@@ -257,7 +288,10 @@ export function parseBoxRows(rows: unknown[][], name: string): BoxDefinition {
     });
     if (!result.success)
       throw Error(
-        `Ligne ${index + 2} : ${result.error.issues.map((i) => `${i.path.join(".")} — ${i.message}`).join(" ; ")}`,
+        t(
+          "Ligne {0} : valeurs de casier invalides. Vérifiez type, numéro, colonne, zone, ports et IPv4.",
+          index + 2,
+        ),
       );
     return [result.data];
   });

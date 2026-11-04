@@ -10,12 +10,17 @@
     "stories/**/*.stories.tsx",
     ".storybook/*.{ts,tsx}",
     "*.config.{ts,cjs,mjs}",
-    ".dependency-cruiser.cjs"
+    ".dependency-cruiser.cjs",
+    "web/metrics.js",
+    "web/server/index.mjs",
+    "web/theme.js"
   ],
   "project": [
     "src/**/*.{ts,tsx,js}",
     "scripts/*.{mjs,cjs}",
     "tests/**/*.{ts,mjs}",
-    "stories/**/*.{ts,tsx}"
-  ]
+    "stories/**/*.{ts,tsx}",
+    "web/**/*.{mjs,js}"
+  ],
+  "ignoreBinaries": ["readelf"]
 }

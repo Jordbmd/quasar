@@ -1,3 +1,4 @@
+import { getLanguage, setLanguage, type Language } from "../src/shared/i18n";
 // Development fixtures only. No Electron import, transport, IP socket or real camera operation.
 import type {
   Camera,
@@ -197,7 +198,13 @@ export function installMock() {
     onNetworkChanged: () => () => {},
     onCameraDetail: () => () => {},
     onInvalidated: () => () => {},
-    call: (async (method: string) => {
+    call: (async (method: string, input: { language: Language }) => {
+      if (method === "getAutoLogin") return { available: true, enabled: false };
+      if (method === "getLanguage") return getLanguage();
+      if (method === "setLanguage") {
+        setLanguage(input.language);
+        return getLanguage();
+      }
       if (method === "state") return structuredClone(current);
       if (method === "discover") return structuredClone(current.cameras);
       if (method === "connectSession") {

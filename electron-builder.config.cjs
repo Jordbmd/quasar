@@ -9,7 +9,12 @@ module.exports = {
     {
       from: process.env.QUASAR_VIDEO_DIR || "bin",
       to: "bin",
-      filter: ["go2rtc", "go2rtc.exe", "go2rtc-version.json"],
+      filter: [
+        "go2rtc",
+        "go2rtc.exe",
+        "go2rtc-version.json",
+        "go2rtc-LICENSE.txt",
+      ],
     },
     {
       from: "scripts/video-supervisor.cjs",

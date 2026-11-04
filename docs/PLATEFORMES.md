@@ -2,7 +2,11 @@
 
 État de consolidation au 27 octobre 2026. Aucun hub, switch ou caméra utilisé pendant cette validation. Les résultats matériels historiques de la V1 ne valident pas les nouveaux adaptateurs système.
 
-## Matrice de validation
+## Mise à jour du 3 novembre 2026
+
+La matrice ci-dessous décrit la consolidation historique. La branche de préparation production ajoute une CI publique native et des artefacts statiques. Les preuves de cette branche, notamment Windows exécuté localement et les essais restant nécessaires sur macOS/Linux, sont séparées dans [PRODUCTION.md](PRODUCTION.md). Aucun test historique ne vaut validation de ce commit.
+
+## Matrice historique de validation
 
 | Cible | Implémenté | Compilé | Exécuté | Tests sans matériel | Matériel |
 | --- | --- | --- | --- | --- | --- |
@@ -34,6 +38,7 @@ Racine : `app.getPath("appData")/sezaam-camera-tool`, identifiant historique inc
 | Historique profil / resets / sauvegardes web | profile-journal/ |
 | Sauvegardes OSD / réseau | osd/ et backups/ |
 | Préférences, stockage local Chromium et ses caches | electron/ |
+| Langue FR/EN partagée avec les menus natifs | language.json |
 | Logs Electron | logs/ |
 | Configuration temporaire du relais, sans identifiants | temporary/ |
 
@@ -55,7 +60,7 @@ Depuis le 28 octobre 2026, les commandes `package:mac`, `package:win`, `package:
 
 `npm ci`, `npm run setup:video`, puis `npm run package:dir`, sur l’OS cible avec Node 24. Les commandes npm communes n’utilisent pas d’affectation d’environnement propre au shell POSIX. Les scripts `launcher:*` restent volontairement propres au lanceur macOS de développement.
 
-Un seul packager, electron-builder 26 : sorties dans `release/`, dépendances de développement exclues, aucune publication. Le contrôle après assemblage vérifie le relais, ses métadonnées OS/architecture et le superviseur. La sélection go2rtc v1.9.14 est épinglée ; les empreintes SHA-256 attendues viennent des métadonnées de la release officielle, pas du fichier juste téléchargé. Les archives sont vérifiées avant extraction du seul exécutable attendu.
+Un seul packager, electron-builder 26 : sorties dans `release/`, dépendances de développement exclues, aucune publication. Le contrôle après assemblage vérifie le relais, ses métadonnées OS/architecture et le superviseur. Le source go2rtc v1.9.15 est épinglé par commit et somme de module Go, puis reconstruit avec Go 1.27.3 et les dépendances corrigées de config/go2rtc. Le manifeste distingue ce rebuild du binaire upstream et le hook vérifie le hash du relais réellement copié.
 
 Le lanceur existant `~/Applications/Quasar.app` reste lié au dépôt et n’est pas remplacé. Le nouveau paquet macOS est autonome, signé ad hoc, avec bundle ID et UUID Mach-O propres à Quasar. Il n’est **pas notarié** et son autorisation réseau réelle reste à tester. Les paquets Windows/Linux ont été construits sur leurs runners GitHub ; la signature Windows, les installateurs et les mises à jour automatiques ne font pas partie de cette validation. Le lancement Electron en CI se fait depuis les sources compilées ; il ne remplace pas une recette utilisateur du paquet distribué.
 

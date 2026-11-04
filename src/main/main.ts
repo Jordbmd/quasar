@@ -1,3 +1,5 @@
+import { LanguagePreference } from "./language";
+import { t } from "../shared/i18n";
 import { AutoLoginStore } from "./auto-login";
 import { ProfileJournal } from "./profile-journal";
 import { DefaultsStore } from "./defaults";
@@ -65,56 +67,62 @@ if (!app.requestSingleInstanceLock()) {
           process.env.QUASAR_LEGACY_RUNTIME || paths.legacy,
           paths.data,
         );
-      app.setAboutPanelOptions({
-        applicationName: "Quasar",
-        applicationVersion: app.getVersion(),
-        credits:
-          "Configuration locale et diagnostic de caméras IP.\nSora / Inter / JetBrains Mono — SIL OFL 1.1",
-        iconPath: path.join(paths.resources, "build/icons/icon-128.png"),
-      });
-      Menu.setApplicationMenu(
-        Menu.buildFromTemplate([
-          {
-            label: "Quasar",
-            submenu: [
-              { role: "about", label: "À propos de Quasar" },
-              { type: "separator" },
-              { role: "hide", label: "Masquer Quasar" },
-              { role: "unhide", label: "Tout afficher" },
-              { type: "separator" },
-              { role: "quit", label: "Quitter Quasar" },
-            ],
-          },
-          {
-            label: "Édition",
-            submenu: [
-              { role: "undo", label: "Annuler" },
-              { role: "redo", label: "Rétablir" },
-              { type: "separator" },
-              { role: "cut", label: "Couper" },
-              { role: "copy", label: "Copier" },
-              { role: "paste", label: "Coller" },
-              { role: "selectAll", label: "Tout sélectionner" },
-            ],
-          },
-          {
-            label: "Affichage",
-            submenu: [
-              { role: "resetZoom", label: "Taille réelle" },
-              { role: "zoomIn", label: "Agrandir" },
-              { role: "zoomOut", label: "Réduire" },
-              { role: "togglefullscreen", label: "Plein écran" },
-            ],
-          },
-          {
-            label: "Fenêtre",
-            submenu: [
-              { role: "minimize", label: "Réduire" },
-              { role: "close", label: "Fermer" },
-            ],
-          },
-        ]),
-      );
+      const languagePreference = new LanguagePreference(paths.data);
+      await languagePreference.load();
+      const updateMenu = () => {
+        app.setAboutPanelOptions({
+          applicationName: "Quasar",
+          applicationVersion: app.getVersion(),
+          credits:
+            t("Configuration locale et diagnostic de caméras IP.") +
+            "\nSora / Inter / JetBrains Mono — SIL OFL 1.1",
+          iconPath: path.join(paths.resources, "build/icons/icon-128.png"),
+        });
+        Menu.setApplicationMenu(
+          Menu.buildFromTemplate([
+            {
+              label: "Quasar",
+              submenu: [
+                { role: "about", label: t("À propos de Quasar") },
+                { type: "separator" },
+                { role: "hide", label: t("Masquer Quasar") },
+                { role: "unhide", label: t("Tout afficher") },
+                { type: "separator" },
+                { role: "quit", label: t("Quitter Quasar") },
+              ],
+            },
+            {
+              label: t("Édition"),
+              submenu: [
+                { role: "undo", label: t("Annuler") },
+                { role: "redo", label: t("Rétablir") },
+                { type: "separator" },
+                { role: "cut", label: t("Couper") },
+                { role: "copy", label: t("Copier") },
+                { role: "paste", label: t("Coller") },
+                { role: "selectAll", label: t("Tout sélectionner") },
+              ],
+            },
+            {
+              label: t("Affichage"),
+              submenu: [
+                { role: "resetZoom", label: t("Taille réelle") },
+                { role: "zoomIn", label: t("Agrandir") },
+                { role: "zoomOut", label: t("Réduire") },
+                { role: "togglefullscreen", label: t("Plein écran") },
+              ],
+            },
+            {
+              label: t("Fenêtre"),
+              submenu: [
+                { role: "minimize", label: t("Réduire") },
+                { role: "close", label: t("Fermer") },
+              ],
+            },
+          ]),
+        );
+      };
+      updateMenu();
       const logs = new Diagnostics();
       const guard = new NetworkGuard(
         process.env.QUASAR_TEST_NO_NETWORK === "1" &&
@@ -122,11 +130,11 @@ if (!app.requestSingleInstanceLock()) {
           ? {
               list: async () => [],
               route: async () => {
-                throw Error("Réseau désactivé pour ce test.");
+                throw Error(t("Réseau désactivé pour ce test."));
               },
               neighbors: async () => [],
               probe: async () => {
-                throw Error("Réseau désactivé pour ce test.");
+                throw Error(t("Réseau désactivé pour ce test."));
               },
             }
           : systemNetwork(),
@@ -141,10 +149,10 @@ if (!app.requestSingleInstanceLock()) {
       const confirm = async (detail: string) => {
         const r = await dialog.showMessageBox(win, {
           type: "warning",
-          title: "Confirmer la modification",
-          message: "Vérifiez la cible et les nouveaux réglages",
+          title: t("Confirmer la modification"),
+          message: t("Vérifiez la cible et les nouveaux réglages"),
           detail,
-          buttons: ["Annuler", "Confirmer cette modification"],
+          buttons: [t("Annuler"), t("Confirmer cette modification")],
           defaultId: 0,
           cancelId: 0,
           noLink: true,
@@ -159,11 +167,11 @@ if (!app.requestSingleInstanceLock()) {
         (url) => shell.openExternal(url),
         async () => {
           const r = await dialog.showSaveDialog(win, {
-            title: "Exporter le diagnostic",
+            title: t("Exporter le diagnostic"),
             defaultPath: "quasar-diagnostic.json",
             filters: [{ name: "JSON", extensions: ["json"] }],
           });
-          if (r.canceled || !r.filePath) return "Export annulé";
+          if (r.canceled || !r.filePath) return t("Export annulé");
           await writeFile(
             r.filePath,
             JSON.stringify(
@@ -207,11 +215,11 @@ if (!app.requestSingleInstanceLock()) {
       );
       service.exportProfileRun = async (report) => {
         const result = await dialog.showSaveDialog(win, {
-          title: "Exporter le journal du profil",
+          title: t("Exporter le journal du profil"),
           defaultPath: `quasar-${report.kind}-${report.id}.json`,
           filters: [{ name: "JSON", extensions: ["json"] }],
         });
-        if (result.canceled || !result.filePath) return "Export annulé";
+        if (result.canceled || !result.filePath) return t("Export annulé");
         await writeFile(result.filePath, JSON.stringify(report, null, 2), {
           mode: 0o600,
         });
@@ -272,7 +280,9 @@ if (!app.requestSingleInstanceLock()) {
       });
       win.webContents.on("render-process-gone", () =>
         guard.suspend(
-          "L’interface s’est arrêtée. Relancez l’application pour vous reconnecter.",
+          t(
+            "L’interface s’est arrêtée. Relancez l’application pour vous reconnecter.",
+          ),
         ),
       );
       win.webContents.setWindowOpenHandler(({ url }) => {
@@ -283,14 +293,22 @@ if (!app.requestSingleInstanceLock()) {
       });
       win.webContents.on("will-navigate", (e) => e.preventDefault());
       win.webContents.on("will-attach-webview", (e) => e.preventDefault());
-      const ipc = new IpcController(service, logs, () =>
-        clipboard.writeText(
-          JSON.stringify(
-            { reports: service.reports, events: logs.entries },
-            null,
-            2,
+      const ipc = new IpcController(
+        service,
+        logs,
+        () =>
+          clipboard.writeText(
+            JSON.stringify(
+              { reports: service.reports, events: logs.entries },
+              null,
+              2,
+            ),
           ),
-        ),
+        async (language) => {
+          const saved = await languagePreference.save(language);
+          updateMenu();
+          return saved;
+        },
       );
       ipcMain.handle(
         channels.call,
@@ -302,7 +320,7 @@ if (!app.requestSingleInstanceLock()) {
             return {
               ok: false,
               code: "INVALID_REQUEST",
-              error: "Appel non autorisé.",
+              error: t("Appel non autorisé."),
             };
           return ipc.call(method, input);
         },
@@ -337,7 +355,7 @@ if (!app.requestSingleInstanceLock()) {
       win.show();
     })
     .catch((e) => {
-      dialog.showErrorBox("Démarrage impossible", String(e));
+      dialog.showErrorBox(t("Démarrage impossible"), String(e));
       app.quit();
     });
   app.on("window-all-closed", () => app.quit());

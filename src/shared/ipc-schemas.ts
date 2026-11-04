@@ -200,6 +200,8 @@ export const schemas = {
   openWeb: z.object({ id }).strict(),
   exportLogs: z.undefined(),
   copyLogs: z.undefined(),
+  getLanguage: z.undefined(),
+  setLanguage: z.object({ language: z.enum(["fr", "en"]) }).strict(),
 } satisfies { [K in keyof Api]: z.ZodType<Api[K]["input"]> };
 
 export type ValidatedRequest = {

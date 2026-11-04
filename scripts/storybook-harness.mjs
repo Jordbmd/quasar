@@ -65,9 +65,9 @@ export async function start() {
     },
   };
 }
-export async function visit(h, id, theme = "dark") {
+export async function visit(h, id, theme = "dark", language = "fr") {
   await h.page.goto(
-    `${h.url}/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`,
+    `${h.url}/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};language:${language}`,
   );
   await h.page.waitForFunction(
     () =>
@@ -77,7 +77,11 @@ export async function visit(h, id, theme = "dark") {
   await h.page.evaluate(() => document.fonts.ready);
   await h.page.waitForTimeout(350);
   if (id === "pages--selected-camera")
-    await h.page.getByLabel("FPS (images/s)", { exact: true }).waitFor();
+    await h.page
+      .getByLabel(language === "en" ? "FPS (frames/s)" : "FPS (images/s)", {
+        exact: true,
+      })
+      .waitFor();
   if (id !== "pages--add-camera-modal")
     await h.page.evaluate(() => window.scrollTo(0, 0));
   if (id === "pages--add-camera-modal")

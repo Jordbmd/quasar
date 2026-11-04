@@ -7,6 +7,10 @@ const config: StorybookConfig = {
     options: { builder: { viteConfigPath: ".storybook/vite.config.ts" } },
   },
   core: { disableTelemetry: true },
+  managerHead: (head) =>
+    `${head}<meta name="robots" content="noindex,nofollow">`,
+  previewHead: (head) =>
+    `${head}<meta name="robots" content="noindex,nofollow">`,
   staticDirs: ["../src/renderer/public"],
 };
 export default config;

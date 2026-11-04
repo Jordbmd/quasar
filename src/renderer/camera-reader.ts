@@ -1,4 +1,6 @@
 import type { CameraDetail, Call, CameraDetailUpdate } from "../shared/types";
+// Request identities outlive individual readers (for example after a remount).
+let nextRequestId = 0;
 /** Owns only progressive reads. Selection, drafts and playback stay independent. */
 export class CameraReader {
   private revision = 0;
@@ -23,7 +25,7 @@ export class CameraReader {
   ) {
     this.cancel();
     const revision = this.revision,
-      requestId = `detail:${revision}`;
+      requestId = `detail:${++nextRequestId}`;
     const current = () => revision === this.revision && isSelected();
     const publish = (detail: CameraDetail) => {
       if (current() && detail.camera.id === id) accept(detail);

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "version": "3.0.1",
+  "profile": "electron",
+  "source": {
+    "repository": "Jordbmd/doublemart-platform",
+    "commit": "3bda38909cf8f9c7b3a406ce791fa4543d988e2d",
+    "release": "docs/standards/release.json"
+  },
+  "files": {
+    "architecture.md": {
+      "source": "docs/standards/architecture.md",
+      "sha256": "1b847659d0a62b06ab84bc531344ce6a91883f11cd31d6c324bf34c0eccc7239"
+    },
+    "core.md": {
+      "source": "docs/standards/core.md",
+      "sha256": "bc8f7064ecc69e6c614993974d98bb5498e40d83df3f3c366c699c1769a6d4c6"
+    },
+    "delivery.md": {
+      "source": "docs/standards/delivery.md",
+      "sha256": "d7e85c01e11aaf3f1d56076feb954bf70694b57cd9582e16dddb396de3c473b9"
+    },
+    "electron.md": {
+      "source": "docs/standards/electron.md",
+      "sha256": "c192180c7fe0e56f1415dbc2bef7ecc5751019305b9cf9567b2b6b99f49b61f3"
+    },
+    "observability.md": {
+      "source": "docs/standards/observability.md",
+      "sha256": "f12fc3c475dab7fb2632a8c6759a39c7a67663c6520c2d210d6f55072e6b97bb"
+    },
+    "security.md": {
+      "source": "docs/standards/security.md",
+      "sha256": "0e345875ee0317d1151d8960c59dcddc543c8ac4d82eddb8b9a78e246d066efe"
+    },
+    "testing.md": {
+      "source": "docs/standards/testing.md",
+      "sha256": "6ad89a53bd6e348c3e9b1c8b67b9cc9e4f6817abfd7efc2309c645c82ce80fdc"
+    },
+    "ui-ux.md": {
+      "source": "docs/standards/ui-ux.md",
+      "sha256": "25651c7abc300b4eb0ae86f4e4934e4fdcf6f619c3c4514322b3a31837b9fffb"
+    },
+    "verify.mjs": {
+      "source": "scripts/rules/verify-export.mjs",
+      "sha256": "62525280b4ab521922cad003d2fb1d2bbeb1dbb4b39ff1510cd9d9e629c050e3"
+    }
+  }
+}

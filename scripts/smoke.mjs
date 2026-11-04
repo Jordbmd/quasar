@@ -1,6 +1,15 @@
 import { _electron as electron } from "playwright";
 import path from "node:path";
-import { mkdir, writeFile, readFile, mkdtemp } from "node:fs/promises";
+import {
+  mkdir,
+  writeFile,
+  readFile,
+  mkdtemp,
+  cp,
+  readdir,
+  lstat,
+} from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { createRequire } from "node:module";
 import assert from "node:assert/strict";
@@ -51,6 +60,21 @@ try {
     }));
     assert.equal(runtime.packaged, true);
     assert.match(runtime.appPath, /app\.asar$/);
+    const version = await app.evaluate(({ app }) => {
+      const fs = process.getBuiltinModule("fs");
+      return JSON.parse(
+        fs.readFileSync(`${app.getAppPath()}/dist/version.json`, "utf8"),
+      );
+    });
+    assert.deepEqual(
+      version,
+      JSON.parse(await readFile("dist/version.json", "utf8")),
+      "Le paquet contient le manifest exact de la construction testée",
+    );
+    await writeFile(
+      "test-results/packaged-version.json",
+      JSON.stringify(version, null, 2) + "\n",
+    );
     checks.push("Paquet autonome : app.asar et relais embarqué disponibles");
   }
   assert.equal(await page.evaluate(() => typeof window.require), "undefined");
@@ -125,9 +149,7 @@ try {
   const navigation = page.getByRole("navigation", {
     name: "Navigation principale",
   });
-  await navigation
-    .getByRole("button", { name: "Mes Box", exact: true })
-    .click();
+  await navigation.getByRole("button", { name: /^Mes Box/ }).click();
   assert.equal(await page.locator(".box-library-card").count(), 1);
   await page
     .getByRole("button", { name: "Créer une Box", exact: true })
@@ -152,9 +174,7 @@ try {
       exact: true,
     })
     .waitFor();
-  await navigation
-    .getByRole("button", { name: "Mes Box", exact: true })
-    .click();
+  await navigation.getByRole("button", { name: /^Mes Box/ }).click();
   assert.equal(await page.locator(".box-library-card").count(), 2);
   await page
     .locator(".box-library-card")
@@ -266,6 +286,219 @@ try {
     "dark",
   );
   checks.push("Préférence thème persistée après fermeture et relancement");
+  await reopened.getByTitle("Paramètres", { exact: true }).click();
+  await reopened.getByLabel("Langue", { exact: true }).selectOption("en");
+  await reopened
+    .getByRole("heading", {
+      name: "Application settings",
+      exact: true,
+      level: 2,
+    })
+    .waitFor();
+  assert.equal(await reopened.locator("html").getAttribute("lang"), "en");
+  await reopened.getByLabel("Theme", { exact: true }).selectOption("system");
+  assert.equal(
+    await reopened.evaluate(() => localStorage.getItem("sezaam-theme")),
+    "system",
+  );
+  const menu = await app.evaluate(({ Menu }) =>
+    Menu.getApplicationMenu().items.map((item) => item.label),
+  );
+  assert.ok(menu.includes("Edit"));
+  assert.ok(menu.includes("View"));
+  const invalidLanguage = await reopened.evaluate(async () => {
+    try {
+      await window.sezaam.call("setLanguage", { language: "de" });
+      return "unexpected";
+    } catch (error) {
+      return error instanceof Error ? "rejected" : "unexpected";
+    }
+  });
+  assert.equal(invalidLanguage, "rejected");
+  assert.equal(
+    await reopened.evaluate(() => window.sezaam.call("getLanguage", undefined)),
+    "en",
+  );
+  await reopened.screenshot({
+    path: "test-results/preferences-en.png",
+    fullPage: true,
+  });
+  await app.close();
+  app = await electron.launch({
+    args: process.env.QUASAR_PACKAGED_EXECUTABLE ? [] : [path.resolve(".")],
+    executablePath: process.env.QUASAR_PACKAGED_EXECUTABLE || undefined,
+    env,
+    timeout: 30000,
+  });
+  const english = await app.firstWindow();
+  await english
+    .getByRole("heading", { name: "Cameras", exact: true })
+    .waitFor();
+  assert.equal(
+    await english.evaluate(() => window.sezaam.call("getLanguage", undefined)),
+    "en",
+  );
+  const preferences = await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences(),
+  );
+  assert.equal(preferences.sandbox, true);
+  assert.equal(preferences.contextIsolation, true);
+  assert.equal(preferences.nodeIntegration, false);
+  assert.equal(preferences.webSecurity, true);
+  const blocked = await english.evaluate(async () => {
+    try {
+      await fetch("https://example.invalid/quasar-network-check");
+      return false;
+    } catch {
+      return true;
+    }
+  });
+  assert.equal(blocked, true);
+  checks.push(
+    "FR/EN persistés : interface et menus natifs, IPC langue invalide refusée",
+    "Thème système explicite persisté",
+    "Sandbox/contextIsolation/webSecurity actifs ; Node absent ; HTTPS externe bloqué",
+  );
+  // Cold native recovery, wholly inside test-created directories. Never touch
+  // the installed launcher or real user data; ciphertext remains OS-account bound.
+  const savedLocal = await english.evaluate(() => ({ ...localStorage }));
+  assert.ok(
+    Object.values(savedLocal).some((value) => value.includes("TEST-ELECTRON")),
+  );
+  const isolatedLogin = await english.evaluate(() =>
+    window.sezaam.call("getAutoLogin", undefined),
+  );
+  assert.equal(
+    isolatedLogin.available,
+    false,
+    "The isolated test mode never opens the real OS keyring",
+  );
+  const originalData = env.SEZAAM_TEST_USER_DATA;
+  await app.close();
+  await mkdir(path.join(originalData, "profile-journal", "backups"), {
+    recursive: true,
+  });
+  await writeFile(
+    path.join(originalData, "profile-journal", "backups", "synthetic.json"),
+    '{"synthetic":true,"phase":"before"}',
+  );
+  const recoveryRoot = await mkdtemp(
+    path.join(tmpdir(), "quasar-native-recovery-"),
+  );
+  const backup = path.join(recoveryRoot, "backup");
+  const restored = path.join(recoveryRoot, "restored");
+  async function hashes(root, relative = "") {
+    const result = {};
+    for (const name of (await readdir(path.join(root, relative))).sort()) {
+      const key = path.join(relative, name),
+        file = path.join(root, key);
+      const entry = await lstat(file);
+      assert.equal(
+        entry.isSymbolicLink(),
+        false,
+        "No symlink in isolated recovery fixture",
+      );
+      if (entry.isDirectory()) Object.assign(result, await hashes(root, key));
+      else if (entry.isFile())
+        result[key] = createHash("sha256")
+          .update(await readFile(file))
+          .digest("hex");
+    }
+    return result;
+  }
+  const before = await hashes(originalData);
+  await cp(originalData, backup, {
+    recursive: true,
+    errorOnExist: true,
+    force: false,
+  });
+  await cp(backup, restored, {
+    recursive: true,
+    errorOnExist: true,
+    force: false,
+  });
+  assert.deepEqual(await hashes(backup), before);
+  assert.deepEqual(await hashes(restored), before);
+  await writeFile(
+    path.join(originalData, "profile-journal", "backups", "synthetic.json"),
+    '{"synthetic":true,"phase":"after"}',
+  );
+  env.SEZAAM_TEST_USER_DATA = restored;
+  app = await electron.launch({
+    args: process.env.QUASAR_PACKAGED_EXECUTABLE ? [] : [path.resolve(".")],
+    executablePath: process.env.QUASAR_PACKAGED_EXECUTABLE || undefined,
+    env,
+    timeout: 30000,
+  });
+  const recovered = await app.firstWindow();
+  await recovered
+    .getByRole("heading", { name: "Cameras", exact: true })
+    .waitFor();
+  assert.deepEqual(
+    await recovered.evaluate(() => ({ ...localStorage })),
+    savedLocal,
+  );
+  assert.equal(
+    await recovered.evaluate(() =>
+      window.sezaam.call("getLanguage", undefined),
+    ),
+    "en",
+  );
+  assert.equal(
+    (await recovered.evaluate(() => window.sezaam.call("state", undefined)))
+      .cameras.length,
+    0,
+  );
+  assert.match(
+    await readFile(
+      path.join(restored, "profile-journal", "backups", "synthetic.json"),
+      "utf8",
+    ),
+    /before/,
+  );
+  assert.match(
+    await readFile(
+      path.join(originalData, "profile-journal", "backups", "synthetic.json"),
+      "utf8",
+    ),
+    /after/,
+  );
+  await writeFile(
+    process.env.QUASAR_PACKAGED_EXECUTABLE
+      ? "test-results/native-recovery-packaged.json"
+      : "test-results/native-recovery.json",
+    JSON.stringify(
+      {
+        at: new Date().toISOString(),
+        platform: process.platform,
+        packaged: Boolean(process.env.QUASAR_PACKAGED_EXECUTABLE),
+        runtime: JSON.parse(await readFile("dist/version.json", "utf8")),
+        filesCompared: Object.keys(before).length,
+        checks: [
+          "cold-copy-hashes-identical",
+          "restored-new-directory",
+          "box-library-and-preferences-restored",
+          "native-language-restored",
+          "journal-snapshot-distinct-from-original",
+          "original-and-backup-preserved",
+          "camera-network-disabled",
+        ],
+        nativeSafeStorage:
+          "disabled-by-isolated-test-mode; encrypted-restore-tested-separately-with-injected-cipher",
+        limits: [
+          "no-installed-launcher-replacement",
+          "no-installer-wizard",
+          "no-cross-account-key-migration",
+          "no-real-camera",
+        ],
+      },
+      null,
+      2,
+    ),
+  );
+  checks.push(
+    "Sauvegarde native à froid : hashes, nouvelle destination, Box/langue/thème/journal, originaux conservés",
+  );
   assert.deepEqual(errors, []);
   await writeFile(
     process.env.QUASAR_PACKAGED_EXECUTABLE

@@ -107,6 +107,9 @@ try {
       onAddressProgress: () => () => {},
       onFactoryResetProgress: () => () => {},
       call: async (method, input) => {
+        if (method === "getLanguage") return "fr";
+        if (method === "getAutoLogin")
+          return { enabled: false, available: false };
         window.__boxTest.calls.push({ method, input });
         if (method === "state") return structuredClone(state());
         if (method === "discover") return structuredClone(cameras);
@@ -483,7 +486,7 @@ try {
     2,
   );
   const nav = page.getByRole("navigation", { name: "Navigation principale" });
-  await nav.getByRole("button", { name: "Mes Box", exact: true }).click();
+  await nav.getByRole("button", { name: /^Mes Box/ }).click();
   assert.equal(await page.locator(".box-library-card").count(), 2);
   await page.getByLabel("Rechercher une Box", { exact: true }).fill("141");
   assert.equal(await page.locator(".box-library-card").count(), 1);

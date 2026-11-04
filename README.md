@@ -6,7 +6,7 @@ Application locale Electron de configuration et de diagnostic de caméras IP ONV
 
 Les fichiers de distribution embarquent Quasar, Electron, le profil Sezaam et le relais vidéo. **Node.js et le code source ne sont pas nécessaires pour les utiliser.**
 
-**[Télécharger la version 0.2.0](https://github.com/Jordbmd/quasar/releases/tag/v0.2.0)** — le dépôt est privé ; un accès GitHub autorisé est nécessaire.
+**[Télécharger la version 0.2.0](https://github.com/Jordbmd/quasar/releases/tag/v0.2.0)** — version publique existante. Les changements de cette branche ne sont pas encore publiés dans une nouvelle release.
 
 | Système | Fichier | Installation |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ npm run setup:video
 npm run launcher:install
 ```
 
-Le dépôt étant privé, le clonage nécessite un accès GitHub autorisé. Le lanceur est installé dans `~/Applications/Quasar.app`. Pour mettre à jour une installation existante, récupérer les changements puis relancer `npm ci` et `npm run launcher:install`, après avoir quitté Quasar.
+Le dépôt est public. Le lanceur est installé dans `~/Applications/Quasar.app`. Pour mettre à jour une installation existante, récupérer les changements puis relancer `npm ci` et `npm run launcher:install`, après avoir quitté Quasar.
 
 Le [profil Sezaam enregistré](config/sezaam-profile.json) est intégré à la compilation et utilisé lorsqu’aucun profil local n’existe. Il contient les 52 réglages, dont la résolution maximale disponible. Les modifications faites dans l’application restent dans `camera-defaults.json`, dans le dossier de données utilisateur et sont prioritaires : une mise à jour ne les écrase pas. Aucun réglage n’est envoyé aux caméras au démarrage.
 
@@ -42,7 +42,10 @@ npm run test:ui
 npm run build-storybook
 npm run test:stories
 npm run test:visual
+npm run build:web
+npm run test:web
 npm run package:dir
+npm run test:packaged
 npm run package:mac
 npm run package:win
 npm run package:linux
@@ -50,7 +53,7 @@ npm run package:linux
 
 Le paquet autonome est généré dans `release/`, séparément du lanceur existant. Il embarque Electron, le code compilé, les ressources et le relais vidéo vérifié ; il ne dépend plus du dossier source. La commande ne publie rien. Le paquet macOS est signé localement, pas notarié ; les autres plateformes exigent leur validation native. Consulter [l’architecture](docs/ARCHITECTURE.md), [les compatibilités firmware](docs/COMPATIBILITE-FIRMWARE.md), [les outils](docs/OUTILLAGE.md) et [le bilan de consolidation](docs/CONSOLIDATION-V1.md).
 
-Les commandes `package:mac`, `package:win` et `package:linux` préparent les installateurs dans `release/installers/macOS`, `Windows` et `Linux`. `npm run package:all` les génère successivement depuis macOS avec Docker pour Linux. Elles sélectionnent le bon relais sans remplacer le binaire de développement dans `bin/`. Aucune commande de compilation ne publie sur GitHub et aucun workflow CI/CD n’est réactivé.
+Les commandes `package:mac`, `package:win` et `package:linux` préparent les installateurs dans `release/installers/macOS`, `Windows` et `Linux`. `npm run package:all` les génère successivement depuis macOS avec Docker pour Linux. Elles sélectionnent le bon relais sans remplacer le binaire de développement dans `bin/`. Aucune commande ne publie sur GitHub. Le workflow public `.github/workflows/validation.yml` prépare les validations et installateurs natifs Windows/macOS/Linux, sans étape de release ni déploiement. Voir [la préparation production](docs/PRODUCTION.md).
 
 ## Ouvrir sans Terminal — lanceur macOS existant
 
@@ -60,7 +63,7 @@ Au premier démarrage, autoriser l’accès au dossier Documents contenant le pr
 
 Le générateur donne au binaire principal une identité Mach-O propre à Quasar avant de le signer. Cela évite la collision avec le binaire Electron d’origine dans le suivi des autorisations réseau de macOS. L’identité reste stable lors d’une reconstruction avec la même version d’Electron. Le générateur prend en charge les exécutables Mach-O 64 bits little-endian ; un autre format est refusé explicitement.
 
-Le thème clair ou sombre est accessible en haut à droite et conservé entre les lancements. Les polices Sora, Inter et JetBrains Mono sont locales ; aucun téléchargement de police pendant l’utilisation.
+Les paramètres proposent Français / English et les thèmes clair, sombre ou système, conservés entre les lancements. Les menus et confirmations Electron suivent la langue choisie. Les noms, identifiants, réglages et textes OSD des caméras sont conservés tels quels. Le bouton en haut à droite choisit explicitement clair ou sombre ; le choix système se rétablit dans Paramètres. Les polices Sora, Inter et JetBrains Mono sont locales ; aucun téléchargement de police pendant l’utilisation.
 
 ## Données utilisateur
 

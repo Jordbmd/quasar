@@ -1,3 +1,4 @@
+import { t } from "../../shared/i18n";
 import React, { useEffect, useId, useRef, useState } from "react";
 import {
   CheckCircle2,
@@ -64,7 +65,7 @@ export function Field({
     : children;
   return (
     <label className={`field${error ? " field-error" : ""}`}>
-      <span>{label}</span>
+      <span>{t(label)}</span>
       {child}
       {(error || hint) && (
         <small
@@ -122,7 +123,9 @@ export function Alert({
         <Button
           className="icon-button"
           aria-label={
-            kind === "danger" ? "Fermer l’erreur" : "Fermer la notification"
+            kind === "danger"
+              ? t("Fermer l’erreur")
+              : t("Fermer la notification")
           }
           onClick={onDismiss}
         >
@@ -148,7 +151,7 @@ export function EmptyState({
   return (
     <div className={`empty-state ${className}`}>
       <Icon size={34} aria-hidden="true" />
-      <h3>{title}</h3>
+      <h3>{t(title)}</h3>
       {children && <p>{children}</p>}
       {action}
     </div>
@@ -158,17 +161,17 @@ export function Loading({ label = "Chargement" }: { label?: string }) {
   return (
     <div className="operation" role="status">
       <LoaderCircle size={16} className="spin" aria-hidden="true" />
-      {label}…
+      {t(label)}…
     </div>
   );
 }
 export function Skeleton({
-  label = "Chargement des informations",
+  label = t("Chargement des informations"),
 }: {
   label?: string;
 }) {
   return (
-    <div className="skeleton" role="status" aria-label={label}>
+    <div className="skeleton" role="status" aria-label={t(label)}>
       <span />
       <span />
       <span />
@@ -232,10 +235,10 @@ export function Modal({
       }}
     >
       <header>
-        <h2 id={id}>{title}</h2>
+        <h2 id={id}>{t(title)}</h2>
         <Button
           className="icon-button"
-          aria-label="Fermer la fenêtre"
+          aria-label={t("Fermer la fenêtre")}
           disabled={busy}
           onClick={onClose}
         >
@@ -276,20 +279,20 @@ export function useConfirmation() {
     dialog: (
       <Modal
         open={!!message}
-        title={labels.title || "Modifications non enregistrées"}
+        title={labels.title || t("Modifications non enregistrées")}
         onClose={() => finish(false)}
         footer={
           <>
             <Button autoFocus onClick={() => finish(false)}>
-              {labels.cancel || "Continuer la modification"}
+              {labels.cancel || t("Continuer la modification")}
             </Button>
             <Button variant="destructive" onClick={() => finish(true)}>
-              {labels.accept || "Abandonner les modifications"}
+              {labels.accept || t("Abandonner les modifications")}
             </Button>
           </>
         }
       >
-        {message}
+        {t(message)}
       </Modal>
     ),
   };

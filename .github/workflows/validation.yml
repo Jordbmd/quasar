@@ -1,0 +1,151 @@
+name: Quasar validation and native packages
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quasar-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.22.1
+      - name: Classify actual changed files using the trusted base revision
+        id: scope
+        shell: bash
+        env:
+          CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_HEAD: ${{ github.sha }}
+        run: |
+          CLASSIFIER='docs/standards/verify.mjs'
+          if [[ "$CI_BASE" =~ ^[a-f0-9]{40}$ ]] && git show "$CI_BASE:$CLASSIFIER" > "$RUNNER_TEMP/rules-base.mjs" && grep -q 'export function runCi' "$RUNNER_TEMP/rules-base.mjs"; then
+            node "$RUNNER_TEMP/rules-base.mjs" --ci
+          else
+            echo 'mode=application' >> "$GITHUB_OUTPUT"
+            echo 'No trusted baseline classifier: full validation required.'
+          fi
+      - name: Lightweight integrity and provenance checks
+        if: steps.scope.outputs.mode == 'rules' || steps.scope.outputs.mode == 'docs'
+        run: node docs/standards/verify.mjs
+  native:
+    needs: scope
+    if: needs.scope.outputs.mode == 'application'
+    name: ${{ matrix.os }} / ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            target: win
+          - os: macos-14
+            target: mac
+          - os: ubuntu-22.04
+            target: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      PLAYWRIGHT_CHANNEL: chrome
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24.22.1"
+          cache: npm
+      - name: Verify offline shared rules
+        run: node docs/standards/verify.mjs
+      - run: npm ci --no-fund --allow-remote=root
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.3"
+          cache-dependency-path: config/go2rtc/go.sum
+      - run: npm exec -- playwright install --with-deps chrome
+      - run: npm run setup:video
+      - run: npm run validate:software
+      - run: npm run build-storybook && npm run test:stories && npm run build:web && npm run test:web
+      - run: npm run build:portal && npm run test:portal
+      - name: Build, verify and retain the actual web portal image
+        if: runner.os == 'Linux'
+        run: |
+          docker build -f Dockerfile.portal --build-arg APP_COMMIT=${{ github.sha }} -t quasar-portal:${{ github.sha }} .
+          node scripts/export-portal-image.mjs ${{ github.sha }}
+      - name: Isolated Electron runtime
+        run: |
+          if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi
+      - name: Native installer without publication
+        run: npm run package:${{ matrix.target }}
+      - name: Standalone application from the same compiled runtime
+        run: npm exec -- electron-builder --config electron-builder.config.cjs --dir --publish never
+      - name: Isolated packaged runtime (not an installer acceptance test)
+        run: |
+          if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:packaged; else npm run test:packaged; fi
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Electron and bundled relay advisory inventory
+        run: npm run audit:distributed
+      - name: Full audit artifact
+        if: always()
+        run: |
+          mkdir -p test-results
+          npm audit --json > test-results/npm-audit.json || test $? -eq 1
+      - name: Windows Chrome visual references
+        if: runner.os == 'Windows'
+        run: npm run test:visual
+      - name: Verify source provenance after generation and packaging
+        if: always()
+        run: node scripts/check-source.mjs
+      - name: Normalised CI report
+        if: always()
+        env:
+          QUASAR_CI_STATUS: ${{ job.status }}
+        run: node scripts/ci-report.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: quasar-${{ matrix.target }}-${{ github.sha }}
+          path: |
+            test-results/
+            release/installers/
+            site-dist/
+            portal-dist/
+            assets-dist/
+          if-no-files-found: error
+          retention-days: 14
+  required-validation:
+    name: Required validation
+    if: always()
+    needs: [scope, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require the selected validation path
+        env:
+          SCOPE: ${{ needs.scope.result }}
+          MODE: ${{ needs.scope.outputs.mode }}
+          HEAVY_0: ${{ needs.native.result }}
+        run: |
+          test "$SCOPE" = success
+          case "$MODE" in
+            rules|docs) test "$HEAVY_0" = skipped ;;
+            application) test "$HEAVY_0" = success ;;
+            *) exit 1 ;;
+          esac

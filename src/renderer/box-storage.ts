@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import { z } from "zod";
 import {
   boxSchema,
@@ -32,7 +33,7 @@ const librarySchema = z
     )
       ctx.addIssue({
         code: "custom",
-        message: "Bibliothèque de Box incohérente.",
+        message: t("Bibliothèque de Box incohérente."),
       });
   });
 type BoxRecord = z.infer<typeof recordSchema>;
@@ -59,8 +60,9 @@ export function readBoxLibrary(storage: StorageAccess = localStorage): {
   } catch {
     return {
       library: empty,
-      error:
+      error: t(
         "La bibliothèque locale ne peut pas être lue. Les données sont conservées ; réparez ou restaurez la sauvegarde avant d’enregistrer de nouvelles Box.",
+      ),
     };
   }
 }
@@ -88,14 +90,18 @@ export function upsertBox(
     : library.entries.filter((e) => sameBox(e.box, incoming));
   if (candidates.length > 1)
     throw Error(
-      "Plusieurs Box correspondent à ce fichier. Renseignez une ID de Box unique avant de réimporter.",
+      t(
+        "Plusieurs Box correspondent à ce fichier. Renseignez une ID de Box unique avant de réimporter.",
+      ),
     );
   const current = editingId
     ? library.entries.find((e) => e.id === editingId)
     : candidates[0];
-  if (editingId && !current) throw Error("La Box à modifier n’existe plus.");
+  if (editingId && !current) throw Error(t("La Box à modifier n’existe plus."));
   if (editingId && exact.some((e) => e.id !== editingId))
-    throw Error("Cette ID appartient déjà à une autre Box de la bibliothèque.");
+    throw Error(
+      t("Cette ID appartient déjà à une autre Box de la bibliothèque."),
+    );
   const next = reconcileBox(
     current?.box,
     incoming,

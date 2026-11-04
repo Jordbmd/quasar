@@ -33,27 +33,32 @@ try {
     (e) => e.type === "story",
   );
   const axe = await readFile(require.resolve("axe-core"), "utf8");
-  for (const theme of ["dark", "light"])
-    for (const story of stories) {
-      await visit(h, story.id, theme);
-      await h.page.evaluate(axe);
-      const violations = await h.page.evaluate(async () =>
-        (
-          await window.axe.run(document, {
-            runOnly: {
-              type: "tag",
-              values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"],
-            },
-          })
-        ).violations.map((v) => ({
-          id: v.id,
-          targets: v.nodes.map((n) => n.target),
-        })),
-      );
-      results.push({ id: story.id, theme, violations });
-      if (violations.length)
-        console.log(story.id, theme, JSON.stringify(violations));
-    }
+  // Keep our own engine instance atomically: the Storybook addon can import
+  // its engine later and replace window.axe while its automatic scan runs.
+  // Both scans remain enabled and inspect the same rendered components.
+  const isolatedAxe = `${axe}\nwindow.quasarAuditAxe = window.axe;`;
+  for (const language of ["fr", "en"])
+    for (const theme of ["dark", "light"])
+      for (const story of stories) {
+        await visit(h, story.id, theme, language);
+        await h.page.evaluate(isolatedAxe);
+        const violations = await h.page.evaluate(async () =>
+          (
+            await window.quasarAuditAxe.run(document, {
+              runOnly: {
+                type: "tag",
+                values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"],
+              },
+            })
+          ).violations.map((v) => ({
+            id: v.id,
+            targets: v.nodes.map((n) => n.target),
+          })),
+        );
+        results.push({ id: story.id, theme, language, violations });
+        if (violations.length)
+          console.log(story.id, theme, JSON.stringify(violations));
+      }
   await visit(h, "components--modals");
   const open = h.page.getByRole("button", { name: "Ouvrir la confirmation" });
   await open.click();
@@ -107,7 +112,7 @@ try {
   }
   await h.page.keyboard.press("Escape");
   await h.page.getByLabel("FPS (images/s)", { exact: true }).fill("20");
-  await h.page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+  await h.page.getByRole("button", { name: "Diagnostic", exact: true }).click();
   await h.page
     .getByRole("dialog", { name: "Modifications non enregistrées" })
     .waitFor();
@@ -118,7 +123,7 @@ try {
     await h.page.getByLabel("FPS (images/s)", { exact: true }).inputValue(),
     "20",
   );
-  await h.page.getByRole("button", { name: /Diagnostic Tests/ }).click();
+  await h.page.getByRole("button", { name: "Diagnostic", exact: true }).click();
   await h.page
     .getByRole("button", { name: "Abandonner les modifications" })
     .click();
@@ -126,6 +131,30 @@ try {
     .getByRole("heading", { name: "Diagnostic des caméras", exact: true })
     .waitFor();
   await mkdir("test-results", { recursive: true });
+  for (const theme of ["light", "dark"]) {
+    await visit(h, "pages--selected-camera", theme, "en");
+    await h.page
+      .getByRole("heading", { name: "Cameras", exact: true })
+      .waitFor();
+    assert.equal(await h.page.locator("html").getAttribute("lang"), "en");
+    await h.page.evaluate(isolatedAxe);
+    const violations = await h.page.evaluate(async () =>
+      (await window.quasarAuditAxe.run(document)).violations.map((v) => ({
+        id: v.id,
+        targets: v.nodes.map((n) => n.target),
+      })),
+    );
+    results.push({
+      id: "pages--selected-camera",
+      theme,
+      language: "en",
+      violations,
+    });
+    await h.page.screenshot({
+      path: `test-results/camera-en-${theme}.png`,
+      fullPage: true,
+    });
+  }
   await writeFile(
     "test-results/storybook.json",
     JSON.stringify({ results, errors, externalRequests: h.external }, null, 2),
@@ -137,7 +166,7 @@ try {
   assert.deepEqual(errors, []);
   assert.deepEqual(h.external, []);
   console.log(
-    `${stories.length} stories × 2 thèmes : Axe, rendu, clavier/modal et thèmes système/manuels réussis. Aucun accès externe.`,
+    `${stories.length} stories × 2 langues × 2 thèmes : Axe, rendu, clavier/modal et thèmes système/manuels réussis. Aucun accès externe.`,
   );
 } finally {
   await h.close();

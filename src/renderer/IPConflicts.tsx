@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, CheckCircle2, Network } from "lucide-react";
 import type { AddressPlan, AddressProgress } from "../shared/addressing";
@@ -26,9 +27,9 @@ export function IPConflicts({
   const [progress, setProgress] = useState<AddressProgress>();
   const analyse = useCallback(
     () =>
-      void run("Analyse des conflits IP", async () => {
+      void run(t("Analyse des conflits IP"), async () => {
         setError("");
-        setPhase("Recherche des doublons et des IP libres");
+        setPhase(t("Recherche des doublons et des IP libres"));
         setPlan(undefined);
         setFinished(false);
         setProgress(undefined);
@@ -62,10 +63,10 @@ export function IPConflicts({
       .length ?? 0;
   const groups = [...new Set(plan?.rows.map((r) => r.from) ?? [])];
   const apply = () =>
-    void run("Résolution des conflits IP", async () => {
+    void run(t("Résolution des conflits IP"), async () => {
       if (!plan) return;
       setError("");
-      setPhase("Résolution et vérification des IP");
+      setPhase(t("Résolution et vérification des IP"));
       setProgress(undefined);
       try {
         const result = await window.sezaam.call("applyAddresses", {
@@ -87,8 +88,8 @@ export function IPConflicts({
       open={open}
       title={
         finished
-          ? "Bilan de résolution des conflits"
-          : "Résoudre les conflits IP"
+          ? t("Bilan de résolution des conflits")
+          : t("Résoudre les conflits IP")
       }
       busy={busy || !!phase}
       onClose={() => {
@@ -104,13 +105,18 @@ export function IPConflicts({
             <Alert kind={unresolved || plan?.warning ? "warning" : "success"}>
               <strong className="ip-conflict-result-title">
                 {unresolved
-                  ? "Résolution terminée — points à vérifier."
-                  : "Les conflits détectés sont résolus."}
+                  ? t("Résolution terminée — points à vérifier.")
+                  : t("Les conflits détectés sont résolus.")}
               </strong>
               <span>
                 {unresolved
-                  ? `${unresolved} caméra(s) restent à vérifier. Le détail ci-dessous indique les changements effectués.`
-                  : "Chaque caméra concernée répond avec une adresse unique et une identité vérifiée."}
+                  ? t(
+                      "{0} caméra(s) restent à vérifier. Le détail ci-dessous indique les changements effectués.",
+                      unresolved,
+                    )
+                  : t(
+                      "Chaque caméra concernée répond avec une adresse unique et une identité vérifiée.",
+                    )}
               </span>
             </Alert>
           )}
@@ -121,7 +127,7 @@ export function IPConflicts({
         <>
           {!phase && (
             <Button disabled={busy} onClick={analyse}>
-              {finished ? "Vérifier à nouveau" : "Relancer l’analyse"}
+              {finished ? t("Vérifier à nouveau") : t("Relancer l’analyse")}
             </Button>
           )}
           {!finished && ready && (
@@ -130,11 +136,11 @@ export function IPConflicts({
               disabled={busy || !!phase}
               onClick={apply}
             >
-              Résoudre les conflits
+              {t("Résoudre les conflits")}
             </Button>
           )}
           <Button disabled={busy || !!phase} onClick={onClose}>
-            {finished ? "Fermer le bilan" : "Fermer"}
+            {finished ? t("Fermer le bilan") : t("Fermer")}
           </Button>
         </>
       }
@@ -142,21 +148,26 @@ export function IPConflicts({
       <div className="ip-conflicts">
         {!finished && (
           <p>
-            Quasar conserve une caméra à chaque IP partagée et attribue des IP
-            libres aux autres. Les caméras sans conflit gardent leur adresse.
+            {t(
+              "Quasar conserve une caméra à chaque IP partagée et attribue des IP libres aux autres. Les caméras sans conflit gardent leur adresse.",
+            )}
           </p>
         )}
         {plan && !plan.rows.length && (
           <div className="ip-conflicts-empty">
             <CheckCircle2 aria-hidden="true" />
-            <strong>Aucun conflit IP détecté</strong>
-            <span>Les caméras détectées ont des adresses distinctes.</span>
+            <strong>{t("Aucun conflit IP détecté")}</strong>
+            <span>
+              {t("Les caméras détectées ont des adresses distinctes.")}
+            </span>
           </div>
         )}
         {plan && !finished && !!plan.rows.length && (
           <p className="help-text">
-            {groups.length} IP partagée(s) · {moves} changement(s) proposé(s).
-            Aucun débranchement pour les caméras identifiées ci-dessous.
+            {groups.length} {t("IP partagée(s) ·")} {moves}{" "}
+            {t(
+              "changement(s) proposé(s). Aucun débranchement pour les caméras identifiées ci-dessous.",
+            )}
           </p>
         )}
         {groups.map((ip) => (
@@ -167,7 +178,7 @@ export function IPConflicts({
           >
             <h3>
               <Network size={18} aria-hidden="true" />
-              IP partagée · {ip}
+              {t("IP partagée ·")} {ip}
             </h3>
             {plan!.rows
               .filter((r) => r.from === ip)
@@ -185,7 +196,7 @@ export function IPConflicts({
                         <code>{row.to}</code>
                       </>
                     ) : (
-                      <span>IP conservée</span>
+                      <span>{t("IP conservée")}</span>
                     )}
                   </div>
                   <Badge
@@ -200,20 +211,22 @@ export function IPConflicts({
                     }
                   >
                     {row.state === "verified"
-                      ? "Vérifiée"
+                      ? t("Vérifiée")
                       : row.state === "blocked"
-                        ? "À vérifier"
+                        ? t("À vérifier")
                         : row.state === "failed"
-                          ? "Non confirmé"
+                          ? t("Non confirmé")
                           : row.state === "skipped"
-                            ? "Non exécutée"
+                            ? t("Non exécutée")
                             : row.from === row.to
-                              ? "Sans changement"
-                              : "Nouvelle IP"}
+                              ? t("Sans changement")
+                              : t("Nouvelle IP")}
                   </Badge>
                   <p>{row.message}</p>
                   {row.lastVerifiedIP && (
-                    <small>Dernière IP vérifiée : {row.lastVerifiedIP}</small>
+                    <small>
+                      {t("Dernière IP vérifiée :")} {row.lastVerifiedIP}
+                    </small>
                   )}
                 </article>
               ))}

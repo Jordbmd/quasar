@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React, { useState } from "react";
 import { Boxes, MapPin, Plus, Search, Pencil } from "lucide-react";
 import { Button, Panel, EmptyState } from "./design-system/components";
@@ -32,16 +33,17 @@ export function BoxLibrary({
     <section className="box-library">
       <div className="page-heading">
         <div>
-          <h2>Mes Box</h2>
+          <h2>{t("Mes Box")}</h2>
           <p>
-            Préparez vos interventions et retrouvez les casiers de chaque site,
-            même hors connexion.
+            {t(
+              "Préparez vos interventions et retrouvez les casiers de chaque site, même hors connexion.",
+            )}
           </p>
         </div>
         <div className="button-group">
           <BoxImport
             disabled={busy}
-            label="Importer une Box"
+            label={t("Importer une Box")}
             onImport={(box) => onSave(box)}
           />
           <Button
@@ -50,23 +52,24 @@ export function BoxLibrary({
             onClick={() => setEditing(null)}
           >
             <Plus size={16} />
-            Créer une Box
+            {t("Créer une Box")}
           </Button>
         </div>
       </div>
       <label className="search-box">
         <Search size={17} />
         <input
-          aria-label="Rechercher une Box"
-          placeholder="Nom, ID ou adresse…"
+          aria-label={t("Rechercher une Box")}
+          placeholder={t("Nom, ID ou adresse…")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </label>
       <p className="help-text">
-        {library.entries.length} Box enregistrée(s) sur cet ordinateur.
-        Réimporter une Box connue met à jour sa fiche ; une autre Box s’ajoute à
-        la bibliothèque.
+        {library.entries.length}{" "}
+        {t(
+          "Box enregistrée(s) sur cet ordinateur. Réimporter une Box connue met à jour sa fiche ; une autre Box s’ajoute à la bibliothèque.",
+        )}
       </p>
       <div className="box-library-grid">
         {records.map((entry) => (
@@ -78,24 +81,24 @@ export function BoxLibrary({
                 <span>
                   {entry.box.metadata?.id
                     ? `ID ${entry.box.metadata.id}`
-                    : "ID non renseignée"}
+                    : t("ID non renseignée")}
                 </span>
               </div>
               {entry.id === library.activeId && (
-                <span className="box-active-label">Active</span>
+                <span className="box-active-label">{t("Active")}</span>
               )}
             </div>
             <p className="box-site-address">
               <MapPin size={16} />
-              {entry.box.metadata?.address || "Adresse non renseignée"}
+              {entry.box.metadata?.address || t("Adresse non renseignée")}
             </p>
             <p className="help-text">
-              {entry.box.lockers.length - 1} casiers ·{" "}
+              {entry.box.lockers.length - 1} {t("casiers ·")}{" "}
               {
                 Object.values(entry.bindings).filter((v) => v !== "unassigned")
                   .length
               }{" "}
-              associations enregistrées
+              {t("associations enregistrées")}
             </p>
             <div className="button-group">
               <Button
@@ -103,7 +106,7 @@ export function BoxLibrary({
                 disabled={busy}
                 onClick={() => onOpen(entry.id)}
               >
-                Ouvrir la Box
+                {t("Ouvrir la Box")}
               </Button>
               <Button
                 disabled={busy}
@@ -111,7 +114,7 @@ export function BoxLibrary({
                 onClick={() => setEditing(entry.id)}
               >
                 <Pencil size={15} />
-                Modifier
+                {t("Modifier")}
               </Button>
             </div>
           </Panel>
@@ -122,13 +125,15 @@ export function BoxLibrary({
           icon={Boxes}
           title={
             library.entries.length
-              ? "Aucune Box correspondante"
-              : "Préparez votre première Box"
+              ? t("Aucune Box correspondante")
+              : t("Préparez votre première Box")
           }
           children={
             library.entries.length
-              ? "Essayez un autre nom, ID ou lieu."
-              : "Importez un fichier de production ou créez une fiche manuellement."
+              ? t("Essayez un autre nom, ID ou lieu.")
+              : t(
+                  "Importez un fichier de production ou créez une fiche manuellement.",
+                )
           }
         />
       )}

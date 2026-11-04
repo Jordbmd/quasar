@@ -1,3 +1,4 @@
+import { t } from "../../shared/i18n";
 import { AutoLoginSettings } from "../AutoLoginSettings";
 import type { AutoLoginStatus, AutoLoginInput } from "../../shared/auto-login";
 import React from "react";
@@ -12,6 +13,8 @@ export function PreferencesPage({
   setPreferences,
   theme,
   chooseTheme,
+  language,
+  chooseLanguage,
 }: {
   onLoginDirty?: () => void;
   autoLogin?: AutoLoginStatus;
@@ -20,11 +23,29 @@ export function PreferencesPage({
   preferences: Preferences;
   setPreferences: React.Dispatch<React.SetStateAction<Preferences>>;
   theme: string;
-  chooseTheme: (theme: "light" | "dark") => void;
+  chooseTheme: (theme: "light" | "dark" | "system") => void;
+  language: "fr" | "en";
+  chooseLanguage: (language: "fr" | "en") => void;
 }) {
   return (
     <Panel className="preferences-page panel">
-      <h2>Paramètres de l’application</h2>
+      <Field label={t("Langue")}>
+        <select
+          aria-label={t("Langue")}
+          value={language}
+          onChange={(event) =>
+            chooseLanguage(event.target.value as "fr" | "en")
+          }
+        >
+          <option value="fr" lang="fr">
+            Français
+          </option>
+          <option value="en" lang="en">
+            English
+          </option>
+        </select>
+      </Field>
+      <h2>{t("Paramètres de l’application")}</h2>
       {onSaveAutoLogin && (
         <AutoLoginSettings
           onDirty={onLoginDirty}
@@ -33,11 +54,11 @@ export function PreferencesPage({
           onSave={onSaveAutoLogin}
         />
       )}
-      <h3>Lecture vidéo</h3>
+      <h3>{t("Lecture vidéo")}</h3>
       <label className="preference-row">
         <span>
-          <strong>Lecture automatique</strong>
-          <small>Lancer l’aperçu à l’ouverture d’une caméra.</small>
+          <strong>{t("Lecture automatique")}</strong>
+          <small>{t("Lancer l’aperçu à l’ouverture d’une caméra.")}</small>
         </span>
         <input
           type="checkbox"
@@ -49,8 +70,8 @@ export function PreferencesPage({
       </label>
       <label className="preference-row">
         <span>
-          <strong>Privilégier le direct</strong>
-          <small>Rattraper automatiquement le retard du lecteur.</small>
+          <strong>{t("Privilégier le direct")}</strong>
+          <small>{t("Rattraper automatiquement le retard du lecteur.")}</small>
         </span>
         <input
           type="checkbox"
@@ -64,19 +85,22 @@ export function PreferencesPage({
         />
       </label>
       <p className="help-text">
-        Le flux principal (MainStream) est sélectionné à l’ouverture de chaque
-        caméra. Vous pouvez choisir un autre flux dans le lecteur. Si aucun flux
-        principal n’est identifié, le profil de plus haute résolution disponible
-        est utilisé. Ce choix ne modifie pas l’encodage de la caméra.
+        {t(
+          "Le flux principal (MainStream) est sélectionné à l’ouverture de chaque caméra. Vous pouvez choisir un autre flux dans le lecteur. Si aucun flux principal n’est identifié, le profil de plus haute résolution disponible est utilisé. Ce choix ne modifie pas l’encodage de la caméra.",
+        )}
       </p>
-      <h3>Apparence</h3>
-      <Field label="Thème">
+      <h3>{t("Apparence")}</h3>
+      <Field label={t("Thème")}>
         <select
+          aria-label={t("Thème")}
           value={theme}
-          onChange={(e) => chooseTheme(e.target.value as "light" | "dark")}
+          onChange={(e) =>
+            chooseTheme(e.target.value as "light" | "dark" | "system")
+          }
         >
-          <option value="light">Clair</option>
-          <option value="dark">Sombre</option>
+          <option value="system">{t("Système")}</option>
+          <option value="light">{t("Clair")}</option>
+          <option value="dark">{t("Sombre")}</option>
         </select>
       </Field>
     </Panel>

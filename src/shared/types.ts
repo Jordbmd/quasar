@@ -120,6 +120,8 @@ export type CameraSession = {
   failures: { id: string; ip: string; message: string }[];
 };
 export type Api = {
+  getLanguage: { input: undefined; output: "fr" | "en" };
+  setLanguage: { input: { language: "fr" | "en" }; output: "fr" | "en" };
   getAutoLogin: { input: undefined; output: AutoLoginStatus };
   saveAutoLogin: { input: AutoLoginInput; output: AutoLoginStatus };
   connectSavedSession: { input: undefined; output: CameraSession };

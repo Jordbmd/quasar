@@ -1,0 +1,1674 @@
+{
+  "project": "quasar",
+  "repo": "Jordbmd/quasar",
+  "workflowRun": 41845127079,
+  "source": "https://github.com/Jordbmd/quasar/actions/runs/41845127079",
+  "branchCommit": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+  "builtCommit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+  "runAttempt": 1,
+  "event": "pull_request",
+  "qualification": "completed-success-exact-run",
+  "published": false,
+  "deployed": false,
+  "rebuilt": false,
+  "retentionRoot": "platform-workspace/.local/retained-rules",
+  "artifacts": [
+    {
+      "id": 13332210424,
+      "name": "quasar-win-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 132741717,
+      "digest": "sha256:ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
+      "expired": false,
+      "createdAt": "2026-11-04T14:22:40Z",
+      "expiresAt": "2026-11-18T14:22:35Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
+      "zipBytes": 132741717,
+      "apiDigest": "sha256:ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents"
+    },
+    {
+      "id": 13329929730,
+      "name": "quasar-mac-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 158684016,
+      "digest": "sha256:df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
+      "expired": false,
+      "createdAt": "2026-11-04T14:18:30Z",
+      "expiresAt": "2026-11-18T14:18:24Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
+      "zipBytes": 158684016,
+      "apiDigest": "sha256:df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents"
+    },
+    {
+      "id": 13330823268,
+      "name": "quasar-linux-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 235753935,
+      "digest": "sha256:3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
+      "expired": false,
+      "createdAt": "2026-11-04T14:19:18Z",
+      "expiresAt": "2026-11-18T14:19:09Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
+      "zipBytes": 235753935,
+      "apiDigest": "sha256:3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents"
+    }
+  ],
+  "image": {
+    "schemaVersion": 1,
+    "project": "quasar-portal",
+    "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "image": "quasar-portal:f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "imageId": "sha256:437a033df2444ecd78470ef6f3259b98a3a9ac636fdf024c93500aa0826716c2",
+    "archive": "quasar-portal-image.tar.gz",
+    "archiveSha256": "36f6d77b854a9a5843518a7ee12006ad6d0cfbafa843a51df7858f8f9ad81e84",
+    "checkedAt": "2026-11-04T14:17:33.494Z",
+    "runtimeVerification": "passed",
+    "registryDigest": null,
+    "registryPublished": false,
+    "deployed": false
+  },
+  "verification": {
+    "checkedAt": "2026-11-04T14:26:16.780Z",
+    "project": "quasar-portal",
+    "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "imageId": "sha256:bde8288039530d8946b76953cec10bb27e882bdc69a7005c9fe421becaa46682",
+    "originalImageId": "sha256:437a033df2444ecd78470ef6f3259b98a3a9ac636fdf024c93500aa0826716c2",
+    "archiveDescriptor": "sha256:bde8288039530d8946b76953cec10bb27e882bdc69a7005c9fe421becaa46682",
+    "archiveSha256": "36f6d77b854a9a5843518a7ee12006ad6d0cfbafa843a51df7858f8f9ad81e84",
+    "loaded": true,
+    "rebuilt": false,
+    "registryPublished": false,
+    "deployed": false
+  },
+  "packages": [
+    {
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents/release/installers/manifest-win.json",
+      "manifest": {
+        "schemaVersion": 1,
+        "project": "quasar",
+        "workingTreeDirty": false,
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:19:08.480Z",
+        "buildHost": {
+          "platform": "win32",
+          "arch": "x64"
+        },
+        "published": false,
+        "installationTested": false,
+        "cameraValidated": false,
+        "version": "0.2.0",
+        "files": [
+          {
+            "platform": "win32",
+            "arch": "x64",
+            "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+            "sha256": "09a87b2729c622aa28b3813502057240545cb8556c199d40562625172d6751b4",
+            "bytes": 120169460,
+            "nativePackaging": true,
+            "signing": {
+              "mode": "unsigned",
+              "installer": "NotSigned",
+              "tool": "Get-AuthenticodeSignature",
+              "checkedAt": "2026-11-04T14:21:42.642Z"
+            }
+          }
+        ]
+      },
+      "files": [
+        {
+          "platform": "win32",
+          "arch": "x64",
+          "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+          "sha256": "09a87b2729c622aa28b3813502057240545cb8556c199d40562625172d6751b4",
+          "bytes": 120169460,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "unsigned",
+            "installer": "NotSigned",
+            "tool": "Get-AuthenticodeSignature",
+            "checkedAt": "2026-11-04T14:21:42.642Z"
+          },
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents/release/installers/Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+          "localChecksumVerified": true,
+          "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+          "installationTestedLocally": false,
+          "cameraValidatedLocally": false
+        }
+      ]
+    },
+    {
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents/release/installers/manifest-mac.json",
+      "manifest": {
+        "schemaVersion": 1,
+        "project": "quasar",
+        "workingTreeDirty": false,
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:17:16.036Z",
+        "buildHost": {
+          "platform": "darwin",
+          "arch": "arm64"
+        },
+        "published": false,
+        "installationTested": false,
+        "cameraValidated": false,
+        "version": "0.2.0",
+        "files": [
+          {
+            "platform": "darwin",
+            "arch": "arm64",
+            "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+            "sha256": "2b9f31d806fa6d732e0476127b8aabb0abc85b9e7fb1e2e2eb9b524d73b31b39",
+            "bytes": 147622320,
+            "nativePackaging": true,
+            "signing": {
+              "mode": "ad-hoc-verified-not-notarized",
+              "application": "Valid",
+              "installer": "NotSigned",
+              "tool": "codesign --verify --deep --strict",
+              "checkedAt": "2026-11-04T14:17:52.576Z",
+              "notarization": "not-checked"
+            }
+          }
+        ]
+      },
+      "files": [
+        {
+          "platform": "darwin",
+          "arch": "arm64",
+          "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+          "sha256": "2b9f31d806fa6d732e0476127b8aabb0abc85b9e7fb1e2e2eb9b524d73b31b39",
+          "bytes": 147622320,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "ad-hoc-verified-not-notarized",
+            "application": "Valid",
+            "installer": "NotSigned",
+            "tool": "codesign --verify --deep --strict",
+            "checkedAt": "2026-11-04T14:17:52.576Z",
+            "notarization": "not-checked"
+          },
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents/release/installers/macOS/Quasar-0.2.0-macOS-arm64.dmg",
+          "localChecksumVerified": true,
+          "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+          "installationTestedLocally": false,
+          "cameraValidatedLocally": false
+        }
+      ]
+    },
+    {
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents/release/installers/manifest-linux.json",
+      "manifest": {
+        "schemaVersion": 1,
+        "project": "quasar",
+        "workingTreeDirty": false,
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:17:53.741Z",
+        "buildHost": {
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "published": false,
+        "installationTested": false,
+        "cameraValidated": false,
+        "version": "0.2.0",
+        "files": [
+          {
+            "platform": "linux",
+            "arch": "x64",
+            "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+            "sha256": "67492d9e3b66ec90a5b54e8ab023acf5ba5b2ec4c4dbe230268e16771dcb4705",
+            "bytes": 143556413,
+            "nativePackaging": true,
+            "signing": {
+              "mode": "unsigned",
+              "installer": "No embedded signature",
+              "tool": "readelf --hex-dump=.sha256_sig",
+              "checkedAt": "2026-11-04T14:18:20.498Z"
+            }
+          }
+        ]
+      },
+      "files": [
+        {
+          "platform": "linux",
+          "arch": "x64",
+          "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+          "sha256": "67492d9e3b66ec90a5b54e8ab023acf5ba5b2ec4c4dbe230268e16771dcb4705",
+          "bytes": 143556413,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "unsigned",
+            "installer": "No embedded signature",
+            "tool": "readelf --hex-dump=.sha256_sig",
+            "checkedAt": "2026-11-04T14:18:20.498Z"
+          },
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents/release/installers/Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+          "localChecksumVerified": true,
+          "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+          "installationTestedLocally": false,
+          "cameraValidatedLocally": false
+        }
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": 126626523350,
+      "name": "scope",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:11:47Z",
+      "completedAt": "2026-11-04T14:11:56Z",
+      "runAttempt": 1
+    },
+    {
+      "id": 126626641521,
+      "name": "macos-14 / mac",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:11:59Z",
+      "completedAt": "2026-11-04T14:18:35Z",
+      "runAttempt": 1
+    },
+    {
+      "id": 126626641584,
+      "name": "ubuntu-22.04 / linux",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:12:00Z",
+      "completedAt": "2026-11-04T14:19:23Z",
+      "runAttempt": 1
+    },
+    {
+      "id": 126626641825,
+      "name": "windows-2022 / win",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:11:59Z",
+      "completedAt": "2026-11-04T14:22:45Z",
+      "runAttempt": 1
+    },
+    {
+      "id": 126632824673,
+      "name": "Required validation",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:22:48Z",
+      "completedAt": "2026-11-04T14:22:51Z",
+      "runAttempt": 1
+    }
+  ],
+  "historicalArtifacts": [
+    {
+      "project": "quasar",
+      "repo": "Jordbmd/quasar",
+      "workflowRun": 41826721312,
+      "source": "https://github.com/Jordbmd/quasar/actions/runs/41826721312",
+      "branchCommit": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+      "builtCommit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+      "runAttempt": 1,
+      "event": "pull_request",
+      "qualification": "completed-success-exact-run",
+      "published": false,
+      "deployed": false,
+      "rebuilt": false,
+      "retentionRoot": "platform-workspace/.local/retained-rules",
+      "artifacts": [
+        {
+          "id": 13321745229,
+          "name": "quasar-win-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 132733852,
+          "digest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "expired": false,
+          "createdAt": "2026-11-04T12:17:42Z",
+          "expiresAt": "2026-11-18T12:17:38Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "zipBytes": 132733852,
+          "apiDigest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents"
+        },
+        {
+          "id": 13321285412,
+          "name": "quasar-mac-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 158689911,
+          "digest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "expired": false,
+          "createdAt": "2026-11-04T12:16:13Z",
+          "expiresAt": "2026-11-18T12:16:07Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "zipBytes": 158689911,
+          "apiDigest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents"
+        },
+        {
+          "id": 13321645080,
+          "name": "quasar-linux-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 235759287,
+          "digest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "expired": false,
+          "createdAt": "2026-11-04T12:16:35Z",
+          "expiresAt": "2026-11-18T12:16:27Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "zipBytes": 235759287,
+          "apiDigest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents"
+        }
+      ],
+      "image": {
+        "schemaVersion": 1,
+        "project": "quasar-portal",
+        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+        "image": "quasar-portal:8306a7d38e4516770b868fd7a0856036cfec509c",
+        "imageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
+        "archive": "quasar-portal-image.tar.gz",
+        "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
+        "checkedAt": "2026-11-04T12:14:43.165Z",
+        "runtimeVerification": "passed",
+        "registryDigest": null,
+        "registryPublished": false,
+        "deployed": false
+      },
+      "verification": {
+        "checkedAt": "2026-11-04T12:19:10.205Z",
+        "project": "quasar-portal",
+        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+        "imageId": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
+        "originalImageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
+        "archiveDescriptor": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
+        "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
+        "loaded": true,
+        "rebuilt": false,
+        "registryPublished": false,
+        "deployed": false
+      },
+      "packages": [
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/manifest-win.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:14:27.749Z",
+            "buildHost": {
+              "platform": "win32",
+              "arch": "x64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "win32",
+                "arch": "x64",
+                "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+                "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
+                "bytes": 120168230,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "unsigned",
+                  "installer": "NotSigned",
+                  "tool": "Get-AuthenticodeSignature",
+                  "checkedAt": "2026-11-04T12:17:00.521Z"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "win32",
+              "arch": "x64",
+              "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+              "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
+              "bytes": 120168230,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "unsigned",
+                "installer": "NotSigned",
+                "tool": "Get-AuthenticodeSignature",
+                "checkedAt": "2026-11-04T12:17:00.521Z"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        },
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/manifest-mac.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:14:59.620Z",
+            "buildHost": {
+              "platform": "darwin",
+              "arch": "arm64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "darwin",
+                "arch": "arm64",
+                "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+                "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
+                "bytes": 147622367,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "ad-hoc-verified-not-notarized",
+                  "application": "Valid",
+                  "installer": "NotSigned",
+                  "tool": "codesign --verify --deep --strict",
+                  "checkedAt": "2026-11-04T12:15:37.935Z",
+                  "notarization": "not-checked"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "darwin",
+              "arch": "arm64",
+              "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+              "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
+              "bytes": 147622367,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "ad-hoc-verified-not-notarized",
+                "application": "Valid",
+                "installer": "NotSigned",
+                "tool": "codesign --verify --deep --strict",
+                "checkedAt": "2026-11-04T12:15:37.935Z",
+                "notarization": "not-checked"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/macOS/Quasar-0.2.0-macOS-arm64.dmg",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        },
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/manifest-linux.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:15:07.133Z",
+            "buildHost": {
+              "platform": "linux",
+              "arch": "x64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "linux",
+                "arch": "x64",
+                "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+                "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
+                "bytes": 143556415,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "unsigned",
+                  "installer": "No embedded signature",
+                  "tool": "readelf --hex-dump=.sha256_sig",
+                  "checkedAt": "2026-11-04T12:15:34.955Z"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "linux",
+              "arch": "x64",
+              "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+              "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
+              "bytes": 143556415,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "unsigned",
+                "installer": "No embedded signature",
+                "tool": "readelf --hex-dump=.sha256_sig",
+                "checkedAt": "2026-11-04T12:15:34.955Z"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": 126563214165,
+          "name": "windows-2022 / win",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:41Z",
+          "completedAt": "2026-11-04T12:17:46Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126563214359,
+          "name": "macos-14 / mac",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:42Z",
+          "completedAt": "2026-11-04T12:16:18Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126563214594,
+          "name": "ubuntu-22.04 / linux",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:42Z",
+          "completedAt": "2026-11-04T12:16:39Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126567694303,
+          "name": "Required validation",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:17:49Z",
+          "completedAt": "2026-11-04T12:17:53Z",
+          "runAttempt": 1
+        }
+      ]
+    },
+    {
+      "platform": "win",
+      "artifactId": 13272316384,
+      "expiresAt": "2026-11-17T21:19:11Z",
+      "archiveSha256": "7a1e7b0c8ec6f3068b3630f93080cb58d2c06c631f0630a4d9aa3bdb1f70808c",
+      "archiveBytes": 132735872,
+      "retainedCopy": ".local\\retained-dd8215f\\win.zip",
+      "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "workflowRun": 41718943481,
+      "workingTreeDirty": false,
+      "files": [
+        {
+          "platform": "win32",
+          "arch": "x64",
+          "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+          "sha256": "e2b5b7a816732833f8abc77eeeaf4cdc56ba7158adf589874c060971144ab03f",
+          "bytes": 120166015,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "unsigned",
+            "installer": "NotSigned",
+            "tool": "Get-AuthenticodeSignature",
+            "checkedAt": "2026-11-03T21:17:56.984Z"
+          }
+        }
+      ],
+      "published": false,
+      "installationTested": false,
+      "cameraValidated": false,
+      "distributedAudit": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-11-03T21:18:53.950Z",
+        "source": "https://api.osv.dev",
+        "goRuntime": "go1.27.3",
+        "binarySha256": "b271d1e37639e1cd91e830522ea9c211225fda24b70110647c577ba9da4a7def",
+        "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+        "results": [
+          {
+            "package": {
+              "ecosystem": "npm",
+              "name": "electron"
+            },
+            "version": "44.9.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "stdlib"
+            },
+            "version": "1.27.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/AlexxIT/go2rtc"
+            },
+            "version": "1.9.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/eclipse/paho.mqtt.golang"
+            },
+            "version": "v1.5.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/expr-lang/expr"
+            },
+            "version": "v1.17.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/google/uuid"
+            },
+            "version": "v1.6.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/gorilla/websocket"
+            },
+            "version": "v1.5.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-colorable"
+            },
+            "version": "v0.1.16",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-isatty"
+            },
+            "version": "v0.0.24",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/miekg/dns"
+            },
+            "version": "v1.1.73",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/datachannel"
+            },
+            "version": "v1.6.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/dtls/v3"
+            },
+            "version": "v3.1.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/ice/v4"
+            },
+            "version": "v4.4.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/interceptor"
+            },
+            "version": "v0.1.51",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/logging"
+            },
+            "version": "v0.2.4",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/mdns/v2"
+            },
+            "version": "v2.2.2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/randutil"
+            },
+            "version": "v0.1.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtcp"
+            },
+            "version": "v1.2.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtp"
+            },
+            "version": "v1.10.6",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sctp"
+            },
+            "version": "v1.12.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sdp/v3"
+            },
+            "version": "v3.0.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/srtp/v3"
+            },
+            "version": "v3.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v3"
+            },
+            "version": "v3.1.7",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v4"
+            },
+            "version": "v4.0.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v4"
+            },
+            "version": "v4.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v5"
+            },
+            "version": "v5.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/turn/v5"
+            },
+            "version": "v5.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/webrtc/v4"
+            },
+            "version": "v4.2.25",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/rs/zerolog"
+            },
+            "version": "v1.35.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc16"
+            },
+            "version": "v0.0.0-20240131213347-83fcde1e29d1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc8"
+            },
+            "version": "v0.0.0-20220107193325-2243fe600f9f",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/tadglines/go-pkgs"
+            },
+            "version": "v0.0.0-20210623144937-b983b20f54f9",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/wlynxg/anet"
+            },
+            "version": "v0.0.5",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/crypto"
+            },
+            "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/net"
+            },
+            "version": "v0.62.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sync"
+            },
+            "version": "v0.24.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sys"
+            },
+            "version": "v0.49.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/time"
+            },
+            "version": "v0.16.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "gopkg.in/yaml.v3"
+            },
+            "version": "v3.0.1",
+            "advisories": []
+          }
+        ]
+      }
+    },
+    {
+      "platform": "mac",
+      "artifactId": 13272076038,
+      "expiresAt": "2026-11-17T21:15:48Z",
+      "archiveSha256": "b1c3901f3b7bbba684392c2e3a67eea4251943748350092ebe5bd027348be452",
+      "archiveBytes": 158672334,
+      "retainedCopy": ".local\\retained-dd8215f\\mac.zip",
+      "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "workflowRun": 41718943481,
+      "workingTreeDirty": false,
+      "files": [
+        {
+          "platform": "darwin",
+          "arch": "arm64",
+          "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+          "sha256": "74ece0e43d7b55efd485a370ee297f6a9bd9fb6223d7e9121adea261678229c2",
+          "bytes": 147625995,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "ad-hoc-verified-not-notarized",
+            "application": "Valid",
+            "installer": "NotSigned",
+            "tool": "codesign --verify --deep --strict",
+            "checkedAt": "2026-11-03T21:15:06.689Z",
+            "notarization": "not-checked"
+          }
+        }
+      ],
+      "published": false,
+      "installationTested": false,
+      "cameraValidated": false,
+      "distributedAudit": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-11-03T21:15:45.612Z",
+        "source": "https://api.osv.dev",
+        "goRuntime": "go1.27.3",
+        "binarySha256": "0c89eaa6628d99de07ddd51de9ec88c6a3936fde2c6024adda40d2cd7858dd25",
+        "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+        "results": [
+          {
+            "package": {
+              "ecosystem": "npm",
+              "name": "electron"
+            },
+            "version": "44.9.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "stdlib"
+            },
+            "version": "1.27.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/AlexxIT/go2rtc"
+            },
+            "version": "1.9.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/eclipse/paho.mqtt.golang"
+            },
+            "version": "v1.5.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/expr-lang/expr"
+            },
+            "version": "v1.17.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/google/uuid"
+            },
+            "version": "v1.6.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/gorilla/websocket"
+            },
+            "version": "v1.5.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-colorable"
+            },
+            "version": "v0.1.16",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-isatty"
+            },
+            "version": "v0.0.24",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/miekg/dns"
+            },
+            "version": "v1.1.73",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/datachannel"
+            },
+            "version": "v1.6.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/dtls/v3"
+            },
+            "version": "v3.1.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/ice/v4"
+            },
+            "version": "v4.4.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/interceptor"
+            },
+            "version": "v0.1.51",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/logging"
+            },
+            "version": "v0.2.4",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/mdns/v2"
+            },
+            "version": "v2.2.2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/randutil"
+            },
+            "version": "v0.1.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtcp"
+            },
+            "version": "v1.2.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtp"
+            },
+            "version": "v1.10.6",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sctp"
+            },
+            "version": "v1.12.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sdp/v3"
+            },
+            "version": "v3.0.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/srtp/v3"
+            },
+            "version": "v3.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v3"
+            },
+            "version": "v3.1.7",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v4"
+            },
+            "version": "v4.0.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v4"
+            },
+            "version": "v4.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v5"
+            },
+            "version": "v5.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/turn/v5"
+            },
+            "version": "v5.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/webrtc/v4"
+            },
+            "version": "v4.2.25",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/rs/zerolog"
+            },
+            "version": "v1.35.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc16"
+            },
+            "version": "v0.0.0-20240131213347-83fcde1e29d1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc8"
+            },
+            "version": "v0.0.0-20220107193325-2243fe600f9f",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/tadglines/go-pkgs"
+            },
+            "version": "v0.0.0-20210623144937-b983b20f54f9",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/wlynxg/anet"
+            },
+            "version": "v0.0.5",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/crypto"
+            },
+            "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/net"
+            },
+            "version": "v0.62.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sync"
+            },
+            "version": "v0.24.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sys"
+            },
+            "version": "v0.49.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/time"
+            },
+            "version": "v0.16.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "gopkg.in/yaml.v3"
+            },
+            "version": "v3.0.1",
+            "advisories": []
+          }
+        ]
+      }
+    },
+    {
+      "platform": "linux",
+      "artifactId": 13271825954,
+      "expiresAt": "2026-11-17T21:14:48Z",
+      "archiveSha256": "1795803c0ad3e794c668965fd098cbcbfcd47ce5dfb2f534e4cb1f56155f531a",
+      "archiveBytes": 235758193,
+      "retainedCopy": ".local\\retained-dd8215f\\linux.zip",
+      "builtCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "branchCommit": "dd8215f8c26f9b0931d1ba7d80bf6d2363cdecb2",
+      "workflowRun": 41718943481,
+      "workingTreeDirty": false,
+      "files": [
+        {
+          "platform": "linux",
+          "arch": "x64",
+          "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+          "sha256": "46e7a84ff3c4b601102febb1e96a85699231b2fd10a39cc88ee526d73bd828fd",
+          "bytes": 143556333,
+          "nativePackaging": true,
+          "signing": {
+            "mode": "unsigned",
+            "installer": "No embedded signature",
+            "tool": "readelf --hex-dump=.sha256_sig",
+            "checkedAt": "2026-11-03T21:14:22.184Z"
+          }
+        }
+      ],
+      "published": false,
+      "installationTested": false,
+      "cameraValidated": false,
+      "distributedAudit": {
+        "schemaVersion": 1,
+        "checkedAt": "2026-11-03T21:14:45.106Z",
+        "source": "https://api.osv.dev",
+        "goRuntime": "go1.27.3",
+        "binarySha256": "2118c970ffc3da22a41d2262774f0fc57ac0dfd52843c3a5f374861bf8bdb46e",
+        "scope": "Electron npm version and modules extracted from the distributed go2rtc binary; version-based, not reachability analysis",
+        "results": [
+          {
+            "package": {
+              "ecosystem": "npm",
+              "name": "electron"
+            },
+            "version": "44.9.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "stdlib"
+            },
+            "version": "1.27.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/AlexxIT/go2rtc"
+            },
+            "version": "1.9.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/eclipse/paho.mqtt.golang"
+            },
+            "version": "v1.5.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/expr-lang/expr"
+            },
+            "version": "v1.17.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/google/uuid"
+            },
+            "version": "v1.6.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/gorilla/websocket"
+            },
+            "version": "v1.5.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-colorable"
+            },
+            "version": "v0.1.16",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/mattn/go-isatty"
+            },
+            "version": "v0.0.24",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/miekg/dns"
+            },
+            "version": "v1.1.73",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/datachannel"
+            },
+            "version": "v1.6.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/dtls/v3"
+            },
+            "version": "v3.1.15",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/ice/v4"
+            },
+            "version": "v4.4.8",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/interceptor"
+            },
+            "version": "v0.1.51",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/logging"
+            },
+            "version": "v0.2.4",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/mdns/v2"
+            },
+            "version": "v2.2.2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/randutil"
+            },
+            "version": "v0.1.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtcp"
+            },
+            "version": "v1.2.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/rtp"
+            },
+            "version": "v1.10.6",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sctp"
+            },
+            "version": "v1.12.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/sdp/v3"
+            },
+            "version": "v3.0.20",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/srtp/v3"
+            },
+            "version": "v3.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v3"
+            },
+            "version": "v3.1.7",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/stun/v4"
+            },
+            "version": "v4.0.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v4"
+            },
+            "version": "v4.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/transport/v5"
+            },
+            "version": "v5.1.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/turn/v5"
+            },
+            "version": "v5.1.3",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/pion/webrtc/v4"
+            },
+            "version": "v4.2.25",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/rs/zerolog"
+            },
+            "version": "v1.35.1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc16"
+            },
+            "version": "v0.0.0-20240131213347-83fcde1e29d1",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/sigurn/crc8"
+            },
+            "version": "v0.0.0-20220107193325-2243fe600f9f",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/tadglines/go-pkgs"
+            },
+            "version": "v0.0.0-20210623144937-b983b20f54f9",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "github.com/wlynxg/anet"
+            },
+            "version": "v0.0.5",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/crypto"
+            },
+            "version": "v0.58.1-0.20261009181718-2f1f834330b2",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/net"
+            },
+            "version": "v0.62.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sync"
+            },
+            "version": "v0.24.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/sys"
+            },
+            "version": "v0.49.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "golang.org/x/time"
+            },
+            "version": "v0.16.0",
+            "advisories": []
+          },
+          {
+            "package": {
+              "ecosystem": "Go",
+              "name": "gopkg.in/yaml.v3"
+            },
+            "version": "v3.0.1",
+            "advisories": []
+          }
+        ]
+      }
+    }
+  ]
+}

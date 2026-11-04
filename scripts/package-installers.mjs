@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import {
@@ -9,12 +9,14 @@ import {
   readFile,
   readdir,
   rename,
+  stat,
   rm,
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { verifySigning } from "./verify-signing.mjs";
 
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -137,6 +139,21 @@ await run(npm, ["run", "build"]);
 await mkdir(output, { recursive: true });
 const work = await mkdtemp(path.join(output, ".packaging-"));
 const manifest = {
+  schemaVersion: 1,
+  project: "quasar",
+  workingTreeDirty: !!execFileSync("git", ["status", "--porcelain"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim(),
+  commit: execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim(),
+  generatedAt: new Date().toISOString(),
+  buildHost: { platform: process.platform, arch: process.arch },
+  published: false,
+  installationTested: false,
+  cameraValidated: false,
   version: JSON.parse(await readFile(path.join(root, "package.json"), "utf8"))
     .version,
   files: [],
@@ -196,11 +213,20 @@ try {
         previous.endsWith(target.extension)
       )
         await rm(path.join(folder, previous));
+    const signing = await verifySigning(
+      path.join(buildFolder, file),
+      buildFolder,
+      target.platform,
+    );
     manifest.files.push({
       platform: target.platform,
       arch: target.arch,
       file: `${target.folder}/${file}`,
       sha256,
+      bytes: (await stat(path.join(folder, file))).size,
+      nativePackaging:
+        process.platform === target.platform && process.arch === target.arch,
+      signing,
     });
     await writeFile(
       path.join(folder, "SHA256SUMS.txt"),
@@ -208,9 +234,9 @@ try {
     );
     const instructions =
       name === "mac"
-        ? `Quasar pour macOS ${target.arch === "arm64" ? "Apple Silicon (M1, M2, M3, M4 et suivants)" : "Intel"}.\nOuvrir le DMG puis glisser Quasar dans Applications.\nAutoriser le réseau local lors de la première recherche de caméras.\nCette version est signée localement, sans notarisation Apple. Si macOS la bloque, utiliser Réglages Système > Confidentialité et sécurité > Ouvrir quand même.\n`
+        ? `Quasar pour macOS ${target.arch === "arm64" ? "Apple Silicon (M1, M2, M3, M4 et suivants)" : "Intel"}.\nOuvrir le DMG puis glisser Quasar dans Applications.\nAutoriser le réseau local lors de la première recherche de caméras.\nÉtat de signature vérifié : ${signing.mode}. Notarisation : ${signing.notarization ?? "non vérifiée"}.\n`
         : name === "win"
-          ? "Quasar pour Windows 64 bits.\nOuvrir le fichier Setup.exe et suivre l’installation pour votre compte utilisateur.\nLe compte administrateur n’est pas nécessaire. L’application est accessible dans le menu Démarrer.\nCet installateur ne dispose pas de certificat de signature de distribution ; Windows peut afficher un avertissement de provenance.\n"
+          ? "Quasar pour Windows 64 bits.\nOuvrir le fichier Setup.exe et suivre l’installation pour votre compte utilisateur.\nLe compte administrateur n’est pas nécessaire. L’application est accessible dans le menu Démarrer.\nConsulter le manifeste pour le résultat du contrôle Authenticode de cet installateur.\n"
           : "Quasar pour Linux 64 bits (x86_64).\nDans les propriétés du fichier AppImage, autoriser son exécution comme programme, puis double-cliquer.\nUn bureau graphique et le support AppImage/FUSE de la distribution sont nécessaires. Le bac à sable Electron reste activé.\nLa commande ip (iproute2) est requise pour détecter la connexion Ethernet.\n";
     await writeFile(
       path.join(folder, "INSTALLATION.txt"),

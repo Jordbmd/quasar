@@ -3,6 +3,7 @@ import { operationMode, type Reply } from "../shared/ipc";
 import type { Api } from "../shared/types";
 import type { CameraService } from "./service";
 import type { Diagnostics } from "./diagnostics";
+import { getLanguage, type Language } from "../shared/i18n";
 
 /** Electron checks the sender; this testable controller owns validation and locking. */
 export class IpcController {
@@ -11,6 +12,11 @@ export class IpcController {
     private service: CameraService,
     private logs: Diagnostics,
     private copyLogs: () => void,
+    private saveLanguage: (
+      language: Language,
+    ) => Promise<Language> = async () => {
+      throw Error("Language preference unavailable");
+    },
   ) {}
   async call(method: unknown, input: unknown): Promise<Reply> {
     if (typeof method !== "string" || !Object.hasOwn(schemas, method))
@@ -35,6 +41,14 @@ export class IpcController {
       };
     if (mode === "exclusive") this.busy = true;
     try {
+      if (action === "getLanguage") return { ok: true, value: getLanguage() };
+      if (action === "setLanguage")
+        return {
+          ok: true,
+          value: await this.saveLanguage(
+            schemas.setLanguage.parse(input).language,
+          ),
+        };
       if (action === "copyLogs") {
         this.copyLogs();
         return { ok: true };
@@ -57,7 +71,7 @@ export class IpcController {
         ok: true,
         value: await this.service.dispatch(
           action,
-          input as Api[keyof Api]["input"],
+          input as Api[typeof action]["input"],
         ),
       };
     } catch (error) {

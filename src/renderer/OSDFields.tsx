@@ -1,3 +1,4 @@
+import { t } from "../shared/i18n";
 import React from "react";
 import type { OSDOptions, OSDValues } from "../shared/osd-options";
 import { osdPositionLabels, osdTextLabels } from "../shared/osd-options";
@@ -11,6 +12,7 @@ export function initialOSD(options: OSDOptions): OSDValues {
   return {
     textType,
     position,
+    // This default is camera configuration data, independent of the UI language.
     ...(textType === "Plain" ? { text: "Caméra" } : {}),
     ...(textType?.includes("Date") && options.dateFormats.length
       ? { dateFormat: options.dateFormats[0] }
@@ -38,7 +40,7 @@ export function OSDFields({
   return (
     <div className="osd-editor">
       {creating && (
-        <Field label="Contenu de l’incrustation">
+        <Field label={t("Contenu de l’incrustation")}>
           <select
             disabled={disabled}
             value={type}
@@ -55,16 +57,16 @@ export function OSDFields({
           >
             {options?.textTypes
               .filter((t) => t in osdTextLabels)
-              .map((t) => (
-                <option key={t} value={t}>
-                  {osdTextLabels[t]}
+              .map((type) => (
+                <option key={type} value={type}>
+                  {t(osdTextLabels[type])}
                 </option>
               ))}
           </select>
         </Field>
       )}
       {type === "Plain" && (
-        <Field label="Texte personnalisé">
+        <Field label={t("Texte personnalisé")}>
           <input
             disabled={disabled}
             maxLength={128}
@@ -74,7 +76,7 @@ export function OSDFields({
         </Field>
       )}
       {!!options?.positions.length && (
-        <Field label="Position de l’incrustation">
+        <Field label={t("Position de l’incrustation")}>
           <select
             value={values.position || ""}
             disabled={disabled}
@@ -89,14 +91,15 @@ export function OSDFields({
           >
             {!options.positions.includes(values.position || "") && (
               <option value={values.position || ""}>
-                {osdPositionLabels[values.position || ""] ||
+                {(osdPositionLabels[values.position || ""] &&
+                  t(osdPositionLabels[values.position || ""])) ||
                   values.position ||
-                  "Position actuelle"}
+                  t("Position actuelle")}
               </option>
             )}
             {options.positions.map((p) => (
               <option key={p} value={p}>
-                {osdPositionLabels[p] || p}
+                {osdPositionLabels[p] ? t(osdPositionLabels[p]) : p}
               </option>
             ))}
           </select>
@@ -105,7 +108,7 @@ export function OSDFields({
       {values.position === "Custom" &&
         options?.positions.includes("Custom") && (
           <>
-            <Field label="Position horizontale">
+            <Field label={t("Position horizontale")}>
               <input
                 type="number"
                 min="-1"
@@ -116,7 +119,7 @@ export function OSDFields({
                 onChange={(e) => onChange({ x: Number(e.target.value) })}
               />
             </Field>
-            <Field label="Position verticale">
+            <Field label={t("Position verticale")}>
               <input
                 type="number"
                 min="-1"
@@ -130,14 +133,14 @@ export function OSDFields({
           </>
         )}
       {type.includes("Date") && !!options?.dateFormats.length && (
-        <Field label="Format de date">
+        <Field label={t("Format de date")}>
           <select
             value={values.dateFormat || ""}
             disabled={disabled}
             onChange={(e) => onChange({ dateFormat: e.target.value })}
           >
             <option value="" disabled>
-              Choisir un format
+              {t("Choisir un format")}
             </option>
             {options.dateFormats.map((f) => (
               <option key={f}>{f}</option>
@@ -146,14 +149,14 @@ export function OSDFields({
         </Field>
       )}
       {type.includes("Time") && !!options?.timeFormats.length && (
-        <Field label="Format de l’heure">
+        <Field label={t("Format de l’heure")}>
           <select
             value={values.timeFormat || ""}
             disabled={disabled}
             onChange={(e) => onChange({ timeFormat: e.target.value })}
           >
             <option value="" disabled>
-              Choisir un format
+              {t("Choisir un format")}
             </option>
             {options.timeFormats.map((f) => (
               <option key={f}>{f}</option>
@@ -162,13 +165,13 @@ export function OSDFields({
         </Field>
       )}
       {options?.fontSize && (
-        <Field label="Taille du texte (pt)">
+        <Field label={t("Taille du texte (pt)")}>
           <input
             type="number"
             min={options.fontSize.min}
             max={options.fontSize.max}
             value={values.fontSize ?? ""}
-            placeholder="Valeur de la caméra"
+            placeholder={t("Valeur de la caméra")}
             disabled={disabled}
             onChange={(e) =>
               onChange({
