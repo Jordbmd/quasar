@@ -1,6 +1,6 @@
 # Validation — revue d’architecture du 4 novembre 2026
 
-**État de cette mission : validations locales ci-dessous ; nouvelles CI, nouveaux artefacts retenus et requalification du laboratoire EN ATTENTE.** Les preuves historiques ne qualifient pas automatiquement le nouveau runtime.
+**État de cette mission : code runtime validé en CI, nouveaux artefacts retenus et laboratoire requalifié le 4 novembre 2026.** Les dernières validations des commits de dossier sont rattachées à la PR ; elles ne changent pas le SHA des images qualifiées.
 
 ## Quasar : changement et preuve locale
 
@@ -18,13 +18,13 @@ Deux échecs RTSP préexistants, cause non établie. Répétitions isolées : 5 
 
 Migration vers le socle v2 : [manifest.json](standards/manifest.json) fait autorité pour version, profil, commit canonique exact et hashes. `node docs/standards/verify.mjs` réussit hors ligne sur les exports présents lors de cette revue : cohérence locale, pas preuve de dernière version distante. Toute mise à jour ultérieure du manifest doit être revérifiée. Les instructions locales restent dans AGENTS ; aucun checkout privé ni secret requis par le vérificateur.
 
-Nettoyage Git limité : ancien worktree Mira `mira-finalisation` et branche locale `codex/finalisation` supprimés ; aucune PR fermée, unique PR Dependabot conservée. Le checkout `finance` reste protégé : **29 entrées / 40 fichiers** ; Singularity est travaillé dans un checkout séparé. Aucune suppression générale de branches ou de données.
+Git Quasar : main, la branche `codex/production-readiness` et sa PR de préparation sont conservées. Aucun nettoyage de branche ou de worktree Quasar, aucune PR Quasar fermée ; aucun travail local supprimé.
 
-- [ ] CI finale sur les nouveaux SHA : résultats à rattacher.
-- [ ] Nouveaux artefacts : checksums, conservation et commit construit à qualifier.
-- [ ] Laboratoire avec ces artefacts : requalification à faire ; aucun ancien résultat réétiqueté.
+- [x] CI du runtime et des règles : [run 41826721312](https://github.com/Jordbmd/quasar/actions/runs/41826721312), source `fc54e19e1907b4b35946deb78e1d1d6ab7de583a`, construit `8306a7d38e4516770b868fd7a0856036cfec509c`. Dernière CI de branche documentaire : voir les checks de la PR.
+- [x] Nouveaux artefacts retenus : archive, checksum, source et commit construit dans [retained-artifacts.json](retained-artifacts.json) ; chargés sans reconstruction.
+- [x] Portail et espace asset Quasar requalifiés dans le laboratoire isolé le 4 novembre ; paquets natifs vérifiés par la CI des trois OS. Aucun test matériel ou installation utilisateur déduit de ces preuves.
 
-Invariants conservés : **12 volumes persistants + PostgreSQL**, `owner_only` pour Mira/Singularity/Orbit, déconnexion application + SSO laissant éventuellement les autres sessions actives. Quasar natif hors ligne sans compte ; Windows/Linux/DMG non signés, application macOS ad hoc sans signature de distribution ni notarisation. Aucun déploiement, fusion, DNS, achat ou publication.
+Périmètre : application native hors ligne sans compte obligatoire ni télémétrie caméra, portail public et espace asset protégé séparément. Windows/Linux/DMG non signés ; application macOS ad hoc sans signature de distribution ni notarisation. Aucun déploiement, fusion, DNS, achat ou publication.
 
 ## Historique — validation antérieure à cette mission
 
@@ -34,21 +34,18 @@ La suite Storybook conserve sa propre instance Axe pour éviter une concurrence 
 
 Les preuves CI et artefacts retenus sont dans [retained-artifacts.json](retained-artifacts.json). Elles identifient le commit réellement construit, distinct du dernier commit documentaire. Les anciennes exécutions ne servent pas à valider un nouveau changement de runtime.
 
-Le laboratoire Platform utilise les vrais runtimes, Authentik et SMTP synthétiques, TLS vérifié et aucun port hôte. Il qualifie SSO/retour, invitations, récupération, expiration/usage unique, MFA et secours, révocation CLI, sessions et limites du logout global. Mira/Singularity/Orbit restent explicitement owner_only.
+Le laboratoire historique qualifie ici uniquement le portail Quasar et son espace asset : accès anonyme ou tiers refusé pour les ressources privées, protection des fichiers/archives/Storybook/iframes et de l’origine. Les mesures web concernent le portail ; aucune statistique ni donnée caméra ne quitte l’application native.
 
-Six interfaces : web-vitals 6.2.3 standard, vues dédupliquées, transport borné sans contenu personnel ; chaîne réelle collecteur/admin, douze rapports CI/audit sourcés, catalogue visible/masqué/vide/panne/cache persistant. Cinq échantillons par mode/app pour le coût et collecteur réellement arrêté pour le test de panne.
+Le portail applique noindex aux pages, fichiers et erreurs. Son collecteur web est borné et abandonnable ; sa panne ne doit pas bloquer la consultation. Les tests de comptes, d’administration ou d’autres applications ne sont pas des preuves de fonctionnement de Quasar natif.
 
-Cinq hôtes asset : vingt contrôles des pages/fichiers/ZIP/Storybook/iframes et accès direct. Compose : réseau DB et Chromium privés, volumes/permissions/health et redémarrage. Douze volumes (applications, identité et Caddy) et PostgreSQL restaurés vers des destinations neuves, vrai login sur les copies ; rollback image et données distincts. Profil Chromium peuplé synthétiquement conservé.
+Les tests ciblés et audits ne sont pas une certification générale. Aucun matériel caméra, installation utilisateur, donnée personnelle ou déploiement réel n’est déclaré testé. La nouvelle image du portail a été requalifiée en laboratoire ; les installations utilisateur et caméras restent à vérifier.
 
-Preuves transverses : doublemart-platform/docs/validation-evidence.json et tests/authentik-integration. Les mesures Docker Desktop ne garantissent pas la capacité du futur VPS. Les tests ciblés et audits ne sont pas une certification générale ; les avis modérés de développement restent visibles. Aucun téléphone, matériel caméra, installation utilisateur, donnée personnelle ou déploiement n’est déclaré testé.
+Le portail historique et son chargement antérieur sont détaillés dans [portal-artifact.json](portal-artifact.json) ; le portail courant qualifié figure dans [retained-artifacts.json](retained-artifacts.json). Docker classique et containerd exposent des identifiants différents : la chaîne OCI archive → manifeste → configuration est vérifiée par hash, ainsi que le label du commit.
 
-Le portail retenu et son chargement sans reconstruction sont détaillés dans [portal-artifact.json](portal-artifact.json). Docker classique et containerd exposent des identifiants différents : la chaîne OCI archive → manifeste → configuration est vérifiée par hash, ainsi que le label du commit.
+## Périmètres de preuve — Quasar
 
-## Périmètres de preuve — reprise du 4 novembre 2026
-
-- **Sauvegarde Compose** : 12 volumes persistants (applications, identité et Caddy) **+ PostgreSQL**, sauvegardé logiquement et restauré dans une base neuve. Preuve : `doublemart-platform/docs/validation-evidence.json`, section `recovery` (8 contrôles). Les neuf volumes applicatifs ne sont pas le total de la plateforme. Les douze relevés de ressources sont un autre décompte.
-- **Déconnexion** : l’action SSO ferme la session de l’application appelante et celle du fournisseur d’identité. Les sessions déjà ouvertes dans les autres applications peuvent rester actives jusqu’à leur expiration ou leur propre déconnexion/révocation. Aucun back-channel logout ni déconnexion instantanée de toutes les applications n’est promis.
-- **Propriétaire** : Mira, Singularity et Orbit réservent les historiques au couple issuer/sub configuré (`owner_only`). Une invitation ne donne pas accès à ces historiques. Portfolio et portail Quasar sont publics ; leurs espaces asset sont protégés séparément. Quasar natif reste hors ligne sans compte obligatoire ; l’administration Platform requiert son habilitation et le MFA.
-- **Signatures Quasar** : Windows, Linux et DMG non signés ; application macOS signée **ad hoc**, vérification `codesign` effectuée, sans signature de distribution ni notarisation. Voir `quasar/docs/retained-artifacts.json`. Aucune recette caméra ou installation utilisateur n’est déduite de la fabrication des paquets.
-- **Local et CI** : chaque résultat conserve sa commande et son commit source. Les 24 scans Axe d’Authentik qualifient l’identité uniquement, pas Orbit. Singularity : **8 tests Storybook dans la CI** (`src/RequestState.stories.tsx`) ; **79 tests dans 8 fichiers lors de l’exécution locale complète**, preuve `Singularity/docs/storybook-full-2026-11-04.json`. Le décompte historique de 79 tests serveur est distinct de Storybook ; la revue actuelle de Singularity en exécute 81.
-- **Artefacts retenus** : les SHA de `retained-artifacts.json` restent ceux des images/paquets réellement conservés. Ces références historiques sont conservées ; les nouveaux artefacts restent en attente de qualification. Les anciennes images Mira/Orbit ne qualifient pas les nouvelles corrections d’interface ; les validations de cette PR et leurs artefacts portent leurs propres SHA. Aucune image n’est déclarée déployée.
+- **Stockage natif** : sauvegardes/imports et migrations sont exercés avec des données synthétiques isolées. Le portail n’a pas de base de données métier. Les éventuels **12 volumes + PostgreSQL** de services partagés sont un périmètre d’exploitation distinct ; ils ne constituent pas la sauvegarde de l’application native Quasar.
+- **Identité** : aucun compte obligatoire ni invitation/récupération applicative pour Quasar natif. Le portail est public ; l’espace asset est authentifié séparément. La déconnexion du fournisseur d’identité ne promet pas la fermeture instantanée des autres sessions et ne déconnecte pas les caméras de l’application locale.
+- **Signatures** : Windows, Linux et DMG non signés ; application macOS signée **ad hoc**, vérification codesign effectuée, sans signature de distribution ni notarisation. Voir [retained-artifacts.json](retained-artifacts.json). Fabriquer un paquet ne prouve ni une installation utilisateur ni une recette caméra.
+- **Local et CI** : les comptes actuels **321 tests passants + 1 skip POSIX**, smoke Electron/Axe, tests de lectures et répétitions RTSP sont décrits plus haut avec leur source. Les 44 stories × 4 variantes et les anciens tests natifs sont historiques ; aucune preuve d’une autre application ne les remplace.
+- **Artefacts retenus** : les SHA de [retained-artifacts.json](retained-artifacts.json) et [portal-artifact.json](portal-artifact.json) sont ceux des paquets/images réellement conservés. Le premier dossier identifie les nouveaux artefacts qualifiés et conserve les anciens séparément ; portal-artifact.json reste une preuve historique. Aucun paquet ni portail n’est déclaré publié ou déployé par cette mission.
