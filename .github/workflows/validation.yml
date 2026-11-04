@@ -10,7 +10,39 @@ concurrency:
   group: quasar-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.22.1
+      - name: Classify actual changed files using the trusted base revision
+        id: scope
+        shell: bash
+        env:
+          CI_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CI_HEAD: ${{ github.sha }}
+        run: |
+          CLASSIFIER='docs/standards/verify.mjs'
+          if [[ "$CI_BASE" =~ ^[a-f0-9]{40}$ ]] && git show "$CI_BASE:$CLASSIFIER" > "$RUNNER_TEMP/rules-base.mjs" && grep -q 'export function runCi' "$RUNNER_TEMP/rules-base.mjs"; then
+            node "$RUNNER_TEMP/rules-base.mjs" --ci
+          else
+            echo 'mode=application' >> "$GITHUB_OUTPUT"
+            echo 'No trusted baseline classifier: full validation required.'
+          fi
+      - name: Lightweight integrity and provenance checks
+        if: steps.scope.outputs.mode == 'rules' || steps.scope.outputs.mode == 'docs'
+        run: node docs/standards/verify.mjs
   native:
+    needs: scope
+    if: needs.scope.outputs.mode == 'application'
     name: ${{ matrix.os }} / ${{ matrix.target }}
     strategy:
       fail-fast: false
@@ -101,13 +133,19 @@ jobs:
   required-validation:
     name: Required validation
     if: always()
-    needs: native
-    runs-on: ubuntu-22.04
-    timeout-minutes: 5
-    env:
-      NATIVE_RESULT: ${{ needs.native.result }}
+    needs: [scope, native]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-      - name: Require every native job to succeed
-        shell: bash
-        run: test "$NATIVE_RESULT" = success
-# No release, deployment or signing service. Trusted reporting is isolated in reports.yml.
+      - name: Require the selected validation path
+        env:
+          SCOPE: ${{ needs.scope.result }}
+          MODE: ${{ needs.scope.outputs.mode }}
+          HEAVY_0: ${{ needs.native.result }}
+        run: |
+          test "$SCOPE" = success
+          case "$MODE" in
+            rules|docs) test "$HEAVY_0" = skipped ;;
+            application) test "$HEAVY_0" = success ;;
+            *) exit 1 ;;
+          esac
