@@ -88,6 +88,26 @@ jobs:
         run: |
           docker build -f Dockerfile.portal --build-arg APP_COMMIT=${{ github.sha }} -t quasar-portal:${{ github.sha }} .
           node scripts/export-portal-image.mjs ${{ github.sha }}
+      - name: Full image advisory scan and reviewed severity gate
+        if: runner.os == 'Linux'
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/trivy-cache"
+          chmod 0777 "$RUNNER_TEMP/trivy-cache" # public advisory DB, ephemeral runner only
+          docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges:true --memory 2g --cpus 2 \
+            --tmpfs /tmp:rw,nosuid,size=512m,mode=1777 --mount "type=bind,src=$RUNNER_TEMP/trivy-cache,dst=/cache" \
+            -e TRIVY_CACHE_DIR=/cache --mount "type=bind,src=$PWD/test-results/portal-image/quasar-portal-image.tar.gz,dst=/image.tar.gz,readonly" \
+            aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+            image --input /image.tar.gz --scanners vuln --skip-java-db-update --offline-scan --no-progress --format json > image-advisories.json
+          node scripts/verify-image-audit.mjs image-advisories.json
+      - name: Retain full image advisory evidence even on gate failure
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: image-security-${{ github.sha }}
+          path: image-advisories.json
+          retention-days: 14
       - name: Isolated Electron runtime
         run: |
           if [ '${{ runner.os }}' = 'Linux' ]; then xvfb-run -a npm run test:ui; else npm run test:ui; fi

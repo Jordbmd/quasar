@@ -24,3 +24,9 @@ coverage/
 *.pfx
 release/
 analysis-output/
+
+image-advisories.json
+
+dependency-advisories.json
+
+python-advisories.json
