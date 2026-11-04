@@ -25,19 +25,19 @@ flowchart LR
 
 ## Responsabilités et tests
 
-| Fonction | Fichiers principaux | Tests |
-| --- | --- | --- |
-| Contrat et exclusivité IPC | shared/types, ipc-schemas, ipc ; main/ipc-controller | ipc-controller, core |
-| Ethernet poste | platform, platforms/*, network | platforms, core |
-| Découverte / identité / conflits | discovery, addressing, lan-addressing, service | discovery-socket, addressing-conflicts, addressing, lan-addressing |
-| Sessions / lectures / reprises | service, onvif, cancellation | session, onvif-retry, cancellation, camera-reader |
-| Compatibilité et writes XML | onvif, encoding, osd | integration, encoding, osd |
-| API constructeur | vendor-profile, vendor-transport, daylight, web-osd | vendor-profile, vendor-transport, portable-transport, daylight-osd |
-| Profil / journal / horloge | defaults, profile-journal, sync-clock, camera-clock | defaults, profile-journal, shipped-profile |
-| Reset usine | factory-reset ; renderer/FactoryReset | factory-reset + fixture UI |
-| Vidéo / processus | video, video-supervisor | integration, playback, video-assets, video-supervisor |
-| Données et migration | storage | storage, smoke Electron isolé |
-| Interface / brouillons | renderer/main, Settings, camera-form-values, camera-reader, pages | camera-reader, ui-fixtures, stories, visual |
+| Fonction                         | Fichiers principaux                                               | Tests                                                              |
+| -------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Contrat et exclusivité IPC       | shared/types, ipc-schemas, ipc ; main/ipc-controller              | ipc-controller, core                                               |
+| Ethernet poste                   | platform, platforms/*, network                                    | platforms, core                                                    |
+| Découverte / identité / conflits | discovery, addressing, lan-addressing, service                    | discovery-socket, addressing-conflicts, addressing, lan-addressing |
+| Sessions / lectures / reprises   | service, onvif, cancellation                                      | session, onvif-retry, cancellation, camera-reader                  |
+| Compatibilité et writes XML      | onvif, encoding, osd                                              | integration, encoding, osd                                         |
+| API constructeur                 | vendor-profile, vendor-transport, daylight, web-osd               | vendor-profile, vendor-transport, portable-transport, daylight-osd |
+| Profil / journal / horloge       | defaults, profile-journal, sync-clock, camera-clock               | defaults, profile-journal, shipped-profile                         |
+| Reset usine                      | factory-reset ; renderer/FactoryReset                             | factory-reset + fixture UI                                         |
+| Vidéo / processus                | video, video-supervisor                                           | integration, playback, video-assets, video-supervisor              |
+| Données et migration             | storage                                                           | storage, smoke Electron isolé                                      |
+| Interface / brouillons           | renderer/main, Settings, camera-form-values, camera-reader, pages | camera-reader, ui-fixtures, stories, visual                        |
 
 ## Décisions de consolidation
 
@@ -77,3 +77,17 @@ pendante, rejet tardif et remplacement/remontage du lecteur, sans caméra réell
 ## Connexion automatique
 
 `main/auto-login.ts` gère le fichier chiffré atomique `camera-login.enc`, avec un chiffreur injecté. La composition Electron utilise les API asynchrones safeStorage et refuse le repli Linux basic_text. Les contrats `getAutoLogin`, `saveAutoLogin`, `connectSavedSession` sont validés et leur politique IPC est explicite. Le service réutilise `connectSession` et ses contrôles réseau ; le renderer tente une seule connexion après disponibilité Ethernet, ne réessaie pas un refus, respecte une déconnexion volontaire. La désactivation efface la mémorisation sans déconnecter une session déjà ouverte. Tests isolés : stockage et suppression, secret non exposé, coffre indisponible/fichier corrompu, réseau refusé, activation et redémarrage, refus sans boucle.
+
+## Clôture de la revue : périmètre examiné et dette
+
+La reprise suivant le bilan du 4 novembre examine les frontières ci-dessous ; elle ne certifie pas toute l’architecture à partir d’un seul refactoring.
+
+| Périmètre examiné                                             | Problème confirmé / correction                                                                                                  | Conservé et justification                                                                                                                   | Dette ou limite                                                                                                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Service caméra : session, sélection, réseau, writes, dispatch | Annulation auparavant trop tardive pendant la garde route, corrigée dans 2869e5f ; tests route pendante/rejet tardif.           | Service propriétaire des sessions et identités, opérations spécialisées séparées ; pas registre dynamique qui masque l’ordre des écritures. | Service encore volumineux, découpe supplémentaire à motiver par un scénario ; firmware et intermittence RTSP restent non certifiés.                         |
+| IPC, preload et schémas                                       | Validation, politiques d’exclusivité/snapshot/annulation et erreurs examinées ; pas de défaut supplémentaire démontré.          | Contrat typé/union discriminée et validation main ; aucune préférence sensible rendue au renderer.                                          | Une nouvelle commande exige contrat/schéma/politique/test ; aucun bypass de sécurité ajouté.                                                                |
+| Coordination React, Box, brouillons et lectures               | Identité de requête réutilisée entre lecteurs corrigée dans 2869e5f ; cycle de vie au démontage et réponse obsolète testés.     | CameraReader dédié, états locaux et confirmations ; Box ne déclenche pas d’écriture caméra.                                                 | main.tsx et Settings restent importants ; absence de réécriture/bus global sans bénéfice démontré.                                                          |
+| Adaptateurs système, transports et vidéo                      | Contrats injectables, délais bornés, arguments validés, source Ethernet et nettoyage examinés ; aucune nouvelle course prouvée. | Adaptateurs OS séparés, macOS curl pour compatibilité, ONVIF/vendor distincts ; writes incertaines jamais réessayées automatiquement.       | Tests injectés/loopback ne valident pas chaque OS/firmware réel ; annuler l’attente ne prouve pas l’arrêt immédiat d’une commande OS déjà partie.           |
+| Persistance, migration et livraison native                    | Manquait une preuve de restauration après copie à froid ; smoke source/paquet étendu, nouveau test de restauration du chiffré.  | Formats historiques, migration non destructive, coffre opt-in ; données natives indépendantes des volumes web.                              | Coffre réel désactivé dans le mode test ; chiffreur injecté distinct. Installation NSIS/DMG/AppImage et migration de clé entre comptes restent hors preuve. |
+
+Graphe revérifié : 114 modules / 336 dépendances sans violation. Knip ne détecte pas de code/dépendance inutilisés ; quatre conseils de configuration restent visibles (entrées redondantes/extensions), pas un défaut runtime. Aucune nouvelle abstraction ni dépendance ajoutée à cette clôture.

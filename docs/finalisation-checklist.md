@@ -11,6 +11,14 @@
 - [x] Nouveaux artefacts retenus : archive, checksum, source et commit construit dans [retained-artifacts.json](retained-artifacts.json) ; chargés sans reconstruction.
 - [x] Portail et espace asset Quasar requalifiés dans le laboratoire isolé le 4 novembre ; paquets natifs vérifiés par la CI des trois OS. Aucun test matériel ou installation utilisateur déduit de ces preuves.
 
+## Clôture complémentaire après le bilan
+
+- [x] Revue explicitée par frontière : examiné, problème confirmé, correction, conservation justifiée et dette dans [ARCHITECTURE.md](ARCHITECTURE.md#clôture-de-la-revue--périmètre-examiné-et-dette). Pas de certification globale déduite du seul refactoring.
+- [x] Restauration native synthétique source et paquet autonome Windows : copie à froid, 67 fichiers comparés, nouvelle destination, Box/langue/thème/journal restaurés, originaux conservés. Commandes et limites dans [validation](finalisation-validation.md#complément-de-clôture--restauration-native-et-paquet-windows).
+- [x] Chiffré restauré avec clé injectée, autre clé refusée, suppression de la copie sans effacer l’original : 35/35 tests ciblés après 34/34 baseline. Coffre OS réel non revendiqué (désactivé en test isolé).
+- [x] Paquet autonome Windows ASAR/relai/persistance relancé ; procédures installation, sauvegarde et signatures préparées sans achat/publication.
+- [ ] Assistant NSIS/DMG/AppImage sur machine jetable, coffre OS réel/migration de compte, signature de distribution/notarisation et caméra autorisée : preuves distinctes non exécutées ici.
+
 ## Historique de préparation antérieur
 
 Les cases suivantes décrivent les preuves précédentes et leur périmètre propre ; elles ne constituent pas une validation nouvelle. Les SHA des artefacts historiques restent inchangés.
