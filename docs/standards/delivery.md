@@ -1,4 +1,4 @@
-<!-- Generated rules; version=2.0.1; source=Jordbmd/doublemart-platform@7028752ade32c06346120aa02853306579fbb322:docs/standards/delivery.md -->
+<!-- Generated rules; version=3.0.0; source=Jordbmd/doublemart-platform@3378bc776d33e25f3e07aed8c9739beebd501013:docs/standards/delivery.md -->
 # CI et préparation de livraison
 
 - Docker Compose pour cette phase, sans chantier Kubernetes. Noms de service/alias uniques ; seul le proxy d’entrée publie les ports requis. Bases et navigateurs automatisés sur des réseaux distincts.
@@ -10,3 +10,4 @@
 - Sauvegarde cohérente avant migration : arrêter/coordonner les écrivains, inclure fichiers et profils nécessaires, sauvegarde logique des bases concernées. Restaurer dans des destinations neuves et vérifier intégrité et parcours. Retour arrière image et données sont deux opérations distinctes ; conserver les originaux.
 - CD manuelle, inactive sans configuration explicite, sérialisée et sans annuler une migration. Aucune fusion, release, modification DNS, publication ou mise en production déduite de la réussite d’une CI.
 - Les scripts de synchronisation privilégiés exécutent uniquement le code canonique de confiance. Ils peuvent lire et modifier les exports sélectionnés, jamais exécuter le code du projet cible avec leurs secrets.
+- Une modification limitée aux règles documentaires utilise les contrôles légers de provenance, empreintes, références et liste publique ; pas de build, packaging, E2E, Storybook ou déploiement. La décision repose sur le diff Git réel et un classificateur issu de la révision de base, pas sur auteur, label ou message. Un changement mixte suit la validation normale ; générateur, vérificateur et workflows sont de l’outillage à tester. Le contrôle requis termine explicitement, même quand les jobs lourds sont ignorés.
