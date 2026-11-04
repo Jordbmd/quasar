@@ -1,4 +1,4 @@
-// Generated rules; version=3.0.0; source=Jordbmd/doublemart-platform@3378bc776d33e25f3e07aed8c9739beebd501013:scripts/rules/verify-export.mjs
+// Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:scripts/rules/verify-export.mjs
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -178,18 +178,17 @@ export function classifyChange({
       )
         return "rules";
     } else {
-      const before = verifyFiles(readBefore()),
-        after = verifyFiles(readAfter());
+      const previousFiles = readBefore(),
+        nextFiles = readAfter();
+      const before = verifyFiles(previousFiles),
+        after = verifyFiles(nextFiles);
       if (before.profile !== after.profile)
         throw new Error("Rules profile changed.");
-      const oldScript = readBefore()
-        ["verify.mjs"].split("\n")
+      const oldScript = previousFiles["verify.mjs"]
+        .split("\n")
         .slice(1)
         .join("\n");
-      const newScript = readAfter()
-        ["verify.mjs"].split("\n")
-        .slice(1)
-        .join("\n");
+      const newScript = nextFiles["verify.mjs"].split("\n").slice(1).join("\n");
       if (oldScript === newScript) return "rules";
       return "application"; // A generated executable is tooling, not documentation.
     }

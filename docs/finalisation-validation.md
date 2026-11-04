@@ -1,5 +1,13 @@
 # Validation — revue d’architecture du 4 novembre 2026
 
+## Qualification de clôture — 4 novembre 2026
+
+[CI du runtime retenu](https://github.com/Jordbmd/quasar/actions/runs/41845127079) réussie : source de branche `7b0051d680d3c61208a900f65cbbe18b114159d0`, commit construit `f3946b3e466c3ab740aa8f79643dcec31de50c08`. [Manifeste et checksums](retained-artifacts.json) : archives conservées et vérifiées, images chargées sans reconstruction. La tête documentaire peut être ultérieure ; ses [contrôles de PR](https://github.com/Jordbmd/quasar/pull/1/checks) restent distincts de l’image.
+
+Portail et espace asset qualifiés dans le laboratoire ; restauration native source et paquet testée séparément sur les trois OS. Ces tests ne sont ni une recette installateur utilisateur ni une caméra réelle. Qualification terminée à **2026-11-04T14:43:41.579Z** ; commandes, images exactes, empreintes et limites dans `doublemart-platform/docs/validation-evidence.json`, section `premergeClosure.runtimeQualification`. La qualification précédente de 12:40 UTC reste historique.
+
+Export **3.0.1**, canonique **3bda38909cf8f9c7b3a406ce791fa4543d988e2d**, cohérent hors ligne. Le diff Git détermine les validations : règles documentaires seules légères, changements mixtes complets et outillage testé. La propagation future écrit uniquement les exports sur main, sans PR/branche temporaire/commit inutile ; elle reste inactive avant les fusions et la configuration sécurisée. Aucun déploiement, aucune branche de travail synchronisée automatiquement.
+
 **État de cette mission : code runtime validé en CI, nouveaux artefacts retenus et laboratoire requalifié le 4 novembre 2026.** Les dernières validations des commits de dossier sont rattachées à la PR ; elles ne changent pas le SHA des images qualifiées.
 
 ## Quasar : changement et preuve locale
@@ -16,7 +24,7 @@ Deux échecs RTSP préexistants, cause non établie. Répétitions isolées : 5 
 
 ## Règles partagées et nettoyage
 
-Migration vers le socle v2 : [manifest.json](standards/manifest.json) fait autorité pour version, profil, commit canonique exact et hashes. `node docs/standards/verify.mjs` réussit hors ligne sur les exports présents lors de cette revue : cohérence locale, pas preuve de dernière version distante. Toute mise à jour ultérieure du manifest doit être revérifiée. Les instructions locales restent dans AGENTS ; aucun checkout privé ni secret requis par le vérificateur.
+Migration vers le socle versionné : [manifest.json](standards/manifest.json) fait autorité pour version, profil, commit canonique exact et hashes. `node docs/standards/verify.mjs` réussit hors ligne sur les exports présents lors de cette revue : cohérence locale, pas preuve de dernière version distante. Toute mise à jour ultérieure du manifest doit être revérifiée. Les instructions locales restent dans AGENTS ; aucun checkout privé ni secret requis par le vérificateur.
 
 Git Quasar : main, la branche `codex/production-readiness` et sa PR de préparation sont conservées. Aucun nettoyage de branche ou de worktree Quasar, aucune PR Quasar fermée ; aucun travail local supprimé.
 
@@ -49,6 +57,8 @@ Le portail historique et son chargement antérieur sont détaillés dans [portal
 - **Signatures** : Windows, Linux et DMG non signés ; application macOS signée **ad hoc**, vérification codesign effectuée, sans signature de distribution ni notarisation. Voir [retained-artifacts.json](retained-artifacts.json). Fabriquer un paquet ne prouve ni une installation utilisateur ni une recette caméra.
 - **Local et CI** : les comptes actuels **321 tests passants + 1 skip POSIX**, smoke Electron/Axe, tests de lectures et répétitions RTSP sont décrits plus haut avec leur source. Les 44 stories × 4 variantes et les anciens tests natifs sont historiques ; aucune preuve d’une autre application ne les remplace.
 - **Artefacts retenus** : les SHA de [retained-artifacts.json](retained-artifacts.json) et [portal-artifact.json](portal-artifact.json) sont ceux des paquets/images réellement conservés. Le premier dossier identifie les nouveaux artefacts qualifiés et conserve les anciens séparément ; portal-artifact.json reste une preuve historique. Aucun paquet ni portail n’est déclaré publié ou déployé par cette mission.
+
+La nouvelle CI conserve six rapports natifs (source et paquet sur macOS/Linux/Windows) : restauration à froid, réouverture et comparaison de 56/57/61 fichiers selon le système. Les 67 fichiers du test local antérieur restent un autre résultat. Le coffre OS réel est désactivé en mode isolé ; le test de chiffrement injecté ne prouve pas une migration de coffre entre comptes.
 
 ## Complément de clôture : restauration native et paquet Windows
 

@@ -2,16 +2,18 @@
 
 État de cette mission au 4 novembre 2026. Validations locales et historique antérieur séparés ; aucune ancienne CI ne qualifie les nouveaux changements.
 
-## Revue actuelle
+## Qualification précédente — 12:40 UTC
 
 - [x] Architecture et régressions locales au commit runtime `2869e5f94734b9237eb10a00f2bf417c77e0891c` : [commandes, mesures avant/après et limites](finalisation-validation.md).
-- [x] Export du socle v2 cohérent hors ligne via `node docs/standards/verify.mjs` ; [manifest](standards/manifest.json) comme autorité de version/source.
+- [x] Export du socle versionné cohérent hors ligne via `node docs/standards/verify.mjs` ; [manifest](standards/manifest.json) comme autorité de version/source.
 - [x] Git Quasar : main, branche et PR de préparation conservées ; aucun nettoyage local de branches/worktrees ni fermeture de PR Quasar.
 - [x] CI du runtime et des règles : [run 41826721312](https://github.com/Jordbmd/quasar/actions/runs/41826721312), source `fc54e19e1907b4b35946deb78e1d1d6ab7de583a`, construit `8306a7d38e4516770b868fd7a0856036cfec509c`. Dernière CI de branche documentaire : voir les checks de la PR.
 - [x] Nouveaux artefacts retenus : archive, checksum, source et commit construit dans [retained-artifacts.json](retained-artifacts.json) ; chargés sans reconstruction.
 - [x] Portail et espace asset Quasar requalifiés dans le laboratoire isolé le 4 novembre ; paquets natifs vérifiés par la CI des trois OS. Aucun test matériel ou installation utilisateur déduit de ces preuves.
 
 ## Clôture complémentaire après le bilan
+
+- [x] Nouvelle CI native trois OS, paquets retenus et portail requalifié : [preuves exactes](finalisation-validation.md#qualification-de-clôture--4-novembre-2026).
 
 - [x] Revue explicitée par frontière : examiné, problème confirmé, correction, conservation justifiée et dette dans [ARCHITECTURE.md](ARCHITECTURE.md#clôture-de-la-revue--périmètre-examiné-et-dette). Pas de certification globale déduite du seul refactoring.
 - [x] Restauration native synthétique source et paquet autonome Windows : copie à froid, 67 fichiers comparés, nouvelle destination, Box/langue/thème/journal restaurés, originaux conservés. Commandes et limites dans [validation](finalisation-validation.md#complément-de-clôture--restauration-native-et-paquet-windows).

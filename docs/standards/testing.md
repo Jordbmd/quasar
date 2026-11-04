@@ -1,4 +1,4 @@
-<!-- Generated rules; version=3.0.0; source=Jordbmd/doublemart-platform@3378bc776d33e25f3e07aed8c9739beebd501013:docs/standards/testing.md -->
+<!-- Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:docs/standards/testing.md -->
 # Tests et preuves
 
 - Avant un refactoring, relever commit, état local et résultats de référence. Vérifier le comportement touché avant/après, pas seulement la compilation. Tester les invariants et cas de panne utiles, pas recopier l’implémentation dans un test.

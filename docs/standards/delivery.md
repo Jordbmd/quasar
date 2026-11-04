@@ -1,4 +1,4 @@
-<!-- Generated rules; version=3.0.0; source=Jordbmd/doublemart-platform@3378bc776d33e25f3e07aed8c9739beebd501013:docs/standards/delivery.md -->
+<!-- Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:docs/standards/delivery.md -->
 # CI et préparation de livraison
 
 - Docker Compose pour cette phase, sans chantier Kubernetes. Noms de service/alias uniques ; seul le proxy d’entrée publie les ports requis. Bases et navigateurs automatisés sur des réseaux distincts.

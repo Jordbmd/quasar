@@ -1,10 +1,10 @@
 {
   "project": "quasar",
   "repo": "Jordbmd/quasar",
-  "workflowRun": 41826721312,
-  "source": "https://github.com/Jordbmd/quasar/actions/runs/41826721312",
-  "branchCommit": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
-  "builtCommit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+  "workflowRun": 41845127079,
+  "source": "https://github.com/Jordbmd/quasar/actions/runs/41845127079",
+  "branchCommit": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+  "builtCommit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
   "runAttempt": 1,
   "event": "pull_request",
   "qualification": "completed-success-exact-run",
@@ -14,76 +14,76 @@
   "retentionRoot": "platform-workspace/.local/retained-rules",
   "artifacts": [
     {
-      "id": 13321745229,
-      "name": "quasar-win-8306a7d38e4516770b868fd7a0856036cfec509c",
-      "bytes": 132733852,
-      "digest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+      "id": 13332210424,
+      "name": "quasar-win-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 132741717,
+      "digest": "sha256:ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
       "expired": false,
-      "createdAt": "2026-11-04T12:17:42Z",
-      "expiresAt": "2026-11-18T12:17:38Z",
-      "workflowRun": 41826721312,
-      "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
-      "zipSha256": "bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
-      "zipBytes": 132733852,
-      "apiDigest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
-      "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/artifact.zip",
-      "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents"
+      "createdAt": "2026-11-04T14:22:40Z",
+      "expiresAt": "2026-11-18T14:22:35Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
+      "zipBytes": 132741717,
+      "apiDigest": "sha256:ef45693f1f4c4daefb0e08c3d84665faa769326a032e9f1ffe9ad9684afe4c3f",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents"
     },
     {
-      "id": 13321285412,
-      "name": "quasar-mac-8306a7d38e4516770b868fd7a0856036cfec509c",
-      "bytes": 158689911,
-      "digest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+      "id": 13329929730,
+      "name": "quasar-mac-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 158684016,
+      "digest": "sha256:df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
       "expired": false,
-      "createdAt": "2026-11-04T12:16:13Z",
-      "expiresAt": "2026-11-18T12:16:07Z",
-      "workflowRun": 41826721312,
-      "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
-      "zipSha256": "ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
-      "zipBytes": 158689911,
-      "apiDigest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
-      "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/artifact.zip",
-      "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents"
+      "createdAt": "2026-11-04T14:18:30Z",
+      "expiresAt": "2026-11-18T14:18:24Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
+      "zipBytes": 158684016,
+      "apiDigest": "sha256:df993388cd675df5a6f66a58b73fc46d0a1ca6ed25a07020d8e79cf02a9bba89",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents"
     },
     {
-      "id": 13321645080,
-      "name": "quasar-linux-8306a7d38e4516770b868fd7a0856036cfec509c",
-      "bytes": 235759287,
-      "digest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+      "id": 13330823268,
+      "name": "quasar-linux-f3946b3e466c3ab740aa8f79643dcec31de50c08",
+      "bytes": 235753935,
+      "digest": "sha256:3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
       "expired": false,
-      "createdAt": "2026-11-04T12:16:35Z",
-      "expiresAt": "2026-11-18T12:16:27Z",
-      "workflowRun": 41826721312,
-      "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
-      "zipSha256": "4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
-      "zipBytes": 235759287,
-      "apiDigest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
-      "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/artifact.zip",
-      "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents"
+      "createdAt": "2026-11-04T14:19:18Z",
+      "expiresAt": "2026-11-18T14:19:09Z",
+      "workflowRun": 41845127079,
+      "headSha": "7b0051d680d3c61208a900f65cbbe18b114159d0",
+      "zipSha256": "3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
+      "zipBytes": 235753935,
+      "apiDigest": "sha256:3c33b69bec4d935dfc290c512cf813768040f973855647e2209b3d2ba15a86a8",
+      "localCopy": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/artifact.zip",
+      "extracted": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents"
     }
   ],
   "image": {
     "schemaVersion": 1,
     "project": "quasar-portal",
-    "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
-    "image": "quasar-portal:8306a7d38e4516770b868fd7a0856036cfec509c",
-    "imageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
+    "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "image": "quasar-portal:f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "imageId": "sha256:437a033df2444ecd78470ef6f3259b98a3a9ac636fdf024c93500aa0826716c2",
     "archive": "quasar-portal-image.tar.gz",
-    "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
-    "checkedAt": "2026-11-04T12:14:43.165Z",
+    "archiveSha256": "36f6d77b854a9a5843518a7ee12006ad6d0cfbafa843a51df7858f8f9ad81e84",
+    "checkedAt": "2026-11-04T14:17:33.494Z",
     "runtimeVerification": "passed",
     "registryDigest": null,
     "registryPublished": false,
     "deployed": false
   },
   "verification": {
-    "checkedAt": "2026-11-04T12:19:10.205Z",
+    "checkedAt": "2026-11-04T14:26:16.780Z",
     "project": "quasar-portal",
-    "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
-    "imageId": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
-    "originalImageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
-    "archiveDescriptor": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
-    "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
+    "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+    "imageId": "sha256:bde8288039530d8946b76953cec10bb27e882bdc69a7005c9fe421becaa46682",
+    "originalImageId": "sha256:437a033df2444ecd78470ef6f3259b98a3a9ac636fdf024c93500aa0826716c2",
+    "archiveDescriptor": "sha256:bde8288039530d8946b76953cec10bb27e882bdc69a7005c9fe421becaa46682",
+    "archiveSha256": "36f6d77b854a9a5843518a7ee12006ad6d0cfbafa843a51df7858f8f9ad81e84",
     "loaded": true,
     "rebuilt": false,
     "registryPublished": false,
@@ -91,13 +91,13 @@
   },
   "packages": [
     {
-      "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/manifest-win.json",
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents/release/installers/manifest-win.json",
       "manifest": {
         "schemaVersion": 1,
         "project": "quasar",
         "workingTreeDirty": false,
-        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
-        "generatedAt": "2026-11-04T12:14:27.749Z",
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:19:08.480Z",
         "buildHost": {
           "platform": "win32",
           "arch": "x64"
@@ -111,14 +111,14 @@
             "platform": "win32",
             "arch": "x64",
             "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
-            "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
-            "bytes": 120168230,
+            "sha256": "09a87b2729c622aa28b3813502057240545cb8556c199d40562625172d6751b4",
+            "bytes": 120169460,
             "nativePackaging": true,
             "signing": {
               "mode": "unsigned",
               "installer": "NotSigned",
               "tool": "Get-AuthenticodeSignature",
-              "checkedAt": "2026-11-04T12:17:00.521Z"
+              "checkedAt": "2026-11-04T14:21:42.642Z"
             }
           }
         ]
@@ -128,16 +128,16 @@
           "platform": "win32",
           "arch": "x64",
           "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
-          "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
-          "bytes": 120168230,
+          "sha256": "09a87b2729c622aa28b3813502057240545cb8556c199d40562625172d6751b4",
+          "bytes": 120169460,
           "nativePackaging": true,
           "signing": {
             "mode": "unsigned",
             "installer": "NotSigned",
             "tool": "Get-AuthenticodeSignature",
-            "checkedAt": "2026-11-04T12:17:00.521Z"
+            "checkedAt": "2026-11-04T14:21:42.642Z"
           },
-          "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13332210424/contents/release/installers/Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
           "localChecksumVerified": true,
           "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
           "installationTestedLocally": false,
@@ -146,13 +146,13 @@
       ]
     },
     {
-      "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/manifest-mac.json",
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents/release/installers/manifest-mac.json",
       "manifest": {
         "schemaVersion": 1,
         "project": "quasar",
         "workingTreeDirty": false,
-        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
-        "generatedAt": "2026-11-04T12:14:59.620Z",
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:17:16.036Z",
         "buildHost": {
           "platform": "darwin",
           "arch": "arm64"
@@ -166,15 +166,15 @@
             "platform": "darwin",
             "arch": "arm64",
             "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
-            "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
-            "bytes": 147622367,
+            "sha256": "2b9f31d806fa6d732e0476127b8aabb0abc85b9e7fb1e2e2eb9b524d73b31b39",
+            "bytes": 147622320,
             "nativePackaging": true,
             "signing": {
               "mode": "ad-hoc-verified-not-notarized",
               "application": "Valid",
               "installer": "NotSigned",
               "tool": "codesign --verify --deep --strict",
-              "checkedAt": "2026-11-04T12:15:37.935Z",
+              "checkedAt": "2026-11-04T14:17:52.576Z",
               "notarization": "not-checked"
             }
           }
@@ -185,18 +185,18 @@
           "platform": "darwin",
           "arch": "arm64",
           "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
-          "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
-          "bytes": 147622367,
+          "sha256": "2b9f31d806fa6d732e0476127b8aabb0abc85b9e7fb1e2e2eb9b524d73b31b39",
+          "bytes": 147622320,
           "nativePackaging": true,
           "signing": {
             "mode": "ad-hoc-verified-not-notarized",
             "application": "Valid",
             "installer": "NotSigned",
             "tool": "codesign --verify --deep --strict",
-            "checkedAt": "2026-11-04T12:15:37.935Z",
+            "checkedAt": "2026-11-04T14:17:52.576Z",
             "notarization": "not-checked"
           },
-          "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/macOS/Quasar-0.2.0-macOS-arm64.dmg",
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13329929730/contents/release/installers/macOS/Quasar-0.2.0-macOS-arm64.dmg",
           "localChecksumVerified": true,
           "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
           "installationTestedLocally": false,
@@ -205,13 +205,13 @@
       ]
     },
     {
-      "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/manifest-linux.json",
+      "manifestPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents/release/installers/manifest-linux.json",
       "manifest": {
         "schemaVersion": 1,
         "project": "quasar",
         "workingTreeDirty": false,
-        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
-        "generatedAt": "2026-11-04T12:15:07.133Z",
+        "commit": "f3946b3e466c3ab740aa8f79643dcec31de50c08",
+        "generatedAt": "2026-11-04T14:17:53.741Z",
         "buildHost": {
           "platform": "linux",
           "arch": "x64"
@@ -225,14 +225,14 @@
             "platform": "linux",
             "arch": "x64",
             "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
-            "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
-            "bytes": 143556415,
+            "sha256": "67492d9e3b66ec90a5b54e8ab023acf5ba5b2ec4c4dbe230268e16771dcb4705",
+            "bytes": 143556413,
             "nativePackaging": true,
             "signing": {
               "mode": "unsigned",
               "installer": "No embedded signature",
               "tool": "readelf --hex-dump=.sha256_sig",
-              "checkedAt": "2026-11-04T12:15:34.955Z"
+              "checkedAt": "2026-11-04T14:18:20.498Z"
             }
           }
         ]
@@ -242,16 +242,16 @@
           "platform": "linux",
           "arch": "x64",
           "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
-          "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
-          "bytes": 143556415,
+          "sha256": "67492d9e3b66ec90a5b54e8ab023acf5ba5b2ec4c4dbe230268e16771dcb4705",
+          "bytes": 143556413,
           "nativePackaging": true,
           "signing": {
             "mode": "unsigned",
             "installer": "No embedded signature",
             "tool": "readelf --hex-dump=.sha256_sig",
-            "checkedAt": "2026-11-04T12:15:34.955Z"
+            "checkedAt": "2026-11-04T14:18:20.498Z"
           },
-          "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+          "installerPath": "platform-workspace/.local/retained-rules/premerge-quasar-41845127079/quasar/13330823268/contents/release/installers/Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
           "localChecksumVerified": true,
           "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
           "installationTestedLocally": false,
@@ -262,43 +262,353 @@
   ],
   "jobs": [
     {
-      "id": 126563214165,
-      "name": "windows-2022 / win",
+      "id": 126626523350,
+      "name": "scope",
       "status": "completed",
       "conclusion": "success",
-      "startedAt": "2026-11-04T12:08:41Z",
-      "completedAt": "2026-11-04T12:17:46Z",
+      "startedAt": "2026-11-04T14:11:47Z",
+      "completedAt": "2026-11-04T14:11:56Z",
       "runAttempt": 1
     },
     {
-      "id": 126563214359,
+      "id": 126626641521,
       "name": "macos-14 / mac",
       "status": "completed",
       "conclusion": "success",
-      "startedAt": "2026-11-04T12:08:42Z",
-      "completedAt": "2026-11-04T12:16:18Z",
+      "startedAt": "2026-11-04T14:11:59Z",
+      "completedAt": "2026-11-04T14:18:35Z",
       "runAttempt": 1
     },
     {
-      "id": 126563214594,
+      "id": 126626641584,
       "name": "ubuntu-22.04 / linux",
       "status": "completed",
       "conclusion": "success",
-      "startedAt": "2026-11-04T12:08:42Z",
-      "completedAt": "2026-11-04T12:16:39Z",
+      "startedAt": "2026-11-04T14:12:00Z",
+      "completedAt": "2026-11-04T14:19:23Z",
       "runAttempt": 1
     },
     {
-      "id": 126567694303,
+      "id": 126626641825,
+      "name": "windows-2022 / win",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-11-04T14:11:59Z",
+      "completedAt": "2026-11-04T14:22:45Z",
+      "runAttempt": 1
+    },
+    {
+      "id": 126632824673,
       "name": "Required validation",
       "status": "completed",
       "conclusion": "success",
-      "startedAt": "2026-11-04T12:17:49Z",
-      "completedAt": "2026-11-04T12:17:53Z",
+      "startedAt": "2026-11-04T14:22:48Z",
+      "completedAt": "2026-11-04T14:22:51Z",
       "runAttempt": 1
     }
   ],
   "historicalArtifacts": [
+    {
+      "project": "quasar",
+      "repo": "Jordbmd/quasar",
+      "workflowRun": 41826721312,
+      "source": "https://github.com/Jordbmd/quasar/actions/runs/41826721312",
+      "branchCommit": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+      "builtCommit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+      "runAttempt": 1,
+      "event": "pull_request",
+      "qualification": "completed-success-exact-run",
+      "published": false,
+      "deployed": false,
+      "rebuilt": false,
+      "retentionRoot": "platform-workspace/.local/retained-rules",
+      "artifacts": [
+        {
+          "id": 13321745229,
+          "name": "quasar-win-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 132733852,
+          "digest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "expired": false,
+          "createdAt": "2026-11-04T12:17:42Z",
+          "expiresAt": "2026-11-18T12:17:38Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "zipBytes": 132733852,
+          "apiDigest": "sha256:bfa9cd05dbc9ee111f65b4966f87b3a93380eb2a0eb578f523f2b2c53ce93c3c",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents"
+        },
+        {
+          "id": 13321285412,
+          "name": "quasar-mac-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 158689911,
+          "digest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "expired": false,
+          "createdAt": "2026-11-04T12:16:13Z",
+          "expiresAt": "2026-11-18T12:16:07Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "zipBytes": 158689911,
+          "apiDigest": "sha256:ab48c541f9e4b3ec32f124f2dcd3c1bf20bc79d36b6cecc22bb4d849b718f472",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents"
+        },
+        {
+          "id": 13321645080,
+          "name": "quasar-linux-8306a7d38e4516770b868fd7a0856036cfec509c",
+          "bytes": 235759287,
+          "digest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "expired": false,
+          "createdAt": "2026-11-04T12:16:35Z",
+          "expiresAt": "2026-11-18T12:16:27Z",
+          "workflowRun": 41826721312,
+          "headSha": "fc54e19e1907b4b35946deb78e1d1d6ab7de583a",
+          "zipSha256": "4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "zipBytes": 235759287,
+          "apiDigest": "sha256:4568f10c27b65e178f4a95c5fd1e6ea927c816492c17a3631b67ede425da0dae",
+          "localCopy": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/artifact.zip",
+          "extracted": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents"
+        }
+      ],
+      "image": {
+        "schemaVersion": 1,
+        "project": "quasar-portal",
+        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+        "image": "quasar-portal:8306a7d38e4516770b868fd7a0856036cfec509c",
+        "imageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
+        "archive": "quasar-portal-image.tar.gz",
+        "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
+        "checkedAt": "2026-11-04T12:14:43.165Z",
+        "runtimeVerification": "passed",
+        "registryDigest": null,
+        "registryPublished": false,
+        "deployed": false
+      },
+      "verification": {
+        "checkedAt": "2026-11-04T12:19:10.205Z",
+        "project": "quasar-portal",
+        "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+        "imageId": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
+        "originalImageId": "sha256:3b99683697046dbe866c0c495bdf4d17110a889ac3319dd12295d34221104016",
+        "archiveDescriptor": "sha256:c45abf4cdf27b93e5ed9435b21fa1f3865f1fad51a19381adc0aad35abcf0f93",
+        "archiveSha256": "8bc8106a8daf9b2c6f0b4e6becd5a4b4e84ac480c12f62ef84ce6bf211d7690b",
+        "loaded": true,
+        "rebuilt": false,
+        "registryPublished": false,
+        "deployed": false
+      },
+      "packages": [
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/manifest-win.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:14:27.749Z",
+            "buildHost": {
+              "platform": "win32",
+              "arch": "x64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "win32",
+                "arch": "x64",
+                "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+                "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
+                "bytes": 120168230,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "unsigned",
+                  "installer": "NotSigned",
+                  "tool": "Get-AuthenticodeSignature",
+                  "checkedAt": "2026-11-04T12:17:00.521Z"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "win32",
+              "arch": "x64",
+              "file": "Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+              "sha256": "e1852aa9619669ef75b8c542eaa57ac714d04d7de5797471cf14311d65e0f95d",
+              "bytes": 120168230,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "unsigned",
+                "installer": "NotSigned",
+                "tool": "Get-AuthenticodeSignature",
+                "checkedAt": "2026-11-04T12:17:00.521Z"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321745229/contents/release/installers/Windows/Quasar-0.2.0-Windows-x64-Setup.exe",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        },
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/manifest-mac.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:14:59.620Z",
+            "buildHost": {
+              "platform": "darwin",
+              "arch": "arm64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "darwin",
+                "arch": "arm64",
+                "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+                "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
+                "bytes": 147622367,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "ad-hoc-verified-not-notarized",
+                  "application": "Valid",
+                  "installer": "NotSigned",
+                  "tool": "codesign --verify --deep --strict",
+                  "checkedAt": "2026-11-04T12:15:37.935Z",
+                  "notarization": "not-checked"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "darwin",
+              "arch": "arm64",
+              "file": "macOS/Quasar-0.2.0-macOS-arm64.dmg",
+              "sha256": "5641e3b2320a56ca05d20f647913170684b17e055ebd2bbc9a153a024e31d77d",
+              "bytes": 147622367,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "ad-hoc-verified-not-notarized",
+                "application": "Valid",
+                "installer": "NotSigned",
+                "tool": "codesign --verify --deep --strict",
+                "checkedAt": "2026-11-04T12:15:37.935Z",
+                "notarization": "not-checked"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321285412/contents/release/installers/macOS/Quasar-0.2.0-macOS-arm64.dmg",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        },
+        {
+          "manifestPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/manifest-linux.json",
+          "manifest": {
+            "schemaVersion": 1,
+            "project": "quasar",
+            "workingTreeDirty": false,
+            "commit": "8306a7d38e4516770b868fd7a0856036cfec509c",
+            "generatedAt": "2026-11-04T12:15:07.133Z",
+            "buildHost": {
+              "platform": "linux",
+              "arch": "x64"
+            },
+            "published": false,
+            "installationTested": false,
+            "cameraValidated": false,
+            "version": "0.2.0",
+            "files": [
+              {
+                "platform": "linux",
+                "arch": "x64",
+                "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+                "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
+                "bytes": 143556415,
+                "nativePackaging": true,
+                "signing": {
+                  "mode": "unsigned",
+                  "installer": "No embedded signature",
+                  "tool": "readelf --hex-dump=.sha256_sig",
+                  "checkedAt": "2026-11-04T12:15:34.955Z"
+                }
+              }
+            ]
+          },
+          "files": [
+            {
+              "platform": "linux",
+              "arch": "x64",
+              "file": "Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+              "sha256": "a53aeb006f91dc5c526fa40193af9ffd132dde6b20ef26c5513aa1251648836a",
+              "bytes": 143556415,
+              "nativePackaging": true,
+              "signing": {
+                "mode": "unsigned",
+                "installer": "No embedded signature",
+                "tool": "readelf --hex-dump=.sha256_sig",
+                "checkedAt": "2026-11-04T12:15:34.955Z"
+              },
+              "installerPath": "platform-workspace/.local/retained-rules/rules-quasar-41826721312/quasar/13321645080/contents/release/installers/Linux/Quasar-0.2.0-Linux-x86_64.AppImage",
+              "localChecksumVerified": true,
+              "signatureEvidence": "reported-by-native-CI; not revalidated by this retention helper",
+              "installationTestedLocally": false,
+              "cameraValidatedLocally": false
+            }
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": 126563214165,
+          "name": "windows-2022 / win",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:41Z",
+          "completedAt": "2026-11-04T12:17:46Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126563214359,
+          "name": "macos-14 / mac",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:42Z",
+          "completedAt": "2026-11-04T12:16:18Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126563214594,
+          "name": "ubuntu-22.04 / linux",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:08:42Z",
+          "completedAt": "2026-11-04T12:16:39Z",
+          "runAttempt": 1
+        },
+        {
+          "id": 126567694303,
+          "name": "Required validation",
+          "status": "completed",
+          "conclusion": "success",
+          "startedAt": "2026-11-04T12:17:49Z",
+          "completedAt": "2026-11-04T12:17:53Z",
+          "runAttempt": 1
+        }
+      ]
+    },
     {
       "platform": "win",
       "artifactId": 13272316384,

@@ -1,4 +1,4 @@
-<!-- Generated rules; version=3.0.0; source=Jordbmd/doublemart-platform@3378bc776d33e25f3e07aed8c9739beebd501013:docs/standards/ui-ux.md -->
+<!-- Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:docs/standards/ui-ux.md -->
 # Interfaces et expérience
 
 - Conserver l’identité graphique, les contenus validés, tokens et composants réels. Hiérarchie lisible, actions utiles, textes courts, densité adaptée ; pas de décoration ni de slogan inventé pour masquer un manque fonctionnel.
