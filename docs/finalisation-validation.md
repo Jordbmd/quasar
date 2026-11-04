@@ -1,4 +1,32 @@
-# Validation de la reprise — 3 novembre 2026
+# Validation — revue d’architecture du 4 novembre 2026
+
+**État de cette mission : validations locales ci-dessous ; nouvelles CI, nouveaux artefacts retenus et requalification du laboratoire EN ATTENTE.** Les preuves historiques ne qualifient pas automatiquement le nouveau runtime.
+
+## Quasar : changement et preuve locale
+
+Source avant : `49648367b2364448f151a52ebec78079f76ac1d4`. Commit runtime corrigé : `2869e5f94734b9237eb10a00f2bf417c77e0891c` (distinct du futur commit documentaire, des règles et de la CI). Journal détaillé local : `.local/architecture-review-result.md`.
+
+CameraService possède l’annulation dès la garde de route ; aucun accès caméra ni cache après résultat tardif. `abortable` libère ses écouteurs tout en observant les rejets tardifs. CameraReader utilise des identités uniques entre instances. IPC/exclusivité, adaptateurs système, confirmations, écritures incertaines, Box/imports et coffre opt-in conservés.
+
+`node node_modules/vitest/vitest.mjs run` : **315 passent/1 échoue/1 skip avant → 321 passent/1 skip POSIX après**, 37 fichiers. Ciblage cancellation/camera-reader/session/ipc-controller : **21/21**. `npm run check:types`, `check:lint`, `check:architecture`, `check:dependencies`, `build`, `test:ui` passent : 114 modules/336 dépendances, smoke Electron sans caméra (Box/CSV, FR/EN, thèmes, clavier/Axe, sandbox).
+
+`node --experimental-transform-types .local/architecture-measure.mjs` : 5 × 1 000 annulations synthétiques ; écouteur encore attaché **5 000/5 000 cas → 0/5 000**, événement obsolète accepté **1 → 0**. Médiane **8,5851 → 8,9320 ms**, aucun gain de vitesse revendiqué ; compte cumulé de cas, pas mémoire résidente.
+
+Deux échecs RTSP préexistants, cause non établie. Répétitions isolées : 5 × `node node_modules/vitest/vitest.mjs run tests/integration.test.ts -t "démarre en local, ne contacte pas le RTSP"` : **5/5**, médiane 1 414 ms ; 5 × même commande avec `-t "envoie TEARDOWN avant de fermer le proxy"` : **5/5**, médiane 2 096 ms, 15 cycles PLAY/TEARDOWN. Timeout 4 000 ms inchangé ; aucune correction du relais revendiquée. Aucun matériel caméra réel.
+
+## Règles partagées et nettoyage
+
+Migration vers le socle v2 : [manifest.json](standards/manifest.json) fait autorité pour version, profil, commit canonique exact et hashes. `node docs/standards/verify.mjs` réussit hors ligne sur les exports présents lors de cette revue : cohérence locale, pas preuve de dernière version distante. Toute mise à jour ultérieure du manifest doit être revérifiée. Les instructions locales restent dans AGENTS ; aucun checkout privé ni secret requis par le vérificateur.
+
+Nettoyage Git limité : ancien worktree Mira `mira-finalisation` et branche locale `codex/finalisation` supprimés ; aucune PR fermée, unique PR Dependabot conservée. Le checkout `finance` reste protégé : **29 entrées / 40 fichiers** ; Singularity est travaillé dans un checkout séparé. Aucune suppression générale de branches ou de données.
+
+- [ ] CI finale sur les nouveaux SHA : résultats à rattacher.
+- [ ] Nouveaux artefacts : checksums, conservation et commit construit à qualifier.
+- [ ] Laboratoire avec ces artefacts : requalification à faire ; aucun ancien résultat réétiqueté.
+
+Invariants conservés : **12 volumes persistants + PostgreSQL**, `owner_only` pour Mira/Singularity/Orbit, déconnexion application + SSO laissant éventuellement les autres sessions actives. Quasar natif hors ligne sans compte ; Windows/Linux/DMG non signés, application macOS ad hoc sans signature de distribution ni notarisation. Aucun déploiement, fusion, DNS, achat ou publication.
+
+## Historique — validation antérieure à cette mission
 
 316 tests Windows et 1 POSIX non applicable ; 317 sur POSIX. 44 stories × 4 variantes, 12 références Windows, 22 RTSP/superviseur.
 
@@ -22,5 +50,5 @@ Le portail retenu et son chargement sans reconstruction sont détaillés dans [p
 - **Déconnexion** : l’action SSO ferme la session de l’application appelante et celle du fournisseur d’identité. Les sessions déjà ouvertes dans les autres applications peuvent rester actives jusqu’à leur expiration ou leur propre déconnexion/révocation. Aucun back-channel logout ni déconnexion instantanée de toutes les applications n’est promis.
 - **Propriétaire** : Mira, Singularity et Orbit réservent les historiques au couple issuer/sub configuré (`owner_only`). Une invitation ne donne pas accès à ces historiques. Portfolio et portail Quasar sont publics ; leurs espaces asset sont protégés séparément. Quasar natif reste hors ligne sans compte obligatoire ; l’administration Platform requiert son habilitation et le MFA.
 - **Signatures Quasar** : Windows, Linux et DMG non signés ; application macOS signée **ad hoc**, vérification `codesign` effectuée, sans signature de distribution ni notarisation. Voir `quasar/docs/retained-artifacts.json`. Aucune recette caméra ou installation utilisateur n’est déduite de la fabrication des paquets.
-- **Local et CI** : chaque résultat conserve sa commande et son commit source. Les 24 scans Axe d’Authentik qualifient l’identité uniquement, pas Orbit. Singularity : **8 tests Storybook dans la CI** (`src/RequestState.stories.tsx`) ; **79 tests dans 8 fichiers lors de l’exécution locale complète**, preuve `Singularity/docs/storybook-full-2026-11-04.json`. Les 79 tests serveur sont encore un compte distinct.
-- **Artefacts retenus** : les SHA de `retained-artifacts.json` restent ceux des images/paquets réellement conservés. Ils ne changent pas avec cette reprise. Les anciennes images Mira/Orbit ne qualifient pas les nouvelles corrections d’interface ; les validations de cette PR et leurs artefacts portent leurs propres SHA. Aucune image n’est déclarée déployée.
+- **Local et CI** : chaque résultat conserve sa commande et son commit source. Les 24 scans Axe d’Authentik qualifient l’identité uniquement, pas Orbit. Singularity : **8 tests Storybook dans la CI** (`src/RequestState.stories.tsx`) ; **79 tests dans 8 fichiers lors de l’exécution locale complète**, preuve `Singularity/docs/storybook-full-2026-11-04.json`. Le décompte historique de 79 tests serveur est distinct de Storybook ; la revue actuelle de Singularity en exécute 81.
+- **Artefacts retenus** : les SHA de `retained-artifacts.json` restent ceux des images/paquets réellement conservés. Ces références historiques sont conservées ; les nouveaux artefacts restent en attente de qualification. Les anciennes images Mira/Orbit ne qualifient pas les nouvelles corrections d’interface ; les validations de cette PR et leurs artefacts portent leurs propres SHA. Aucune image n’est déclarée déployée.

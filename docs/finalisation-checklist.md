@@ -1,10 +1,23 @@
 # Checklist de finalisation — quasar
 
-État au 4 novembre 2026. Les cases cochées couvrent la préparation et la validation synthétique locale/CI. Les interventions réelles restent ouvertes ci-dessous.
+État de cette mission au 4 novembre 2026. Validations locales et historique antérieur séparés ; aucune ancienne CI ne qualifie les nouveaux changements.
+
+## Revue actuelle
+
+- [x] Architecture et régressions locales au commit runtime `2869e5f94734b9237eb10a00f2bf417c77e0891c` : [commandes, mesures avant/après et limites](finalisation-validation.md).
+- [x] Export du socle v2 cohérent hors ligne via `node docs/standards/verify.mjs` ; [manifest](standards/manifest.json) comme autorité de version/source.
+- [x] Nettoyage limité documenté : ancien worktree/branche locale Mira seulement, PR conservées, finance protégé (29 entrées / 40 fichiers).
+- [ ] Nouvelles CI sur les commits finaux : EN ATTENTE.
+- [ ] Nouveaux artefacts retenus et checksums : EN ATTENTE.
+- [ ] Requalification du laboratoire sur ces artefacts : EN ATTENTE.
+
+## Historique de préparation antérieur
+
+Les cases suivantes décrivent les preuves précédentes et leur périmètre propre ; elles ne constituent pas une validation nouvelle. Les SHA des artefacts historiques restent inchangés.
 
 | Fait | ID                                 | Résultat attendu                                                                                                                         | État / preuve courte                                                                                                                                                                                                                                                                               |
 | ---- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [x]  | BASE — Maintenance                 | AGENTS et socle lus ; changements locaux préservés                                                                                       | AGENTS et socle 1.0.1 ; worktree Singularity séparé, 29 changements finance préservés.                                                                                                                                                                                                             |
+| [x]  | BASE — Maintenance                 | AGENTS et socle lus ; changements locaux préservés                                                                                       | Préparation initiale conservée ; migration actuelle et protection des 29 entrées / 40 fichiers finance précisées ci-dessus.                                                                                                                                                                        |
 | [x]  | SEC — Autorisations                | Refus serveur, IPC ou origine ; aucune donnée privée accessible sans habilitation                                                        | Tests IPC/origine/permissions Electron, auto-login et addressing-conflicts ; réseau caméra simulé, aucune écriture réelle.                                                                                                                                                                         |
 | [x]  | INPUT — Entrées                    | XSS/SQL, redirections, uploads et archives bornés ; erreurs sans secret                                                                  | Tests imports/workbook-archive : taille, nombre/expansion des entrées, formules, validation stricte ; XSS et IPC.                                                                                                                                                                                  |
 | [x]  | IDENTITY — Compte                  | Runtime réel avec Authentik : SSO, retour, refus autre compte, expiration et révocation                                                  | Portail public sans données personnelles ; Quasar natif hors ligne sans compte obligatoire. Espace asset distinct protégé par Authentik et tests proxy_five.py.                                                                                                                                    |

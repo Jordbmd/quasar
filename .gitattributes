@@ -7,3 +7,5 @@
 *.woff2 -text
 *.ttf -text
 *.zip -text
+# Generated shared rules use canonical bytes for offline integrity.
+docs/standards/** text eol=lf

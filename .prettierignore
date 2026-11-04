@@ -8,3 +8,5 @@ assets/
 build/
 *.app/
 package-lock.json
+# Generated and verified by docs/standards/verify.mjs
+docs/standards/
