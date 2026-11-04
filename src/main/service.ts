@@ -84,7 +84,7 @@ import {
 } from "./discovery";
 import { cameraAddress, prefix, host, sameSubnet } from "./ip";
 import { VideoRelay } from "./video";
-import { cancelled } from "./cancellation";
+import { abortable, cancelled } from "./cancellation";
 export { schemas } from "../shared/ipc-schemas";
 import { parseRequest } from "../shared/ipc-schemas";
 export class CameraService {
@@ -139,12 +139,18 @@ export class CameraService {
   ) {
     this.detailRequest?.controller.abort(cancelled());
     const controller = new AbortController();
-    const promise = (async () => {
-      const conn = await this.connection(id);
-      return conn.withReadSignal(controller.signal, () =>
-        this.cameraDetail(id, fresh, controller.signal, requestId, scope),
-      );
-    })();
+    // Cancellation owns the whole read, including asynchronous route checks.
+    // A late route result must not start a camera request after selection changed.
+    const promise = abortable(
+      (async () => {
+        const conn = await this.connection(id);
+        controller.signal.throwIfAborted();
+        return conn.withReadSignal(controller.signal, () =>
+          this.cameraDetail(id, fresh, controller.signal, requestId, scope),
+        );
+      })(),
+      controller.signal,
+    );
     const request = { controller, promise };
     this.detailRequest = request;
     return promise.finally(() => {

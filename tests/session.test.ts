@@ -159,6 +159,31 @@ it("remplace une lecture lente et ne remet jamais son résultat périmé dans le
   expect(service.session().connected).toBe(2);
 });
 
+it("annule une lecture pendant la vérification de route sans attendre ni lire la caméra tardivement", async () => {
+  const { service, guard } = fixture(1);
+  await service.dispatch("connectSession", credentials);
+  let release!: (value: { address: string }) => void;
+  const route = new Promise<{ address: string }>(
+    (resolve) => (release = resolve),
+  );
+  guard.assert.mockImplementationOnce(() => route);
+  const pending = service.dispatch("selectCamera", {
+    id: service.cameras[0].id,
+  });
+  const rejected = expect(pending).rejects.toThrow("Lecture remplacée");
+  try {
+    await service.cancelCameraRead();
+    await rejected;
+    expect(mock.connections[0].reads).toBe(0);
+  } finally {
+    release({ address: "192.0.2.2" });
+  }
+  await Promise.resolve();
+  expect(mock.connections[0].reads).toBe(0);
+  expect(service.details.size).toBe(0);
+  expect(service.session().connected).toBe(1);
+});
+
 it("isole un refus, masque le secret et ne répète pas automatiquement l’authentification rejetée", async () => {
   const { service, log } = fixture(2);
   mock.rejected.add("192.0.2.12");

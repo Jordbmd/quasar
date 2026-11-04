@@ -9,11 +9,24 @@ export function abortable<T>(
 ): Promise<T> {
   if (!signal) return work;
   return new Promise<T>((resolve, reject) => {
-    const abort = () => reject(signal.reason ?? cancelled());
+    const cleanup = () => signal.removeEventListener("abort", abort);
+    const abort = () => {
+      cleanup();
+      reject(signal.reason ?? cancelled());
+    };
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) abort();
-    work
-      .then(resolve, reject)
-      .finally(() => signal.removeEventListener("abort", abort));
+    // Observe late failures even after cancellation, but release the signal
+    // immediately: an adapter's work may never settle after its socket closes.
+    work.then(
+      (value) => {
+        cleanup();
+        resolve(value);
+      },
+      (error) => {
+        cleanup();
+        reject(error);
+      },
+    );
   });
 }

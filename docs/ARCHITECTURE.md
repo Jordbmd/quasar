@@ -30,7 +30,7 @@ flowchart LR
 | Contrat et exclusivité IPC | shared/types, ipc-schemas, ipc ; main/ipc-controller | ipc-controller, core |
 | Ethernet poste | platform, platforms/*, network | platforms, core |
 | Découverte / identité / conflits | discovery, addressing, lan-addressing, service | discovery-socket, addressing-conflicts, addressing, lan-addressing |
-| Sessions / lectures / reprises | service, onvif, cancellation | session, onvif-retry, camera-reader |
+| Sessions / lectures / reprises | service, onvif, cancellation | session, onvif-retry, cancellation, camera-reader |
 | Compatibilité et writes XML | onvif, encoding, osd | integration, encoding, osd |
 | API constructeur | vendor-profile, vendor-transport, daylight, web-osd | vendor-profile, vendor-transport, portable-transport, daylight-osd |
 | Profil / journal / horloge | defaults, profile-journal, sync-clock, camera-clock | defaults, profile-journal, shipped-profile |
@@ -48,6 +48,27 @@ L’opération d’horloge est isolée de l’aiguillage des commandes, avec les
 Les pages Diagnostic et Paramètres, les transformations du formulaire et la réception des lectures ont des modules distincts. Le formulaire garde ses brouillons ; une arrivée de capacités ne les écrase pas. Navigation/changement de caméra demande confirmation si nécessaire. Une rupture réseau rend la cible invalide et abandonne explicitement les modifications non envoyées ; elles ne sont jamais appliquées à une nouvelle identité.
 
 Le graphe est contrôlé localement par dependency-cruiser. Pas de bus d’événements global, de conteneur d’injection, de nouveau store React ni de bibliothèque de formulaires.
+
+### Durée de vie des lectures
+
+La revue du 4 novembre 2026 conserve ces frontières et corrige leur coordination.
+`CameraService.selectDetail` possède l’annulation de toute la lecture, y compris
+la vérification asynchrone de route précédant l’accès caméra. Une annulation rend
+la main sans attendre cet adaptateur ; son résultat tardif ne démarre aucune
+lecture et ne remplit aucun cache. Le contrôle de route n’est ni contourné ni
+interrompu au niveau du système d’exploitation.
+
+`abortable` retire son écouteur dès l’annulation ou le règlement de la promesse,
+même si le signal était déjà annulé et que le transport ne se termine jamais.
+Il observe encore un éventuel rejet tardif. Cette primitive ne réessaie aucune
+opération et ne transforme pas une écriture incertaine en réussite.
+
+Dans le renderer, l’identité de requête est unique entre instances de
+`CameraReader`, tandis que la révision reste propre à chaque lecteur. Ainsi,
+remonter un lecteur sur la même caméra ne réaccepte pas les événements de son
+prédécesseur. Les brouillons, la sélection et la vidéo gardent leur coordination
+existante. Les tests ciblés couvrent attente de route, promesse de transport
+pendante, rejet tardif et remplacement/remontage du lecteur, sans caméra réelle.
 
 ## Bibliothèque de Box
 
