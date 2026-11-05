@@ -1,4 +1,4 @@
-<!-- Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:docs/standards/observability.md -->
+<!-- Generated rules; version=3.0.2; source=Jordbmd/doublemart-platform@339e4395bb588e24fc1c8218f8bd89d8b0424ba3:docs/standards/observability.md -->
 # Statistiques et rapports
 
 - Mesures techniques asynchrones et bornées ; elles ne participent jamais à une décision de sécurité. Une panne de collecte ne bloque pas le parcours métier.

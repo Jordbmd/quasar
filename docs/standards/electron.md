@@ -1,4 +1,4 @@
-<!-- Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:docs/standards/electron.md -->
+<!-- Generated rules; version=3.0.2; source=Jordbmd/doublemart-platform@339e4395bb588e24fc1c8218f8bd89d8b0424ba3:docs/standards/electron.md -->
 # Complément application de bureau et matériel
 
 Le processus principal détient les accès système et réseau ; renderer et contrats partagés n’importent pas ces dépendances. Valider le contrat IPC côté principal, contrôler exclusivité et cycle de vie, et nettoyer listeners/streams à la fermeture.

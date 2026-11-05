@@ -1,48 +1,48 @@
 {
   "schemaVersion": 1,
-  "version": "3.0.1",
+  "version": "3.0.2",
   "profile": "electron",
   "source": {
     "repository": "Jordbmd/doublemart-platform",
-    "commit": "3bda38909cf8f9c7b3a406ce791fa4543d988e2d",
+    "commit": "339e4395bb588e24fc1c8218f8bd89d8b0424ba3",
     "release": "docs/standards/release.json"
   },
   "files": {
     "architecture.md": {
       "source": "docs/standards/architecture.md",
-      "sha256": "1b847659d0a62b06ab84bc531344ce6a91883f11cd31d6c324bf34c0eccc7239"
+      "sha256": "bab540228ffe839e6a67d46edd2377ca1598007f86089c270eda83ed3d2ac0b2"
     },
     "core.md": {
       "source": "docs/standards/core.md",
-      "sha256": "bc8f7064ecc69e6c614993974d98bb5498e40d83df3f3c366c699c1769a6d4c6"
+      "sha256": "1cd1093ad2f9a6a272f918f220af746f2ae6af0233fb7443d0e8786b5afedac7"
     },
     "delivery.md": {
       "source": "docs/standards/delivery.md",
-      "sha256": "d7e85c01e11aaf3f1d56076feb954bf70694b57cd9582e16dddb396de3c473b9"
+      "sha256": "0a732f7dce91c9dff1e68a148420b58e7d59e0fe45d74240edda2b303b7eeb14"
     },
     "electron.md": {
       "source": "docs/standards/electron.md",
-      "sha256": "c192180c7fe0e56f1415dbc2bef7ecc5751019305b9cf9567b2b6b99f49b61f3"
+      "sha256": "29328c6e4f99f5d7929951c987afdeb88ae534cc5b10bed872924cf3c79ddacd"
     },
     "observability.md": {
       "source": "docs/standards/observability.md",
-      "sha256": "f12fc3c475dab7fb2632a8c6759a39c7a67663c6520c2d210d6f55072e6b97bb"
+      "sha256": "44eb850c62acd5cf9cccce0cfe04871bebcdc3f32eac26111f41f940b728545a"
     },
     "security.md": {
       "source": "docs/standards/security.md",
-      "sha256": "0e345875ee0317d1151d8960c59dcddc543c8ac4d82eddb8b9a78e246d066efe"
+      "sha256": "0237b29f9cf1c822880f13dd05a1ad59e11177a4dcaf3a298bc6b8cf27b03e37"
     },
     "testing.md": {
       "source": "docs/standards/testing.md",
-      "sha256": "6ad89a53bd6e348c3e9b1c8b67b9cc9e4f6817abfd7efc2309c645c82ce80fdc"
+      "sha256": "9f20605e49fe77713eefd6ef2a06f8c71571a17c03f40d4a58a9f7663f789a91"
     },
     "ui-ux.md": {
       "source": "docs/standards/ui-ux.md",
-      "sha256": "25651c7abc300b4eb0ae86f4e4934e4fdcf6f619c3c4514322b3a31837b9fffb"
+      "sha256": "622db6daa58dbc78ce4e8ec3903b3463648c59438419555a6fddf493bf9f457c"
     },
     "verify.mjs": {
       "source": "scripts/rules/verify-export.mjs",
-      "sha256": "62525280b4ab521922cad003d2fb1d2bbeb1dbb4b39ff1510cd9d9e629c050e3"
+      "sha256": "075ce8b55889347937d05496c755aa2e2697e79430b75c232642fa4aa2e34b8b"
     }
   }
 }

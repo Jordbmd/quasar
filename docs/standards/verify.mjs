@@ -1,4 +1,4 @@
-// Generated rules; version=3.0.1; source=Jordbmd/doublemart-platform@3bda38909cf8f9c7b3a406ce791fa4543d988e2d:scripts/rules/verify-export.mjs
+// Generated rules; version=3.0.2; source=Jordbmd/doublemart-platform@339e4395bb588e24fc1c8218f8bd89d8b0424ba3:scripts/rules/verify-export.mjs
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
